@@ -21,6 +21,22 @@ router.get('/', asyncHandler(async function(req, res, next) {
   }
 }));
 
+router.get('/trending', asyncHandler(async function(req, res, next) {
+  const { limit = 9, offset } = req.query;
+  try {
+    const items = await getNews({ limit, offset });
+    const total = await getNewsCount();
+    return res.json({
+      total,
+      items,
+    });
+  }
+  catch (error) {
+    console.log('[/news] error', error);
+    return res.json(error);
+  }
+}));
+
 async function getNews({ limit = 10, offset = 0, sort , q }) {
   limit = parseInt(limit);
   offset = parseInt(offset);
@@ -68,6 +84,13 @@ async function getNews({ limit = 10, offset = 0, sort , q }) {
 
   let result = await conn.query(query, args);
   return result[0];
+}
+
+async function getNewsCount() {
+  const conn = db.conn.promise();
+  const query = 'SELECT COUNT(*) AS total FROM newsapi';
+  const result = await conn.execute(query);
+  return result[0] && result[0][0] && result[0][0].total || 0;
 }
 
 function obtainNews(page, limit) {
