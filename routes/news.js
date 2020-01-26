@@ -3,18 +3,6 @@ const router = express.Router();
 const asyncHandler = require("express-async-handler");
 
 router.get('/', function(req, res, next) {
-
-function obtainNews(page, limit) {
-    let conn = db.conn;
-    conn.query('SELECT * FROM news LIMIT 10', function (error, results) {
-        if (error) {
-            res.status(400).send('Error in database operation');
-        } else {
-            res.json(results);
-        }
-    });
-}
-
   var q = req.query.q;
   var query = "SELECT * FROM newsapi LIMIT 50";
   if (q) {
@@ -32,6 +20,18 @@ function obtainNews(page, limit) {
           res.json(results);
       }
   });
+});
+
+function obtainNews(page, limit) {
+  let conn = db.conn;
+  conn.query('SELECT * FROM news LIMIT 10', function (error, results) {
+      if (error) {
+          res.status(400).send('Error in database operation');
+      } else {
+          res.json(results);
+      }
+  });
+}
 /* GET home page. */
 router.get('/:page?/:limit?', asyncHandler(async function (req, res, next) {
     try {
