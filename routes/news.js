@@ -9,7 +9,7 @@ const db = require('../system/database');
  * +publishedAt: ORDER BY publishedAt ASC
  * publishedAt: ORDER BY publishedAt ASC
  */
-router.get('/', async function(req, res, next) {
+router.get('/', asyncHandler(async function(req, res, next) {
   const { limit, offset, sort, q } = req.query;
   try {
     const results = await getNews({ limit, offset, sort, q });
@@ -19,7 +19,7 @@ router.get('/', async function(req, res, next) {
     console.log('[/news] error', error);
     return res.json(error);
   }
-});
+}));
 
 async function getNews({ limit = 10, offset = 0, sort , q }) {
   limit = parseInt(limit);
