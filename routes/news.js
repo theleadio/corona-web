@@ -24,7 +24,7 @@ router.get('/', asyncHandler(async function(req, res, next) {
 router.get('/trending', asyncHandler(async function(req, res, next) {
   const { limit = 9, offset } = req.query;
   try {
-    const items = await getNews({ limit, offset });
+    const items = await getNews({ limit, offset, sort: '-nid' });
     const total = await getNewsCount();
     return res.json({
       total,
