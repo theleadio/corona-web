@@ -23,7 +23,7 @@ router.get('/', asyncHandler(async function(req, res, next) {
 
 async function getNews({ limit = 10, offset = 0, sort , q }) {
   limit = parseInt(limit);
-  offset = parseInt(limit);
+  offset = parseInt(offset);
 
   const conn = db.conn.promise();
 
@@ -31,8 +31,8 @@ async function getNews({ limit = 10, offset = 0, sort , q }) {
   let args = [];
 
   if (q) {
-    query += ` WHERE description LIKE %?% `;
-    args.push(q);
+    query += " WHERE `description` LIKE ? ";
+    args.push(`%${q}%`);
   }
 
   if (sort) {
