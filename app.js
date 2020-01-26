@@ -7,7 +7,6 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var newsRouter = require('./routes/news');
-var trendingNewsRouter = require('./routes/trendingNews');
 
 var cors = require('cors')
 
