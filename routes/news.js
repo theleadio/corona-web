@@ -10,9 +10,9 @@ const db = require('../system/database');
  * publishedAt: ORDER BY publishedAt ASC
  */
 router.get('/', asyncHandler(async function(req, res, next) {
-  const { limit, offset, sort, q } = req.query;
+  const { limit, offset, country, sort, q } = req.query;
   try {
-    const results = await getNews({ limit, offset, sort, q });
+    const results = await getNews({ limit, offset, country, sort, q });
     return res.json(results);
   }
   catch (error) {
@@ -37,18 +37,31 @@ router.get('/trending', asyncHandler(async function(req, res, next) {
   }
 }));
 
-async function getNews({ limit = 10, offset = 0, sort , q }) {
+async function getNews({ limit = 10, offset = 0, country, sort , q }) {
   limit = parseInt(limit);
   offset = parseInt(offset);
 
   const conn = db.conn.promise();
 
-  let query = "SELECT * FROM newsapi_n ";
-  let args = [];
+  const args = [];
+  let whereClause ='';
+  let whereConditions =[];
+  let havingClause = '';
+  let orderByClause = '';
+  let limitOffsetClause = '';
 
   if (q) {
-    query += " WHERE `description` LIKE ? ";
+    whereConditions.push('`n.description` LIKE ? ');
     args.push(`%${q}%`);
+  }
+
+  if (whereConditions.length) {
+    whereClause = ` WHERE ` + whereConditions.join(' AND ');
+  }
+
+  if (country) {
+    havingClause = 'HAVING FIND_IN_SET( ? , countryCodes)';
+    args.push(country);
   }
 
   if (sort) {
@@ -67,20 +80,30 @@ async function getNews({ limit = 10, offset = 0, sort , q }) {
       field = sort;
     }
 
-    query += ` ORDER BY ${conn.escapeId(field)} ${direction}`;
+    orderByClause = ` ORDER BY ${conn.escapeId(field)} ${direction}`;
   }
 
   if (limit) {
-    query += ` LIMIT ? `;
+    limitOffsetClause += ` LIMIT ? `;
     args.push(limit);
   }
 
   if (offset) {
-    query += ` OFFSET ? `;
+    limitOffsetClause += ` OFFSET ? `;
     args.push(offset);
   }
 
-  query += ';';
+  let query = `
+SELECT n.*, GROUP_CONCAT(ncm.countryCode) as countryCodes
+FROM newsapi_n AS n 
+LEFT JOIN newsapi_countries_map AS ncm 
+ON n.nid = ncm.nid
+${whereClause}
+GROUP BY n.nid
+${havingClause}
+${orderByClause}
+${limitOffsetClause};
+`;
 
   let result = await conn.query(query, args);
   return result[0];
