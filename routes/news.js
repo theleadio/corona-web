@@ -22,10 +22,10 @@ router.get('/', asyncHandler(async function(req, res, next) {
 }));
 
 router.get('/trending', asyncHandler(async function(req, res, next) {
-  const { limit = 9, offset } = req.query;
+  const { limit = 9, offset, country } = req.query;
   try {
-    const items = await getNews({ limit, offset, sort: '-nid' });
-    const total = await getNewsCount();
+    const items = await getNews({ limit, offset, country, sort: '-nid' });
+    const total = await getNewsCount({ country });
     return res.json({
       total,
       items,
@@ -109,10 +109,17 @@ ${limitOffsetClause};
   return result[0];
 }
 
-async function getNewsCount() {
+async function getNewsCount({ country }) {
   const conn = db.conn.promise();
-  const query = 'SELECT COUNT(*) AS total FROM newsapi_n';
-  const result = await conn.execute(query);
+  let query = ' SELECT COUNT(*) AS total FROM newsapi_n AS n ';
+  const args = [];
+
+  if (country) {
+    query += ' INNER JOIN newsapi_countries_map AS ncm ON n.nid = ncm.nid AND ncm.countryCode = ? GROUP BY n.nid';
+    args.push(country);
+  }
+
+  const result = await conn.execute(query, args);
   return result[0] && result[0][0] && result[0][0].total || 0;
 }
 
