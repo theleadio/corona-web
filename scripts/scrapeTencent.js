@@ -15,7 +15,7 @@ const countryMap = {
   "澳大利亚": "Australia",
   "美国": "United States",
   "越南": "Vietnam",
-  "韩国": "Korea, Republic of",
+  "韩国": "South Korea",
   "马来西亚": "Malaysia",
 };
 const areaMap = {
