@@ -40,7 +40,7 @@ LIMIT 1
   }
 
   let result = await conn.query(query, args);
-  return result[0];
+  return result[0] && result[0][0] || { country, num_confirm: '?', num_suspect: '?', num_dead: '?', num_heal: '?', created: null };
 }
 
 module.exports = router;
