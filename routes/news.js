@@ -10,9 +10,9 @@ const db = require('../system/database');
  * publishedAt: ORDER BY publishedAt ASC
  */
 router.get('/', asyncHandler(async function(req, res, next) {
-  const { limit, offset, countryCode, sort, q } = req.query;
+  const { limit, offset, country, countryCode, sort, q } = req.query;
   try {
-    const results = await getNews({ limit, offset, countryCode, sort, q });
+    const results = await getNews({ limit, offset, country, countryCode, sort, q });
     return res.json(results);
   }
   catch (error) {
@@ -22,10 +22,10 @@ router.get('/', asyncHandler(async function(req, res, next) {
 }));
 
 router.get('/trending', asyncHandler(async function(req, res, next) {
-  const { limit = 9, offset, countryCode } = req.query;
+  const { limit = 9, offset, country, countryCode } = req.query;
   try {
-    const items = await getNews({ limit, offset, countryCode, sort: '-nid' });
-    const total = await getNewsCount({ countryCode });
+    const items = await getNews({ limit, offset, country, countryCode, sort: '-nid' });
+    const total = await getNewsCount({ country, countryCode });
     return res.json({
       total,
       items,
@@ -37,7 +37,7 @@ router.get('/trending', asyncHandler(async function(req, res, next) {
   }
 }));
 
-async function getNews({ limit = 10, offset = 0, countryCode, sort , q }) {
+async function getNews({ limit = 10, offset = 0, country, countryCode, sort , q }) {
   limit = parseInt(limit);
   offset = parseInt(offset);
 
@@ -51,8 +51,13 @@ async function getNews({ limit = 10, offset = 0, countryCode, sort , q }) {
   let limitOffsetClause = '';
 
   if (q) {
-    whereConditions.push('`n.description` LIKE ? ');
+    whereConditions.push(' n.description LIKE ? ');
     args.push(`%${q}%`);
+  }
+
+  if (country) {
+    whereConditions.push(' n.description LIKE ? OR n.title LIKE ?');
+    args.push(`%${country}%`, `%${country}%`);
   }
 
   if (whereConditions.length) {
@@ -109,15 +114,38 @@ ${limitOffsetClause};
   return result[0];
 }
 
-async function getNewsCount({ countryCode }) {
+async function getNewsCount({ country, countryCode }) {
   const conn = db.conn.promise();
-  let query = ' SELECT COUNT(*) AS total FROM newsapi_n AS n ';
   const args = [];
 
+  let joinClause = '';
+  let groupByClause = '';
+  let whereClause = '';
+  let whereConditions = [];
+
+  if (country) {
+    whereConditions.push(' n.description LIKE ? OR n.title LIKE ? ');
+    args.push(`%${country}%`, `%${country}%`);
+  }
+
+  if (whereConditions.length) {
+    whereClause = ' WHERE ' + whereConditions.join(' AND ');
+  }
+
   if (countryCode) {
-    query += ' INNER JOIN newsapi_countries_map AS ncm ON n.nid = ncm.nid AND ncm.countryCode = ? GROUP BY n.nid';
+    joinClause = ' INNER JOIN newsapi_countries_map AS ncm ON n.nid = ncm.nid AND ncm.countryCode = ? ';
+    groupByClause = ' GROUP BY n.nid ';
     args.push(countryCode);
   }
+
+  let query = `
+SELECT COUNT(*) AS total FROM newsapi_n AS n
+${joinClause} 
+${whereClause}
+${groupByClause} 
+`;
+
+  console.log("##### query:", query);
 
   const result = await conn.execute(query, args);
   return result[0] && result[0][0] && result[0][0].total || 0;
