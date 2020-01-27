@@ -43,7 +43,7 @@ async function getNews({ limit = 10, offset = 0, sort , q }) {
 
   const conn = db.conn.promise();
 
-  let query = "SELECT * FROM newsapi ";
+  let query = "SELECT * FROM newsapi_n ";
   let args = [];
 
   if (q) {
@@ -88,7 +88,7 @@ async function getNews({ limit = 10, offset = 0, sort , q }) {
 
 async function getNewsCount() {
   const conn = db.conn.promise();
-  const query = 'SELECT COUNT(*) AS total FROM newsapi';
+  const query = 'SELECT COUNT(*) AS total FROM newsapi_n';
   const result = await conn.execute(query);
   return result[0] && result[0][0] && result[0][0].total || 0;
 }
@@ -115,7 +115,7 @@ router.get('/:page?/:limit?', asyncHandler(async function (req, res, next) {
         let args_query = req.params.limit ? [limit, page] : [];
 
         let conn = db.conn.promise();
-        let query = await conn.execute("SELECT * FROM news" + limit_query, args_query);
+        let query = await conn.execute("SELECT * FROM newsapi_n" + limit_query, args_query);
         let result = query[0];
         res.json(result);
 
