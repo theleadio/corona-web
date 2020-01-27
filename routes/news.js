@@ -10,9 +10,9 @@ const db = require('../system/database');
  * publishedAt: ORDER BY publishedAt ASC
  */
 router.get('/', asyncHandler(async function(req, res, next) {
-  const { limit, offset, country, sort, q } = req.query;
+  const { limit, offset, countryCode, sort, q } = req.query;
   try {
-    const results = await getNews({ limit, offset, country, sort, q });
+    const results = await getNews({ limit, offset, countryCode, sort, q });
     return res.json(results);
   }
   catch (error) {
@@ -22,10 +22,10 @@ router.get('/', asyncHandler(async function(req, res, next) {
 }));
 
 router.get('/trending', asyncHandler(async function(req, res, next) {
-  const { limit = 9, offset, country } = req.query;
+  const { limit = 9, offset, countryCode } = req.query;
   try {
-    const items = await getNews({ limit, offset, country, sort: '-nid' });
-    const total = await getNewsCount({ country });
+    const items = await getNews({ limit, offset, countryCode, sort: '-nid' });
+    const total = await getNewsCount({ countryCode });
     return res.json({
       total,
       items,
@@ -37,7 +37,7 @@ router.get('/trending', asyncHandler(async function(req, res, next) {
   }
 }));
 
-async function getNews({ limit = 10, offset = 0, country, sort , q }) {
+async function getNews({ limit = 10, offset = 0, countryCode, sort , q }) {
   limit = parseInt(limit);
   offset = parseInt(offset);
 
@@ -59,9 +59,9 @@ async function getNews({ limit = 10, offset = 0, country, sort , q }) {
     whereClause = ` WHERE ` + whereConditions.join(' AND ');
   }
 
-  if (country) {
+  if (countryCode) {
     havingClause = 'HAVING FIND_IN_SET( ? , countryCodes)';
-    args.push(country);
+    args.push(countryCode);
   }
 
   if (sort) {
@@ -109,14 +109,14 @@ ${limitOffsetClause};
   return result[0];
 }
 
-async function getNewsCount({ country }) {
+async function getNewsCount({ countryCode }) {
   const conn = db.conn.promise();
   let query = ' SELECT COUNT(*) AS total FROM newsapi_n AS n ';
   const args = [];
 
-  if (country) {
+  if (countryCode) {
     query += ' INNER JOIN newsapi_countries_map AS ncm ON n.nid = ncm.nid AND ncm.countryCode = ? GROUP BY n.nid';
-    args.push(country);
+    args.push(countryCode);
   }
 
   const result = await conn.execute(query, args);
