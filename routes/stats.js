@@ -21,7 +21,12 @@ async function getStats(country) {
   const args = [];
 
   if (!country) {
-    query = `SELECT SUM(num_confirm) AS num_confirm, SUM(num_suspect) AS num_suspect, SUM(num_dead) AS num_dead, SUM(num_heal) AS num_heal, created
+    query = `SELECT 
+CAST(SUM(num_confirm) AS UNSIGNED) AS num_confirm, 
+CAST(SUM(num_suspect) AS UNSIGNED) AS num_suspect,
+CAST(SUM(num_dead) AS UNSIGNED) AS num_dead,
+CAST(SUM(num_heal) AS UNSIGNED) AS num_heal, 
+created
 FROM tencent_data_by_country
 GROUP BY created
 ORDER BY created
