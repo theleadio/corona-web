@@ -29,7 +29,7 @@ CAST(SUM(num_heal) AS UNSIGNED) AS num_heal,
 created
 FROM tencent_data_by_country
 GROUP BY created
-ORDER BY created
+ORDER BY created DESC
 LIMIT 1`;
   }
   else {
@@ -37,7 +37,7 @@ LIMIT 1`;
 SELECT country, num_confirm, num_suspect, num_dead, num_heal, created
 FROM tencent_data_by_country
 WHERE country = ? 
-ORDER BY created 
+ORDER BY created DESC
 LIMIT 1
 `;
 
