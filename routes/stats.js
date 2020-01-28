@@ -23,6 +23,13 @@ router.get('/', asyncHandler(async function (req, res, next) {
   }
 }));
 
+/**
+ * @api {get} /stats/qq
+ * @apiName FetchStatsByQq
+ * @apiGroup Stats
+ *
+ * @apiParam {String} [country] Optional country.
+ */
 router.get('/qq', asyncHandler(async function(req, res, next) {
   const { country } = req.query;
   try {
