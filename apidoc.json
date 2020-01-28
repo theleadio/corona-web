@@ -1,19 +1,18 @@
 {
-    "name": "Coronatracker API Document",
-    "version": "0.0.1",
-    "description": "Coronatracker API Document",
-    "title": "Coronatracker API Document",
-    "url": "http://api.coronatracker.com/",
-    "header": {
-      "title": "",
-      "filename": "header.md"
-    },
-    "footer": {
-      "title": "",
-      "filename": "footer.md"
-    },
-    "template": {
-      "withCompare": true,
-      "withGenerator": true
-    }
+  "name": "Coronatracker API Document",
+  "description": "Coronatracker API Document",
+  "title": "Coronatracker API Document",
+  "url": "http://api.coronatracker.com",
+  "header": {
+    "title": "",
+    "filename": "header.md"
+  },
+  "footer": {
+    "title": "",
+    "filename": "footer.md"
+  },
+  "template": {
+    "withCompare": true,
+    "withGenerator": true
   }
+}
