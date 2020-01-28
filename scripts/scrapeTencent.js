@@ -17,6 +17,8 @@ const countryMap = {
   "越南": "Vietnam",
   "韩国": "South Korea",
   "马来西亚": "Malaysia",
+  "德国": "Germany",
+  "斯里兰卡": "Sri Lanka",
 };
 const areaMap = {
   "湖北": "Hubei",
