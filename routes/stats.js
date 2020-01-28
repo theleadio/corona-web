@@ -3,7 +3,15 @@ const router = express.Router();
 const asyncHandler = require("express-async-handler");
 const db = require('../system/database');
 
-router.get('/', asyncHandler(async function(req, res, next) {
+
+/**
+ * @api {get} /stats
+ * @apiName FetchStats
+ * @apiGroup Stats
+ * 
+ * @apiParam {String} [country] Optional country.  
+ */
+router.get('/', asyncHandler(async function (req, res, next) {
   const { country } = req.query;
   try {
     const results = await getStats(country);

@@ -10,7 +10,7 @@ const db = require('../system/database');
  * publishedAt: ORDER BY publishedAt ASC
  */
 /**
- * @api {post} news Fetch News
+ * @api {post} /news
  * @apiName FetchNews
  * @apiGroup News
  * 
