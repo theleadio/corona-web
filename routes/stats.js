@@ -48,18 +48,9 @@ async function getStatsByArcGis(country) {
   const args = [];
 
   if (!country) {
-//     query = `SELECT
-// CAST(SUM(Confirmed) AS UNSIGNED) AS num_confirm,
-// CAST(SUM(Deaths) AS UNSIGNED) AS num_dead,
-// CAST(SUM(Recovered) AS UNSIGNED) AS num_heal,
-// posted_date
-// FROM arcgis
-// GROUP BY posted_date
-// ORDER BY posted_date DESC
-// LIMIT 1`;
 
     query = `SELECT 
-              agg_confirmed as num_confirmed,
+              agg_confirmed as num_confirm,
               agg_death as num_dead,
               agg_recover as num_heal
           FROM 
@@ -71,12 +62,6 @@ async function getStatsByArcGis(country) {
 `;
   }
   else {
-//     query = `
-// SELECT country, COALESCE(Confirmed, 0) AS num_confirm, COALESCE(Deaths, 0) AS num_dead, COALESCE(Recovered, 0) AS num_heal, posted_date
-// FROM arcgis
-// WHERE country LIKE ?
-// ORDER BY posted_date DESC
-// `;
 
     query = `SELECT 
 agg_country, COALESCE(agg_confirmed, 0) AS num_confirm, COALESCE(agg_death, 0) AS num_dead, COALESCE(agg_recover, 0) AS num_heal, agg_date
