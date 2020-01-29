@@ -9,7 +9,7 @@ const db = require('../system/database');
  * @apiName FetchStats
  * @apiGroup Stats
  * 
- * @apiParam {String} [country] Optional country.  
+ * @apiParam {String} [country] Optional Country to retrieve the stats for.
  */
 router.get('/', asyncHandler(async function (req, res, next) {
   const { country } = req.query;
@@ -28,7 +28,7 @@ router.get('/', asyncHandler(async function (req, res, next) {
  * @apiName FetchStatsByQq
  * @apiGroup Stats
  *
- * @apiParam {String} [country] Optional country.
+ * @apiParam {String} [country] Optional Country to retrieve the stats for.
  */
 router.get('/qq', asyncHandler(async function(req, res, next) {
   const { country } = req.query;
