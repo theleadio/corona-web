@@ -58,11 +58,16 @@ async function getStatsByArcGis(country) {
 // ORDER BY posted_date DESC
 // LIMIT 1`;
 
-    query = `SELECT
-CAST(SUM(agg_confirmed) AS UNSIGNED) AS num_confirm,
-CAST(SUM(agg_death) AS UNSIGNED) AS num_dead,
-CAST(SUM(agg_recover) AS UNSIGNED) AS num_heal
-FROM AGGREGATE_arcgis_country
+    query = `SELECT 
+              agg_confirmed as num_confirmed,
+              agg_death as num_dead,
+              agg_recover as num_heal
+          FROM 
+            AGGREGATE_arcgis 
+          ORDER BY 
+            agg_date DESC 
+          LIMIT 
+            1
 `;
   }
   else {
