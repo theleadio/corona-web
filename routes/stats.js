@@ -83,7 +83,7 @@ async function getStatsByQq(country) {
   if (!country) {
     query = `SELECT
 CAST(SUM(num_confirm) AS UNSIGNED) AS num_confirm,
-CAST(SUM(num_suspect) AS UNSIGNED) AS num_suspect,
+-- CAST(SUM(num_suspect) AS UNSIGNED) AS num_suspect,
 CAST(SUM(num_dead) AS UNSIGNED) AS num_dead,
 CAST(SUM(num_heal) AS UNSIGNED) AS num_heal,
 created
@@ -94,7 +94,8 @@ LIMIT 1`;
   }
   else {
     query = `
-SELECT country, num_confirm, num_suspect, num_dead, num_heal, created
+-- SELECT country, num_confirm, num_suspect, num_dead, num_heal, created
+SELECT country, num_confirm, num_dead, num_heal, created
 FROM tencent_data_by_country
 WHERE country = ?
 ORDER BY created DESC
@@ -105,7 +106,7 @@ LIMIT 1
   }
 
   let result = await conn.query(query, args);
-  return result[0] && result[0][0] || { country, num_confirm: '?', num_suspect: '?', num_dead: '?', num_heal: '?', created: null };
+  return result[0] && result[0][0] || { country, num_confirm: '?', num_dead: '?', num_heal: '?', created: null };
 }
 
 module.exports = router;
