@@ -74,7 +74,7 @@ FROM AGGREGATE_arcgis_country
 // `;
 
     query = `SELECT
-SELECT agg_country, COALESCE(AGGREGATE_arcgis_country, 0) AS num_confirm, COALESCE(agg_death, 0) AS num_dead, COALESCE(agg_recover, 0) AS num_heal, agg_date
+SELECT agg_country, COALESCE(arcgis_confirmed, 0) AS num_confirm, COALESCE(agg_death, 0) AS num_dead, COALESCE(agg_recover, 0) AS num_heal, agg_date
 FROM AGGREGATE_arcgis_country
 WHERE agg_country LIKE ?
 ORDER BY agg_date DESC   
