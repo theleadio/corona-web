@@ -20,7 +20,9 @@ const countryMap = {
   "德国": "Germany",
   "斯里兰卡": "Sri Lanka",
   "芬兰": "Finland",
-  "阿联酋": "United Arab Emirates"
+  "阿联酋": "United Arab Emirates",
+  "菲律宾": "Philippines",
+  "印度": "India",
 };
 const areaMap = {
   "湖北": "Hubei",
