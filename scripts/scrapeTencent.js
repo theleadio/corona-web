@@ -19,6 +19,8 @@ const countryMap = {
   "马来西亚": "Malaysia",
   "德国": "Germany",
   "斯里兰卡": "Sri Lanka",
+  "芬兰": "Finland",
+  "阿联酋": "United Arab Emirates"
 };
 const areaMap = {
   "湖北": "Hubei",
@@ -54,6 +56,7 @@ const areaMap = {
   "澳门": "Macao",
   "内蒙古": "Inner Mongolia",
   "青海": "Qinghai",
+  "西藏": "Tibet"
 };
 
 async function processData(data) {
