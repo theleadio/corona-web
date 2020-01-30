@@ -94,7 +94,7 @@ async function getNews({ limit = 10, offset = 0, country, countryCode, sort, q }
 
   const args = [];
   let whereClause = '';
-  let whereConditions = [];
+  let whereConditions = [' status = 1 '];
   let havingClause = '';
   let orderByClause = '';
   let limitOffsetClause = '';
@@ -170,7 +170,7 @@ async function getNewsCount({ country, countryCode }) {
   let joinClause = '';
   let groupByClause = '';
   let whereClause = '';
-  let whereConditions = [];
+  let whereConditions = [' status = 1 '];
 
   if (country) {
     whereConditions.push(' n.description LIKE ? OR n.title LIKE ? ');
