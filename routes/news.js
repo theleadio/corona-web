@@ -105,7 +105,7 @@ async function getNews({ limit = 10, offset = 0, country, countryCode, language 
   }
 
   if (country) {
-    whereConditions.push(' n.description LIKE ? OR n.title LIKE ?');
+    whereConditions.push(' (n.description LIKE ? OR n.title LIKE ?) ');
     args.push(`%${country}%`, `%${country}%`);
   }
 
@@ -179,7 +179,7 @@ async function getNewsCount({ country, countryCode, language = 'en' }) {
   let whereConditions = [' status = 1 '];
 
   if (country) {
-    whereConditions.push(' n.description LIKE ? OR n.title LIKE ? ');
+    whereConditions.push(' (n.description LIKE ? OR n.title LIKE ?) ');
     args.push(`%${country}%`, `%${country}%`);
   }
 
