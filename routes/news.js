@@ -71,10 +71,10 @@ router.get('/', asyncHandler(async function (req, res, next) {
       ]
  */
 router.get('/trending', asyncHandler(async function (req, res, next) {
-  const { limit = 9, offset, country, countryCode } = req.query;
+  const { limit = 9, offset, country, countryCode, language } = req.query;
   try {
-    const items = await getNews({ limit, offset, country, countryCode, sort: '-publishedAt' });
-    const total = await getNewsCount({ country, countryCode });
+    const items = await getNews({ limit, offset, country, countryCode, language, sort: '-publishedAt' });
+    const total = await getNewsCount({ country, countryCode, language });
     return res.json({
       total,
       items,
@@ -86,7 +86,7 @@ router.get('/trending', asyncHandler(async function (req, res, next) {
   }
 }));
 
-async function getNews({ limit = 10, offset = 0, country, countryCode, sort, q }) {
+async function getNews({ limit = 10, offset = 0, country, countryCode, language = 'en', sort, q }) {
   limit = parseInt(limit);
   offset = parseInt(offset);
 
@@ -107,6 +107,12 @@ async function getNews({ limit = 10, offset = 0, country, countryCode, sort, q }
   if (country) {
     whereConditions.push(' n.description LIKE ? OR n.title LIKE ?');
     args.push(`%${country}%`, `%${country}%`);
+  }
+
+  if (language) {
+    const languages = language.split(',').map(a => a.trim());
+    whereConditions.push(' n.language IN (?) ');
+    args.push(languages);
   }
 
   if (whereConditions.length) {
@@ -163,7 +169,7 @@ ${limitOffsetClause};
   return result[0];
 }
 
-async function getNewsCount({ country, countryCode }) {
+async function getNewsCount({ country, countryCode, language = 'en' }) {
   const conn = db.conn.promise();
   const args = [];
 
@@ -175,6 +181,12 @@ async function getNewsCount({ country, countryCode }) {
   if (country) {
     whereConditions.push(' n.description LIKE ? OR n.title LIKE ? ');
     args.push(`%${country}%`, `%${country}%`);
+  }
+
+  if (language) {
+    const languages = language.split(',').map(a => a.trim());
+    whereConditions.push(' n.language IN (?) ');
+    args.push(languages);
   }
 
   if (whereConditions.length) {
@@ -194,9 +206,7 @@ ${whereClause}
 ${groupByClause} 
 `;
 
-  console.log("##### query:", query);
-
-  const result = await conn.execute(query, args);
+  const result = await conn.query(query, args);
   return result[0] && result[0][0] && result[0][0].total || 0;
 }
 
