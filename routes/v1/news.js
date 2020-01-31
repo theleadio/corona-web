@@ -2,7 +2,7 @@ const express = require('express');
 const moment = require('moment');
 const router = express.Router();
 const asyncHandler = require("express-async-handler");
-const db = require('../system/database');
+const db = require('../../system/database');
 
 /**
  * @api {get} /news
@@ -156,8 +156,8 @@ async function getNews({ limit = 10, offset = 0, country, countryCode, language 
 
   let query = `
 SELECT n.*, GROUP_CONCAT(ncm.countryCode) as countryCodes
-FROM newsapi_n AS n 
-LEFT JOIN newsapi_countries_map AS ncm 
+FROM newsapi_n AS n
+LEFT JOIN newsapi_countries_map AS ncm
 ON n.nid = ncm.nid
 ${whereClause}
 GROUP BY n.nid
@@ -207,9 +207,9 @@ async function getNewsCount({ country, countryCode, language = 'en' }) {
 
   let query = `
 SELECT COUNT(*) AS total FROM newsapi_n AS n
-${joinClause} 
+${joinClause}
 ${whereClause}
-${groupByClause} 
+${groupByClause}
 `;
 
   const result = await conn.query(query, args);

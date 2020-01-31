@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const asyncHandler = require("express-async-handler");
-const db = require('../system/database');
+const db = require('../../system/database');
 
 
 /**
  * @api {get} /stats
  * @apiName FetchStats
  * @apiGroup Stats
- * 
+ *
  * @apiParam {String} [country] Optional Country to retrieve the stats for.
  */
 router.get('/', asyncHandler(async function (req, res, next) {
@@ -49,25 +49,25 @@ async function getStatsByArcGis(country) {
 
   if (!country) {
 
-    query = `SELECT 
+    query = `SELECT
               agg_confirmed as num_confirm,
               agg_death as num_dead,
               agg_recover as num_heal
-          FROM 
-            AGGREGATE_arcgis 
-          ORDER BY 
-            agg_date DESC 
-          LIMIT 
+          FROM
+            AGGREGATE_arcgis
+          ORDER BY
+            agg_date DESC
+          LIMIT
             1
 `;
   }
   else {
 
-    query = `SELECT 
-agg_country, COALESCE(MAX(agg_confirmed), 0) AS num_confirm, COALESCE(MAX(agg_death), 0) AS num_dead, COALESCE(MAX(agg_recover), 0) AS num_heal, agg_date
+    query = `SELECT
+agg_country, COALESCE(agg_confirmed, 0) AS num_confirm, COALESCE(agg_death, 0) AS num_dead, COALESCE(agg_recover, 0) AS num_heal, agg_date
 FROM AGGREGATE_arcgis_country
 WHERE agg_country LIKE ?
-ORDER BY agg_date DESC   
+ORDER BY agg_date DESC
 `;
 
     // using like and % instead of =
