@@ -44,7 +44,7 @@ router.get('/qq', asyncHandler(async function(req, res, next) {
 
 /**
  * @api {get} /stats/trend
- * @apiName  FetchStatsByTrend
+ * @apiName FetchStatsByTrend
  * @apiGroup Stats
  * 
  * @apiParam {Date} [start_date] Required Start date
@@ -73,6 +73,23 @@ router.get('/trend', asyncHandler(async function(req, res, next) {
     return res.json(results)
   } catch (error) {
     console.log('[/stats/trend] error', error)
+
+    return res.json(error)
+  }
+}))
+
+/**
+ * @api {get} /stats/area
+ * @apiName FetchStatsByArea
+ * @apiGroup Stats
+ */
+router.get('/area', asyncHandler(async function(req, res, next) {
+  try {
+    const results = await getStatsByArea()
+
+    return res.json(results)
+  } catch (error) {
+    console.log('[/stats/area] error', error)
 
     return res.json(error)
   }
@@ -158,6 +175,24 @@ async function getStatsByTrend(start_date, end_date) {
     query = `SELECT * FROM AGGREGATE_arcgis WHERE (agg_date BETWEEN ? AND ?)`
     args.push(start_date, end_date)
   }
+
+  let result = await conn.query(query, args)
+
+  return result[0]
+}
+
+async function getStatsByArea() {
+  const conn = db.conn.promise()
+  let query = ''
+  const args = []
+
+  query = `
+    SELECT area, SUM(num_confirm) as total_confirm, SUM(num_suspect) as total_suspect,
+    SUM(num_dead) as total_dead, SUM(num_heal) as total_heal
+
+    FROM tencent_data_by_area
+    GROUP BY area
+    ORDER BY num_confirm DESC`
 
   let result = await conn.query(query, args)
 
