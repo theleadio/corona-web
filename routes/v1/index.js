@@ -7,11 +7,13 @@ const express = require('express');
 const news = require('./news');
 const stats = require('./stats');
 const users = require('./users');
+const countries = require('./countries');
 
 const router = express.Router();
 
 router.use('/news', news);
 router.use('/stats', stats)
 router.use('/users', users)
+router.use('/countries', countries)
 
 module.exports = router;
