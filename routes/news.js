@@ -1,4 +1,5 @@
 const express = require('express');
+const moment = require('moment');
 const router = express.Router();
 const asyncHandler = require("express-async-handler");
 const db = require('../system/database');
@@ -166,7 +167,12 @@ ${limitOffsetClause};
 `;
 
   let result = await conn.query(query, args);
-  return result[0];
+
+  return result[0].map(result => {
+    result.publishedAt = moment(result.publishedAt).utc().format();
+    result.addedOn = moment(result.addedOn).utc().format();
+    return result;
+  });
 }
 
 async function getNewsCount({ country, countryCode, language = 'en' }) {
