@@ -8,6 +8,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var newsRouter = require('./routes/news');
 var statsRouter = require('./routes/stats');
+var analyticsRouter = require('./routes/analytics');
 var imageProxyRouter = require('./routes/imageProxy');
 
 var cors = require('cors')
@@ -30,6 +31,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/news', newsRouter);
 app.use('/stats', statsRouter);
+app.use('/analytics', analyticsRouter);
 app.use('/image-proxy', imageProxyRouter);
 app.use('/doc', express.static(__dirname + '/public'));
 
