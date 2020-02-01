@@ -3,7 +3,6 @@ const router = express.Router();
 const asyncHandler = require("express-async-handler");
 const db = require('../system/database');
 
-
 /**
  * @api {get} /stats
  * @apiName FetchStats
