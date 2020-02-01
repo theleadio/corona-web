@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const asyncHandler = require("express-async-handler");
 const db = require('../system/database');
-const moment = require('moment')
 
 /**
  * @api {get} /stats
