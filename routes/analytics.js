@@ -34,7 +34,7 @@ router.get('/trend', asyncHandler(async function(req, res, next) {
     
     return res.json(results)
   } catch (error) {
-    console.log('[/stats/trend] error', error)
+    console.log('[/analytics/trend] error', error)
 
     return res.json(error)
   }
@@ -51,7 +51,24 @@ router.get('/area', asyncHandler(async function(req, res, next) {
 
     return res.json(results)
   } catch (error) {
-    console.log('[/stats/area] error', error)
+    console.log('[/analytics/area] error', error)
+
+    return res.json(error)
+  }
+}))
+
+/**
+ * @api {get} /analytics/country
+ * @apiName FetchAffectedCountries
+ * @apiGroup Analytics
+ */
+router.get('/country', asyncHandler(async function(req, res, next) {
+  try {
+    const results = await fetchAffectedCountries()
+
+    return res.json(results)
+  } catch (error) {
+    console.log('[/analytics/country] error', error)
 
     return res.json(error)
   }
@@ -78,12 +95,36 @@ async function fetchMostAffectedByArea() {
   const args = []
 
   query = `
-    SELECT area, SUM(num_confirm) as total_confirm, SUM(num_suspect) as total_suspect,
-    SUM(num_dead) as total_dead, SUM(num_heal) as total_heal
+    SELECT IFNULL(state, 'N/A') as state,
+    CAST(posted_date as DATE) as date_as_of,
+    SUM(confirmed) as total_confirm,
+    SUM(deaths) as total_deaths, SUM(recovered) as total_recovered
+    FROM hourly_table_outbreak
+    WHERE posted_date IN (SELECT MAX(posted_date) from hourly_table_outbreak)
+    GROUP BY state
+    ORDER BY total_confirm DESC
+    LIMIT 15`
 
-    FROM tencent_data_by_area
-    GROUP BY area
-    ORDER BY num_confirm DESC`
+  let result = await conn.query(query, args)
+
+  return result[0]
+}
+
+async function fetchAffectedCountries() {
+  const conn = db.conn.promise()
+  let query = ''
+  const args = []
+
+  query = `
+    SELECT IFNULL(country, 'N/A') as country,
+    CAST(posted_date as DATE) as date_as_of,
+    SUM(confirmed) as total_confirm,
+    SUM(deaths) as total_deaths, SUM(recovered) as total_recovered
+    FROM hourly_table_outbreak
+    WHERE posted_date IN (SELECT MAX(posted_date) from hourly_table_outbreak)
+    GROUP BY country
+    ORDER BY total_confirm DESC
+    LIMIT 15`
 
   let result = await conn.query(query, args)
 
