@@ -34,7 +34,7 @@ router.get('/trend', asyncHandler(async function(req, res, next) {
     
     return res.json(results)
   } catch (error) {
-    console.log('[/stats/trend] error', error)
+    console.log('[/analytics/trend] error', error)
 
     return res.json(error)
   }
@@ -44,14 +44,55 @@ router.get('/trend', asyncHandler(async function(req, res, next) {
  * @api {get} /analytics/area
  * @apiName FetchMostAffectedbyArea
  * @apiGroup Analytics
+ * 
+ * @apiParam {Integer} [limit] Optional limit the number of results
  */
 router.get('/area', asyncHandler(async function(req, res, next) {
+  let limit = 15
+
+  if (req.query.hasOwnProperty('limit')) {
+    if (parseInt(req.query.limit)) {
+      limit = parseInt(req.query.limit)
+    } else {
+      res.json('Invalid data type. Limit should be an integer.')
+    }
+  }
+
   try {
-    const results = await fetchMostAffectedByArea()
+    const results = await fetchMostAffectedByArea(limit)
 
     return res.json(results)
   } catch (error) {
-    console.log('[/stats/area] error', error)
+    console.log('[/analytics/area] error', error)
+
+    return res.json(error)
+  }
+}))
+
+/**
+ * @api {get} /analytics/country
+ * @apiName FetchAffectedCountries
+ * @apiGroup Analytics
+ * 
+ * @apiParam {Integer} [limit] Optional limit the number of results
+ */
+router.get('/country', asyncHandler(async function(req, res, next) {
+  let limit = 15
+
+  if (req.query.hasOwnProperty('limit')) {
+    if (parseInt(req.query.limit)) {
+      limit = parseInt(req.query.limit)
+    } else {
+      res.json('Invalid data type. Limit should be an integer.')
+    }
+  }
+
+  try {
+    const results = await fetchAffectedCountries(limit)
+
+    return res.json(results)
+  } catch (error) {
+    console.log('[/analytics/country] error', error)
 
     return res.json(error)
   }
@@ -72,18 +113,46 @@ async function fetchTrendByDate(start_date, end_date) {
   return result[0]
 }
 
-async function fetchMostAffectedByArea() {
+async function fetchMostAffectedByArea(limit) {
   const conn = db.conn.promise()
   let query = ''
   const args = []
 
   query = `
-    SELECT area, SUM(num_confirm) as total_confirm, SUM(num_suspect) as total_suspect,
-    SUM(num_dead) as total_dead, SUM(num_heal) as total_heal
+    SELECT IFNULL(state, 'N/A') as state,
+    CAST(posted_date as DATE) as date_as_of,
+    SUM(confirmed) as total_confirm,
+    SUM(deaths) as total_deaths, SUM(recovered) as total_recovered
+    FROM hourly_table_outbreak
+    WHERE posted_date IN (SELECT MAX(posted_date) from hourly_table_outbreak)
+    GROUP BY state
+    ORDER BY total_confirm DESC
+    LIMIT ?`
 
-    FROM tencent_data_by_area
-    GROUP BY area
-    ORDER BY num_confirm DESC`
+  args.push(limit)
+
+  let result = await conn.query(query, args)
+
+  return result[0]
+}
+
+async function fetchAffectedCountries(limit) {
+  const conn = db.conn.promise()
+  let query = ''
+  const args = []
+
+  query = `
+    SELECT IFNULL(country, 'N/A') as country,
+    CAST(posted_date as DATE) as date_as_of,
+    SUM(confirmed) as total_confirm,
+    SUM(deaths) as total_deaths, SUM(recovered) as total_recovered
+    FROM hourly_table_outbreak
+    WHERE posted_date IN (SELECT MAX(posted_date) from hourly_table_outbreak)
+    GROUP BY country
+    ORDER BY total_confirm DESC
+    LIMIT ?`
+
+  args.push(limit)
 
   let result = await conn.query(query, args)
 
