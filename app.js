@@ -28,12 +28,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 app.use('/news', newsRouter);
 app.use('/stats', statsRouter);
 app.use('/analytics', analyticsRouter);
 
-app.use('/v1/users', usersRouter);
 app.use('/v1/news', newsRouter);
 app.use('/v1/stats', statsRouter);
 app.use('/v1/analytics', analyticsRouter);
