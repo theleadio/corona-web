@@ -29,13 +29,12 @@ router.get('/', cache.route(), asyncHandler(async function (req, res, next) {
  * @apiGroup Stats
  */
 router.get('/latest', cache.route(), asyncHandler(async function (req, res, next) {
-  const { country } = req.query;
   try {
     const results = await getLatestStats();
     return res.json(results);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/stats/latest] error', error);
     return res.json(error);
   }
 }));
@@ -98,7 +97,7 @@ ORDER BY agg_date DESC
 
 async function getLatestStats() {
   const conn = db.conn.promise();
-  let query = `SELECT t.nid, t.state, t.country,t.last_update, t.lat, t.lng,t.confirmed, t.deaths,t.recovered,t.posted_date, CURRENT_TIMESTAMP
+  let query = `SELECT t.nid, t.state, t.country, t.last_update as lastUpdate, t.lat, t.lng, t.confirmed, t.deaths, t.recovered, t.posted_date as postedDate, CURRENT_TIMESTAMP() as currentTimestamp 
 FROM coronatracker.arcgis t JOIN (SELECT MAX(tt.posted_date) 'maxtimestamp'
 FROM coronatracker.arcgis tt GROUP BY date(tt.posted_date)) m ON m.maxtimestamp = t.posted_date`;
 
