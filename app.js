@@ -32,6 +32,12 @@ app.use('/users', usersRouter);
 app.use('/news', newsRouter);
 app.use('/stats', statsRouter);
 app.use('/analytics', analyticsRouter);
+
+app.use('/v1/users', usersRouter);
+app.use('/v1/news', newsRouter);
+app.use('/v1/stats', statsRouter);
+app.use('/v1/analytics', analyticsRouter);
+
 app.use('/image-proxy', imageProxyRouter);
 app.use('/doc', express.static(__dirname + '/public'));
 
