@@ -24,6 +24,23 @@ router.get('/', cache.route(), asyncHandler(async function (req, res, next) {
 }));
 
 /**
+ * @api {get} /stats/latest
+ * @apiName FetchLatestStats
+ * @apiGroup Stats
+ */
+router.get('/latest', cache.route(), asyncHandler(async function (req, res, next) {
+  const { country } = req.query;
+  try {
+    const results = await getLatestStats();
+    return res.json(results);
+  }
+  catch (error) {
+    console.log('[/stats] error', error);
+    return res.json(error);
+  }
+}));
+
+/**
  * @api {get} /stats/qq
  * @apiName FetchStatsByQq
  * @apiGroup Stats
@@ -77,6 +94,17 @@ ORDER BY agg_date DESC
 
   let result = await conn.query(query, args);
   return result[0] && result[0][0] || { country, num_confirm: '?', num_suspect: '?', num_dead: '?', num_heal: '?', created: null };
+}
+
+async function getLatestStats() {
+  const conn = db.conn.promise();
+  let query = `SELECT t.nid, t.state, t.country,t.last_update, t.lat, t.lng,t.confirmed, t.deaths,t.recovered,t.posted_date, CURRENT_TIMESTAMP
+FROM coronatracker.arcgis t JOIN (SELECT MAX(tt.posted_date) 'maxtimestamp'
+FROM coronatracker.arcgis tt GROUP BY date(tt.posted_date)) m ON m.maxtimestamp = t.posted_date`;
+
+  let result = await conn.query(query);
+
+  return result[0];
 }
 
 async function getStatsByQq(country) {
