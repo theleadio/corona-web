@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const asyncHandler = require("express-async-handler");
 const db = require('../system/database');
+const cache = require('../system/redis-cache');
 
 /**
  * @api {get} /stats
@@ -10,7 +11,7 @@ const db = require('../system/database');
  * 
  * @apiParam {String} [country] Optional Country to retrieve the stats for.
  */
-router.get('/', asyncHandler(async function (req, res, next) {
+router.get('/', cache.route(), asyncHandler(async function (req, res, next) {
   const { country } = req.query;
   try {
     const results = await getStatsByArcGis(country);
@@ -29,7 +30,7 @@ router.get('/', asyncHandler(async function (req, res, next) {
  *
  * @apiParam {String} [country] Optional Country to retrieve the stats for.
  */
-router.get('/qq', asyncHandler(async function(req, res, next) {
+router.get('/qq', cache.route(), asyncHandler(async function(req, res, next) {
   const { country } = req.query;
   try {
     const results = await getStatsByQq(country);

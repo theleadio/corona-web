@@ -3,6 +3,7 @@ const moment = require('moment');
 const router = express.Router();
 const asyncHandler = require("express-async-handler");
 const db = require('../system/database');
+const cache = require('../system/redis-cache');
 
 /**
  * @api {get} /news
@@ -31,7 +32,7 @@ const db = require('../system/database');
         }
       ]
  */
-router.get('/', asyncHandler(async function (req, res, next) {
+router.get('/', cache.route(), asyncHandler(async function (req, res, next) {
   const { limit, offset, country, countryCode, sort, q } = req.query;
   try {
     const results = await getNews({ limit, offset, country, countryCode, sort, q });
@@ -71,7 +72,7 @@ router.get('/', asyncHandler(async function (req, res, next) {
         ]
       ]
  */
-router.get('/trending', asyncHandler(async function (req, res, next) {
+router.get('/trending', cache.route(), asyncHandler(async function (req, res, next) {
   const { limit = 9, offset, country, countryCode, language } = req.query;
   try {
     const items = await getNews({ limit, offset, country, countryCode, language, sort: '-publishedAt' });
