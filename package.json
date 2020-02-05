@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "nodemon ./bin/www",
     "gendoc": "apidoc -i ./routes -o ./public",
-    "start:staging":  "PORT=3001 pm2 start --name \"corona-web-staging\" ./bin/www",
-    "start:production":  "PORT=3000 pm2 start --name \"corona-web-production\" ./bin/www"
+    "start:staging": "PORT=3001 pm2 start --name \"corona-web-staging\" ./bin/www",
+    "start:production": "PORT=3000 pm2 start --name \"corona-web-production\" ./bin/www"
   },
   "dependencies": {
     "apidoc": "^0.20.0",
@@ -16,6 +16,7 @@
     "ejs": "~2.6.1",
     "express": "~4.16.1",
     "express-async-handler": "^1.1.4",
+    "express-redis-cache": "^1.1.3",
     "http-errors": "~1.6.3",
     "moment": "^2.24.0",
     "morgan": "~1.9.1",
