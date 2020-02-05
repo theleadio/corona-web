@@ -4,4 +4,8 @@ var cache = require('express-redis-cache')({
   expire: process.env.REDIS_EXPIRE || 60,
 });
 
+cache.on('error', function(error) {
+  console.error('cache error:', error);
+});
+
 module.exports = cache;
