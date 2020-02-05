@@ -62,10 +62,10 @@ async function getStatsByArcGis(country) {
   }
   else {
 
-    query = `SELECT 
-agg_country, COALESCE(MAX(agg_confirmed), 0) AS num_confirm, COALESCE(MAX(agg_death), 0) AS num_dead, COALESCE(MAX(agg_recover), 0) AS num_heal, agg_date
+    query = `SELECT agg_country, COALESCE(MAX(agg_confirmed), 0) AS num_confirm, COALESCE(MAX(agg_death), 0) AS num_dead, COALESCE(MAX(agg_recover), 0) AS num_heal, MAX(agg_date) as agg_date
 FROM AGGREGATE_arcgis_country
-WHERE agg_country LIKE ?
+GROUP BY agg_country
+HAVING agg_country LIKE ?
 ORDER BY agg_date DESC   
 `;
 
