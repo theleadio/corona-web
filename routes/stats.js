@@ -120,8 +120,14 @@ async function getTopStats(limit = 7) {
   const conn = db.conn.promise();
 
   const query = `
-SELECT * FROM AGGREGATE_arcgis_country 
-WHERE agg_date = (SELECT MAX(agg_date)  FROM AGGREGATE_arcgis_country) 
+SELECT
+  agg_country AS country,
+  agg_confirmed as num_confirm,
+  agg_death as num_dead,
+  agg_recover as num_heal,
+  agg_date as date
+FROM AGGREGATE_arcgis_country
+WHERE agg_date = (SELECT MAX(agg_date) FROM AGGREGATE_arcgis_country)   
 ORDER BY agg_confirmed DESC 
 LIMIT ?`;
 
