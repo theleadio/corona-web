@@ -2,6 +2,7 @@ const express = require('express')
 const asyncHandler = require('express-async-handler')
 const moment = require('moment')
 const db = require('../system/database')
+const cache = require('express-redis-cache')
 const router = express.Router()
 
 /**
@@ -12,7 +13,7 @@ const router = express.Router()
  * @apiParam {Date} [start_date] Required Start date
  * @apiParam {Date} [end_date] Required end date
  */
-router.get('/trend', asyncHandler(async function(req, res, next) {
+router.get('/trend', cache.route(), asyncHandler(async function(req, res, next) {
   const start_date = req.query.start_date
   const end_date = req.query.end_date
 
@@ -47,7 +48,7 @@ router.get('/trend', asyncHandler(async function(req, res, next) {
  * 
  * @apiParam {Integer} [limit] Optional limit the number of results
  */
-router.get('/area', asyncHandler(async function(req, res, next) {
+router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
   let limit = 15
 
   if (req.query.hasOwnProperty('limit')) {
@@ -76,7 +77,7 @@ router.get('/area', asyncHandler(async function(req, res, next) {
  * 
  * @apiParam {Integer} [limit] Optional limit the number of results
  */
-router.get('/country', asyncHandler(async function(req, res, next) {
+router.get('/country', cache.route(), asyncHandler(async function(req, res, next) {
   let limit = 15
 
   if (req.query.hasOwnProperty('limit')) {
@@ -104,7 +105,12 @@ async function fetchTrendByDate(start_date, end_date) {
   const args = []
 
   if (start_date && end_date) {
-    query = `SELECT * FROM AGGREGATE_arcgis WHERE (agg_date BETWEEN ? AND ?)`
+    query = `SELECT agg_confirmed as confirmed,
+      agg_death as dead,
+      agg_recover as recovered,
+      agg_date as date_posted
+      FROM AGGREGATE_arcgis
+      WHERE (agg_date BETWEEN ? AND ?)`
     args.push(start_date, end_date)
   }
 
