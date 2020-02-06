@@ -49,7 +49,7 @@ router.get('/trend', cache.route(), asyncHandler(async function(req, res, next) 
  * @apiParam {Integer} [limit] Optional limit the number of results
  */
 router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
-  let limit = 15
+  let limit = 10
 
   if (req.query.hasOwnProperty('limit')) {
     if (parseInt(req.query.limit)) {
@@ -78,7 +78,7 @@ router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
  * @apiParam {Integer} [limit] Optional limit the number of results
  */
 router.get('/country', cache.route(), asyncHandler(async function(req, res, next) {
-  let limit = 15
+  let limit = 10
 
   if (req.query.hasOwnProperty('limit')) {
     if (parseInt(req.query.limit)) {
@@ -126,13 +126,13 @@ async function fetchMostAffectedByArea(limit) {
 
   query = `
     SELECT IFNULL(state, 'N/A') as state, lat, lng,
-    SUM(confirmed) as total_confirm,
-    SUM(deaths) as total_deaths, SUM(recovered) as total_recovered,
+    SUM(confirmed) as total_confirmed,
+    SUM(deaths) as total_dead, SUM(recovered) as total_recovered,
     CAST(posted_date as DATETIME) as date_as_of
     FROM arcgis
     WHERE posted_date IN (SELECT MAX(posted_date) from arcgis)
     GROUP BY state
-    ORDER BY total_confirm DESC
+    ORDER BY total_confirmed DESC
     LIMIT ?`
 
   args.push(limit)
@@ -149,13 +149,13 @@ async function fetchAffectedCountries(limit) {
 
   query = `
     SELECT IFNULL(country, 'N/A') as country, lat, lng,
-    SUM(confirmed) as total_confirm,
-    SUM(deaths) as total_deaths, SUM(recovered) as total_recovered,
+    SUM(confirmed) as total_confirmed,
+    SUM(deaths) as total_dead, SUM(recovered) as total_recovered,
     CAST(posted_date as DATETIME) as date_as_of
     FROM arcgis
     WHERE posted_date IN (SELECT MAX(posted_date) from arcgis)
     GROUP BY country
-    ORDER BY total_confirm DESC
+    ORDER BY total_confirmed DESC
     LIMIT ?`
 
   args.push(limit)
