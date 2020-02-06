@@ -125,12 +125,12 @@ async function fetchMostAffectedByArea(limit) {
   const args = []
 
   query = `
-    SELECT IFNULL(state, 'N/A') as state,
-    CAST(posted_date as DATE) as date_as_of,
+    SELECT IFNULL(state, 'N/A') as state, lat, lng,
     SUM(confirmed) as total_confirm,
-    SUM(deaths) as total_deaths, SUM(recovered) as total_recovered
-    FROM hourly_table_outbreak
-    WHERE posted_date IN (SELECT MAX(posted_date) from hourly_table_outbreak)
+    SUM(deaths) as total_deaths, SUM(recovered) as total_recovered,
+    CAST(posted_date as DATETIME) as date_as_of
+    FROM arcgis
+    WHERE posted_date IN (SELECT MAX(posted_date) from arcgis)
     GROUP BY state
     ORDER BY total_confirm DESC
     LIMIT ?`
@@ -148,12 +148,12 @@ async function fetchAffectedCountries(limit) {
   const args = []
 
   query = `
-    SELECT IFNULL(country, 'N/A') as country,
-    CAST(posted_date as DATE) as date_as_of,
+    SELECT IFNULL(country, 'N/A') as country, lat, lng,
     SUM(confirmed) as total_confirm,
-    SUM(deaths) as total_deaths, SUM(recovered) as total_recovered
-    FROM hourly_table_outbreak
-    WHERE posted_date IN (SELECT MAX(posted_date) from hourly_table_outbreak)
+    SUM(deaths) as total_deaths, SUM(recovered) as total_recovered,
+    CAST(posted_date as DATETIME) as date_as_of
+    FROM arcgis
+    WHERE posted_date IN (SELECT MAX(posted_date) from arcgis)
     GROUP BY country
     ORDER BY total_confirm DESC
     LIMIT ?`
