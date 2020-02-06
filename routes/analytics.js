@@ -2,7 +2,7 @@ const express = require('express')
 const asyncHandler = require('express-async-handler')
 const moment = require('moment')
 const db = require('../system/database')
-const cache = require('express-redis-cache')
+const cache = require('../system/redis-cache')
 const router = express.Router()
 
 /**
