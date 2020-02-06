@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "nodemon ./bin/www",
     "gendoc": "apidoc -i ./routes -o ./public",
-    "start:staging":  "PORT=3001 pm2 start --name \"corona-web-staging\" ./bin/www",
-    "start:production":  "PORT=3000 pm2 start --name \"corona-web-production\" ./bin/www"
+    "start:staging": "PORT=3001 pm2 start --name \"corona-web-staging\" ./bin/www",
+    "start:production": "PORT=3000 pm2 start --name \"corona-web-production\" ./bin/www"
   },
   "dependencies": {
     "apidoc": "^0.20.0",
