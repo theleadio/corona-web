@@ -40,6 +40,25 @@ router.get('/latest', cache.route(), asyncHandler(async function (req, res, next
 }));
 
 /**
+ * Returns the stats of top X countries with the most number of confirmed cases.
+ *
+ * @api {get} /stats/top
+ * @apiName FetchTopStats
+ * @apiGroup Stats
+ */
+router.get('/top', cache.route(), asyncHandler(async function(req, res, next) {
+  const { limit = 7 } = req.query;
+  try {
+    const results = await getTopStats(limit);
+    return res.json(results);
+  }
+  catch (error) {
+    console.log('[/stats/top] error', error);
+    return res.json(error);
+  }
+}));
+
+/**
  * @api {get} /stats/qq
  * @apiName FetchStatsByQq
  * @apiGroup Stats
@@ -93,6 +112,24 @@ ORDER BY agg_date DESC
 
   let result = await conn.query(query, args);
   return result[0] && result[0][0] || { country, num_confirm: '?', num_suspect: '?', num_dead: '?', num_heal: '?', created: null };
+}
+
+async function getTopStats(limit = 7) {
+  limit = parseInt(limit);
+
+  const conn = db.conn.promise();
+
+  const query = `
+SELECT * FROM AGGREGATE_arcgis_country 
+WHERE agg_date = (SELECT MAX(agg_date)  FROM AGGREGATE_arcgis_country) 
+ORDER BY agg_confirmed DESC 
+LIMIT ?`;
+
+  const args = [limit];
+
+  let result = await conn.query(query, args);
+
+  return result[0];
 }
 
 async function getLatestStats() {
