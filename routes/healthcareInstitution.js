@@ -5,9 +5,9 @@ const axios = require('axios');
 const cache = require('../system/redis-cache');
 
 /**
- * @api {get} /health-care-institution
- * @apiName FetchHealthCareInstitution
- * @apiGroup HealthCareInstitution
+ * @api {get} /healthcare-institution
+ * @apiName FetchHealthcareInstitution
+ * @apiGroup HealthcareInstitution
  */
 router.get('/', cache.route({
   expire: {
@@ -20,7 +20,7 @@ router.get('/', cache.route({
     return res.json(results.data);
   }
   catch (error) {
-    console.log('[/health-care-institution] error', error);
+    console.log('[/healthcare-institution] error', error);
     return res.json(error);
   }
 }));

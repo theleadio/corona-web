@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
 const analyticsRouter = require('./routes/analytics');
-const healthCareInstitutionRouter = require('./routes/healthCareInstitution');
+const healthcareInstitutionRouter = require('./routes/healthcareInstitution');
 const indexRouter = require('./routes/index');
 const newsRouter = require('./routes/news');
 const statsRouter = require('./routes/stats');
@@ -33,7 +33,7 @@ app.use('/stats', statsRouter);
 app.use('/analytics', analyticsRouter);
 
 app.use('/v1/news', newsRouter);
-app.use('/v1/health-care-institution', healthCareInstitutionRouter);
+app.use('/v1/healthcare-institution', healthcareInstitutionRouter);
 app.use('/v1/stats', statsRouter);
 app.use('/v1/analytics', analyticsRouter);
 
