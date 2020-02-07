@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "apidoc": "^0.20.0",
+    "axios": "^0.19.2",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
