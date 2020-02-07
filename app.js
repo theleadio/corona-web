@@ -1,19 +1,19 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 
-var analyticsRouter = require('./routes/analytics');
-var healthCareInstitutionRouter = require('./routes/healthCareInstitution');
-var indexRouter = require('./routes/index');
-var newsRouter = require('./routes/news');
-var statsRouter = require('./routes/stats');
-var imageProxyRouter = require('./routes/imageProxy');
+const analyticsRouter = require('./routes/analytics');
+const healthCareInstitutionRouter = require('./routes/healthCareInstitution');
+const indexRouter = require('./routes/index');
+const newsRouter = require('./routes/news');
+const statsRouter = require('./routes/stats');
+const imageProxyRouter = require('./routes/imageProxy');
 
-var cors = require('cors')
+const cors = require('cors')
 
-var app = express();
+const app = express();
 
 app.use(cors());
 
