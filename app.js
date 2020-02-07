@@ -4,10 +4,11 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+var analyticsRouter = require('./routes/analytics');
+var healthCareInstitutionRouter = require('./routes/healthCareInstitution');
 var indexRouter = require('./routes/index');
 var newsRouter = require('./routes/news');
 var statsRouter = require('./routes/stats');
-var analyticsRouter = require('./routes/analytics');
 var imageProxyRouter = require('./routes/imageProxy');
 
 var cors = require('cors')
@@ -32,6 +33,7 @@ app.use('/stats', statsRouter);
 app.use('/analytics', analyticsRouter);
 
 app.use('/v1/news', newsRouter);
+app.use('/v1/health-care-institution', healthCareInstitutionRouter);
 app.use('/v1/stats', statsRouter);
 app.use('/v1/analytics', analyticsRouter);
 
