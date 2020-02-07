@@ -97,18 +97,27 @@ async function getNews({ limit = 10, offset = 0, country, countryCode, language 
   const args = [];
   let whereClause = '';
   let whereConditions = [' status = 1 '];
-  let havingClause = '';
+  let orConditions = [];
   let orderByClause = '';
   let limitOffsetClause = '';
+
+  if (country) {
+    orConditions.push(' n.description LIKE ? ', ' n.title LIKE ? ');
+    args.push(`%${country}%`, `%${country}%`);
+  }
+
+  if (countryCode) {
+    orConditions.push(' n.countryCode = ? ');
+    args.push(countryCode);
+  }
+
+  if (orConditions.length) {
+    whereConditions.push('(' + orConditions.join('OR') + ')');
+  }
 
   if (q) {
     whereConditions.push(' n.description LIKE ? ');
     args.push(`%${q}%`);
-  }
-
-  if (country) {
-    whereConditions.push(' (n.description LIKE ? OR n.title LIKE ?) ');
-    args.push(`%${country}%`, `%${country}%`);
   }
 
   if (language) {
@@ -119,11 +128,6 @@ async function getNews({ limit = 10, offset = 0, country, countryCode, language 
 
   if (whereConditions.length) {
     whereClause = ` WHERE ` + whereConditions.join(' AND ');
-  }
-
-  if (countryCode) {
-    havingClause = 'HAVING FIND_IN_SET( ? , countryCodes)';
-    args.push(countryCode);
   }
 
   if (sort) {
@@ -156,13 +160,9 @@ async function getNews({ limit = 10, offset = 0, country, countryCode, language 
   }
 
   let query = `
-SELECT n.*, GROUP_CONCAT(ncm.countryCode) as countryCodes
+SELECT *
 FROM newsapi_n AS n 
-LEFT JOIN newsapi_countries_map AS ncm 
-ON n.nid = ncm.nid
 ${whereClause}
-GROUP BY n.nid
-${havingClause}
 ${orderByClause}
 ${limitOffsetClause};
 `;
@@ -180,14 +180,22 @@ async function getNewsCount({ country, countryCode, language = 'en' }) {
   const conn = db.conn.promise();
   const args = [];
 
-  let joinClause = '';
-  let groupByClause = '';
   let whereClause = '';
   let whereConditions = [' status = 1 '];
+  let orConditions = [];
 
   if (country) {
-    whereConditions.push(' (n.description LIKE ? OR n.title LIKE ?) ');
+    orConditions.push(' n.description LIKE ? ', ' n.title LIKE ? ');
     args.push(`%${country}%`, `%${country}%`);
+  }
+
+  if (countryCode) {
+    orConditions.push(' n.countryCode = ? ');
+    args.push(countryCode);
+  }
+
+  if (orConditions.length) {
+    whereConditions.push('(' + orConditions.join('OR') + ')');
   }
 
   if (language) {
@@ -200,17 +208,9 @@ async function getNewsCount({ country, countryCode, language = 'en' }) {
     whereClause = ' WHERE ' + whereConditions.join(' AND ');
   }
 
-  if (countryCode) {
-    joinClause = ' INNER JOIN newsapi_countries_map AS ncm ON n.nid = ncm.nid AND ncm.countryCode = ? ';
-    groupByClause = ' GROUP BY n.nid ';
-    args.push(countryCode);
-  }
-
   let query = `
 SELECT COUNT(*) AS total FROM newsapi_n AS n
-${joinClause} 
 ${whereClause}
-${groupByClause} 
 `;
 
   const result = await conn.query(query, args);
