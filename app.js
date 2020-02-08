@@ -9,6 +9,7 @@ const healthcareInstitutionRouter = require('./routes/healthcareInstitution');
 const indexRouter = require('./routes/index');
 const newsRouter = require('./routes/news');
 const statsRouter = require('./routes/stats');
+const travelBanRouter = require('./routes/travelBan');
 const imageProxyRouter = require('./routes/imageProxy');
 
 const cors = require('cors')
@@ -35,6 +36,7 @@ app.use('/analytics', analyticsRouter);
 app.use('/v1/news', newsRouter);
 app.use('/v1/healthcare-institution', healthcareInstitutionRouter);
 app.use('/v1/stats', statsRouter);
+app.use('/v1/travel-ban', travelBanRouter);
 app.use('/v1/analytics', analyticsRouter);
 
 app.use('/image-proxy', imageProxyRouter);
