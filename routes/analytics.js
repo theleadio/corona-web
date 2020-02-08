@@ -2,6 +2,7 @@ const express = require('express')
 const asyncHandler = require('express-async-handler')
 const moment = require('moment')
 const db = require('../system/database')
+const cache = require('../system/redis-cache')
 const router = express.Router()
 
 /**
@@ -12,7 +13,7 @@ const router = express.Router()
  * @apiParam {Date} [start_date] Required Start date
  * @apiParam {Date} [end_date] Required end date
  */
-router.get('/trend', asyncHandler(async function(req, res, next) {
+router.get('/trend', cache.route(), asyncHandler(async function(req, res, next) {
   const start_date = req.query.start_date
   const end_date = req.query.end_date
 
@@ -47,8 +48,8 @@ router.get('/trend', asyncHandler(async function(req, res, next) {
  * 
  * @apiParam {Integer} [limit] Optional limit the number of results
  */
-router.get('/area', asyncHandler(async function(req, res, next) {
-  let limit = 15
+router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
+  let limit = 10
 
   if (req.query.hasOwnProperty('limit')) {
     if (parseInt(req.query.limit)) {
@@ -76,8 +77,8 @@ router.get('/area', asyncHandler(async function(req, res, next) {
  * 
  * @apiParam {Integer} [limit] Optional limit the number of results
  */
-router.get('/country', asyncHandler(async function(req, res, next) {
-  let limit = 15
+router.get('/country', cache.route(), asyncHandler(async function(req, res, next) {
+  let limit = 200
 
   if (req.query.hasOwnProperty('limit')) {
     if (parseInt(req.query.limit)) {
@@ -104,7 +105,12 @@ async function fetchTrendByDate(start_date, end_date) {
   const args = []
 
   if (start_date && end_date) {
-    query = `SELECT * FROM AGGREGATE_arcgis WHERE (agg_date BETWEEN ? AND ?)`
+    query = `SELECT agg_confirmed as confirmed,
+      agg_death as dead,
+      agg_recover as recovered,
+      agg_date as date_posted
+      FROM AGGREGATE_arcgis
+      WHERE (agg_date BETWEEN ? AND ?)`
     args.push(start_date, end_date)
   }
 
@@ -119,14 +125,14 @@ async function fetchMostAffectedByArea(limit) {
   const args = []
 
   query = `
-    SELECT IFNULL(state, 'N/A') as state,
-    CAST(posted_date as DATE) as date_as_of,
-    SUM(confirmed) as total_confirm,
-    SUM(deaths) as total_deaths, SUM(recovered) as total_recovered
-    FROM hourly_table_outbreak
-    WHERE posted_date IN (SELECT MAX(posted_date) from hourly_table_outbreak)
+    SELECT IFNULL(state, 'N/A') as state, lat, lng,
+    SUM(confirmed) as total_confirmed,
+    SUM(deaths) as total_dead, SUM(recovered) as total_recovered,
+    CAST(posted_date as DATETIME) as date_as_of
+    FROM arcgis
+    WHERE posted_date IN (SELECT MAX(posted_date) from arcgis)
     GROUP BY state
-    ORDER BY total_confirm DESC
+    ORDER BY total_confirmed DESC
     LIMIT ?`
 
   args.push(limit)
@@ -142,14 +148,14 @@ async function fetchAffectedCountries(limit) {
   const args = []
 
   query = `
-    SELECT IFNULL(country, 'N/A') as country,
-    CAST(posted_date as DATE) as date_as_of,
-    SUM(confirmed) as total_confirm,
-    SUM(deaths) as total_deaths, SUM(recovered) as total_recovered
-    FROM hourly_table_outbreak
-    WHERE posted_date IN (SELECT MAX(posted_date) from hourly_table_outbreak)
+    SELECT IFNULL(country, 'N/A') as country, lat, lng,
+    SUM(confirmed) as total_confirmed,
+    SUM(deaths) as total_dead, SUM(recovered) as total_recovered,
+    CAST(posted_date as DATETIME) as date_as_of
+    FROM arcgis
+    WHERE posted_date IN (SELECT MAX(posted_date) from arcgis)
     GROUP BY country
-    ORDER BY total_confirm DESC
+    ORDER BY total_confirmed DESC
     LIMIT ?`
 
   args.push(limit)
