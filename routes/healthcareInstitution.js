@@ -11,7 +11,7 @@ const cache = require('../system/redis-cache');
  */
 router.get('/', cache.route({
   expire: {
-    '2xx': 300,
+    '2xx': 86400,
     'xxx': 1
   },
 }), asyncHandler(async function (req, res, next) {
