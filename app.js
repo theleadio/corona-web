@@ -12,6 +12,9 @@ const statsRouter = require('./routes/stats');
 const travelBanRouter = require('./routes/travelBan');
 const imageProxyRouter = require('./routes/imageProxy');
 
+const v2AnalyticsRouter = require('./routes/v2/analytics');
+const v2StatsRouter = require('./routes/v2/stats');
+
 const cors = require('cors')
 
 const app = express();
@@ -38,6 +41,9 @@ app.use('/v1/healthcare-institution', healthcareInstitutionRouter);
 app.use('/v1/stats', statsRouter);
 app.use('/v1/travel-ban', travelBanRouter);
 app.use('/v1/analytics', analyticsRouter);
+
+app.use('/v2/analytics', v2AnalyticsRouter);
+app.use('/v2/stats', v2StatsRouter);
 
 app.use('/image-proxy', imageProxyRouter);
 app.use('/doc', express.static(__dirname + '/public'));
