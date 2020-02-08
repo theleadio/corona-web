@@ -78,8 +78,18 @@ router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
  * @apiParam {Integer} [limit] Optional limit the number of results
  */
 router.get('/country', cache.route(), asyncHandler(async function(req, res, next) {
+  let limit = 200
+
+  if (req.query.hasOwnProperty('limit')) {
+    if (parseInt(req.query.limit)) {
+      limit = parseInt(req.query.limit)
+    } else {
+      res.json('Invalid data type. Limit should be an integer.')
+    }
+  }
+
   try {
-    const results = await fetchAffectedCountries()
+    const results = await fetchAffectedCountries(limit)
 
     return res.json(results)
   } catch (error) {
@@ -132,7 +142,7 @@ async function fetchMostAffectedByArea(limit) {
   return result[0]
 }
 
-async function fetchAffectedCountries() {
+async function fetchAffectedCountries(limit) {
   const conn = db.conn.promise()
   let query = ''
   const args = []
@@ -145,7 +155,10 @@ async function fetchAffectedCountries() {
     FROM arcgis
     WHERE posted_date IN (SELECT MAX(posted_date) from arcgis)
     GROUP BY country
-    ORDER BY total_confirmed DESC`
+    ORDER BY total_confirmed DESC
+    LIMIT ?`
+
+  args.push(limit)
 
   let result = await conn.query(query, args)
 
