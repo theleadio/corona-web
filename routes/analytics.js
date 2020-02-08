@@ -78,7 +78,7 @@ router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
  * @apiParam {Integer} [limit] Optional limit the number of results
  */
 router.get('/country', cache.route(), asyncHandler(async function(req, res, next) {
-  let limit = 10
+  let limit = 200
 
   if (req.query.hasOwnProperty('limit')) {
     if (parseInt(req.query.limit)) {
