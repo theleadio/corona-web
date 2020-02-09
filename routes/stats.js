@@ -97,13 +97,18 @@ async function getStatsByArcGis(country) {
 `;
   }
   else {
-
-    query = `SELECT agg_country, COALESCE(MAX(agg_confirmed), 0) AS num_confirm, COALESCE(MAX(agg_death), 0) AS num_dead, COALESCE(MAX(agg_recover), 0) AS num_heal, MAX(agg_date) as agg_date
-FROM AGGREGATE_arcgis_country
-GROUP BY agg_country
-HAVING agg_country LIKE ?
-ORDER BY agg_date DESC   
-`;
+    query = `
+SELECT
+  country,
+  CAST(SUM(confirmed) AS UNSIGNED) AS num_confirm, 
+  CAST(SUM(deaths) AS UNSIGNED) AS num_dead, 
+  CAST(SUM(recovered) AS UNSIGNED) AS num_heal, 
+  posted_date AS created
+FROM arcgis 
+GROUP BY country, posted_date 
+HAVING posted_date = (SELECT MAX(posted_date) FROM arcgis)
+AND country LIKE ?
+`
 
     // using like and % instead of =
     // because some country in the database has extra space/invisible character.
@@ -111,7 +116,7 @@ ORDER BY agg_date DESC
   }
 
   let result = await conn.query(query, args);
-  return result[0] && result[0][0] || { country, num_confirm: '?', num_suspect: '?', num_dead: '?', num_heal: '?', created: null };
+  return result[0] && result[0][0] || { country, num_confirm: '?', num_dead: '?', num_heal: '?', created: null };
 }
 
 async function getTopStats(limit = 7) {
@@ -120,16 +125,18 @@ async function getTopStats(limit = 7) {
   const conn = db.conn.promise();
 
   const query = `
-SELECT
-  agg_country AS country,
-  agg_confirmed as num_confirm,
-  agg_death as num_dead,
-  agg_recover as num_heal,
-  agg_date as date
-FROM AGGREGATE_arcgis_country
-WHERE agg_date = (SELECT MAX(agg_date) FROM AGGREGATE_arcgis_country)   
-ORDER BY agg_confirmed DESC 
-LIMIT ?`;
+SELECT 
+  country,
+  SUM(confirmed) AS num_confirm, 
+  SUM(deaths) AS num_dead, 
+  SUM(recovered) AS num_heal, 
+  posted_date AS date
+FROM arcgis 
+GROUP BY country, posted_date 
+HAVING posted_date = (SELECT MAX(posted_date) FROM arcgis)
+ORDER BY num_confirm DESC
+LIMIT ?
+`;
 
   const args = [limit];
 
