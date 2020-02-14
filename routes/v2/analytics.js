@@ -4,6 +4,7 @@ const moment = require('moment')
 const db = require('../../system/database')
 const cache = require('../../system/redis-cache')
 const router = express.Router()
+const { getCustomStats } = require('../../services/customStats')
 
 /**
  * @api {get} /analytics/trend
@@ -144,31 +145,47 @@ async function fetchMostAffectedByArea(limit) {
 
 async function fetchAffectedCountries(limit) {
   const conn = db.conn.promise()
-  let query = ''
   const args = []
-
-  query = `
+  let query = `
     SELECT 
-    C.country_name AS country,
-    C.latitude + 0.0 AS lat,
-    C.longitude + 0.0 AS lng,
-    CAST(SUM(confirmed) AS UNSIGNED) AS total_confirmed,
-    CAST(SUM(deaths) AS UNSIGNED) AS total_dead, 
-    CAST(SUM(recovered) AS UNSIGNED) AS total_recovered,
-    CAST(posted_at AS DATETIME) AS date_as_of
-    FROM data_aggregated AS A
-    INNER JOIN apps_countries AS C 
-    ON A.countryCode = C.country_code
-    WHERE posted_at IN (SELECT MAX(posted_at) from data_aggregated)
-    GROUP BY countryCode
+    AC.country_code AS countryCode,
+    IFNULL(AC.country_name, A.country) AS countryName,
+    IFNULL(AC.latitude, A.lat) + 0.0 AS lat,
+    IFNULL(AC.longitude, A.lng) + 0.0 AS lng,
+    CAST(SUM(confirmed) AS UNSIGNED) AS confirmed,
+    CAST(SUM(deaths) AS UNSIGNED) AS deaths, 
+    CAST(SUM(recovered) AS UNSIGNED) AS recovered,
+    CAST(posted_date AS DATETIME) AS dateAsOf
+    FROM arcgis AS A
+    LEFT JOIN apps_countries AS AC 
+    ON A.country = AC.country_alias
+    GROUP BY A.country, A.posted_date 
+    HAVING A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
     ORDER BY confirmed DESC
     LIMIT ?`
 
   args.push(limit)
 
-  let result = await conn.query(query, args)
+  const result = await conn.query(query, args)
+  const data = result[0];
 
-  return result[0]
+  const customStats = await getCustomStats();
+
+  return data.map(d => {
+    const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
+
+    if (!customCountryStat) {
+      return d;
+    }
+
+    return {
+      ...d,
+      confirmed: Math.max(d.confirmed, customCountryStat.confirmed),
+      deaths: Math.max(d.deaths, customCountryStat.deaths),
+      recovered: Math.max(d.recovered, customCountryStat.recovered),
+      created: data.created > customCountryStat.created ? data.created : customCountryStat.created,
+    }
+  }).sort((a, b) => { return b.confirmed - a.confirmed });
 }
 
 module.exports = router

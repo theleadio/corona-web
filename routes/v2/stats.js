@@ -3,6 +3,7 @@ const router = express.Router();
 const asyncHandler = require("express-async-handler");
 const db = require('../../system/database');
 const cache = require('../../system/redis-cache');
+const { getCustomStats } = require('../../services/customStats');
 
 /**
  * @api {get} /stats
@@ -59,42 +60,69 @@ router.get('/top', cache.route(), asyncHandler(async function(req, res, next) {
 }));
 
 async function getStatsByAggregateData(countryCode) {
-  const conn = db.conn.promise();
-  let query = '';
-  const args = [];
-
-  if (!countryCode) {
-    query = `SELECT 
-               CAST(SUM(confirmed) AS UNSIGNED) AS num_confirm,
-               CAST(SUM(deaths) AS UNSIGNED) AS num_dead,
-               CAST(SUM(recovered) AS UNSIGNED) AS num_heal
-          FROM 
-            data_aggregated
-          WHERE
-            posted_at = (SELECT MAX(posted_at) FROM data_aggregated)  
-          LIMIT 
-            1
-`;
+  if (countryCode) {
+    return getStatsByAggregateDataFilterByCountry(countryCode);
   }
-  else {
-    query = `SELECT 
+
+  const conn = db.conn.promise();
+
+  let query = `SELECT 
+             CAST(SUM(confirmed) AS UNSIGNED) AS confirmed,
+             CAST(SUM(deaths) AS UNSIGNED) AS deaths,
+             CAST(SUM(recovered) AS UNSIGNED) AS recovered,
+             MAX(posted_at) as created
+        FROM 
+          data_aggregated
+        WHERE
+          posted_at = (SELECT MAX(posted_at) FROM data_aggregated)  
+        LIMIT 
+          1
+`;
+
+  let result = await conn.query(query);
+
+  return result[0] && result[0][0] || { confirmed: '?', deaths: '?', recovered: '?', created: null };
+}
+
+async function getStatsByAggregateDataFilterByCountry(countryCode) {
+  const conn = db.conn.promise();
+
+  let query = `SELECT 
                countryCode, 
-               COALESCE(MAX(confirmed), 0) AS num_confirm, 
-               COALESCE(MAX(deaths), 0) AS num_dead, 
-               COALESCE(MAX(recovered), 0) AS num_heal, 
+               COALESCE(MAX(confirmed), 0) AS confirmed, 
+               COALESCE(MAX(deaths), 0) AS deaths, 
+               COALESCE(MAX(recovered), 0) AS recovered, 
                MAX(posted_at) as created
              FROM 
                data_aggregated
              GROUP BY countryCode
              HAVING countryCode = ?
-             ORDER BY posted_at DESC   
-`;
+             ORDER BY posted_at DESC`;
 
-    args.push(countryCode);
+  const args = [countryCode];
+  let result = await conn.query(query, args);
+
+  const data = result[0] && result[0][0] || { countryCode, confirmed: '?', deaths: '?', recovered: '?', created: null };
+
+  const customStats = await getCustomStats();
+
+  if (!customStats) {
+    return data;
   }
 
-  let result = await conn.query(query, args);
-  return result[0] && result[0][0] || { countryCode, num_confirm: '?', num_dead: '?', num_heal: '?', created: null };
+  const customCountryStat = customStats.find(a => a.countryCode && a.countryCode.toLowerCase() === countryCode.toLowerCase());
+
+  if (!customCountryStat) {
+    return data;
+  }
+
+  return {
+    ...data,
+    confirmed: Math.max(data.confirmed, customCountryStat.confirmed),
+    deaths: Math.max(data.deaths, customCountryStat.deaths),
+    recovered: Math.max(data.recovered, customCountryStat.recovered),
+    created: data.created > customCountryStat.created ? data.created : customCountryStat.created,
+  }
 }
 
 async function getTopStats(limit = 7) {
@@ -104,21 +132,41 @@ async function getTopStats(limit = 7) {
 
   const query = `
 SELECT
-  countryCode AS countryCode,
-  confirmed as num_confirm,
-  deaths as num_dead,
-  recovered as num_heal,
-  posted_at as created
-FROM data_aggregated
-WHERE posted_at = (SELECT MAX(posted_at) FROM data_aggregated)   
+  AC.country_code AS countryCode,
+  IFNULL(AC.country_name, A.country) AS countryName,
+  CAST(SUM(A.confirmed) AS UNSIGNED) as confirmed,
+  CAST(SUM(A.deaths) AS UNSIGNED) as deaths,
+  CAST(SUM(A.recovered) AS UNSIGNED) as recovered,
+  A.posted_date as created
+FROM arcgis AS A
+LEFT JOIN apps_countries AS AC
+ON A.country = AC.country_alias
+GROUP BY A.country, A.posted_date 
+HAVING A.posted_date = (SELECT MAX(posted_date) FROM arcgis)   
 ORDER BY confirmed DESC 
 LIMIT ?`;
 
   const args = [limit];
 
   let result = await conn.query(query, args);
+  const data = result[0];
 
-  return result[0];
+  const customStats = await getCustomStats();
+
+  return data.map(d => {
+    const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
+
+    if (!customCountryStat) {
+      return d;
+    }
+
+    return {
+      ...d,
+      confirmed: Math.max(d.confirmed, customCountryStat.confirmed),
+      deaths: Math.max(d.deaths, customCountryStat.deaths),
+      recovered: Math.max(d.recovered, customCountryStat.recovered),
+    }
+  }).sort((a, b) => { return b.confirmed - a.confirmed });
 }
 
 async function getLatestArcgisStats() {
