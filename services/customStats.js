@@ -20,7 +20,13 @@ async function getCustomStats() {
 
       if (entries && entries.length) {
         console.log("[getCustomStats] entries:", entries);
-        return resolve(entries);
+        try {
+          const parsedData = JSON.parse(entries[[0]].body);
+          return resolve(parsedData);
+        }
+        catch (ex) {
+          // Continue
+        }
       }
 
       let data = [];
@@ -39,6 +45,7 @@ async function getCustomStats() {
         console.log("[getCustomStats] error, added:", error, added);
       });
 
+      console.log("[getCustomStats] data:", data);
       return resolve(data);
     });
   });
@@ -50,5 +57,6 @@ async function fetchDataFromGoogleSheet() {
 }
 
 module.exports = {
-  getCustomStats
+  getCustomStats,
+  fetchDataFromGoogleSheet,
 };
