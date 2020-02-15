@@ -3,7 +3,7 @@ const router = express.Router();
 const asyncHandler = require("express-async-handler");
 const db = require('../../system/database');
 const cache = require('../../system/redis-cache');
-const { getCustomStats } = require('../../services/customStats');
+const { getCustomStats, fetchDataFromGoogleSheet } = require('../../services/customStats');
 const { cacheCheck } = require('../../services/cacheMiddleware');
 
 /**
@@ -58,6 +58,26 @@ router.get('/top', cacheCheck, cache.route(), asyncHandler(async function(req, r
     console.log('[/stats/top] error', error);
     return res.json(error);
   }
+}));
+
+/**
+ * @api {get} /v2/stats/custom
+ * @apiName FetchCustomOverriddenStats
+ * @apiGroup Stats
+ */
+router.get('/custom', cacheCheck, asyncHandler(async function(req, res, next) {
+  const result = await getCustomStats();
+  return res.json(result);
+}));
+
+/**
+ * @api {get} /v2/stats/custom-debug
+ * @apiName FetchCustomOverriddenStatsDebug
+ * @apiGroup Stats
+ */
+router.get('/custom-debug', cacheCheck, asyncHandler(async function(req, res, next) {
+  const result = await fetchDataFromGoogleSheet();
+  return res.json(result);
 }));
 
 async function getStatsByAggregateData(countryCode) {
