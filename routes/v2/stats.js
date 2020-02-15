@@ -87,17 +87,17 @@ async function getStatsByAggregateData(countryCode) {
 
   const conn = db.conn.promise();
 
-  let query = `SELECT 
-             CAST(SUM(confirmed) AS UNSIGNED) AS confirmed,
-             CAST(SUM(deaths) AS UNSIGNED) AS deaths,
-             CAST(SUM(recovered) AS UNSIGNED) AS recovered,
-             MAX(posted_at) as created
-        FROM 
-          data_aggregated
-        WHERE
-          posted_at = (SELECT MAX(posted_at) FROM data_aggregated)  
-        LIMIT 
-          1
+  let query = `
+SELECT
+  CAST(SUM(confirmed) AS UNSIGNED) AS confirmed,
+  CAST(SUM(deaths) AS UNSIGNED) AS deaths,
+  CAST(SUM(recovered) AS UNSIGNED) AS recovered,
+  MAX(posted_date) as created
+FROM 
+  arcgis
+WHERE 
+  posted_date = (SELECT MAX(posted_date) FROM arcgis)
+LIMIT 1
 `;
 
   let result = await conn.query(query);
@@ -108,17 +108,25 @@ async function getStatsByAggregateData(countryCode) {
 async function getStatsByAggregateDataFilterByCountry(countryCode) {
   const conn = db.conn.promise();
 
-  let query = `SELECT 
-               countryCode, 
-               COALESCE(MAX(confirmed), 0) AS confirmed, 
-               COALESCE(MAX(deaths), 0) AS deaths, 
-               COALESCE(MAX(recovered), 0) AS recovered, 
-               MAX(posted_at) as created
-             FROM 
-               data_aggregated
-             GROUP BY countryCode
-             HAVING countryCode = ?
-             ORDER BY posted_at DESC`;
+  let query = `
+SELECT
+  AC.country_code AS countryCode,
+  IFNULL(AC.country_name, A.country) AS countryName,
+  COALESCE(MAX(confirmed), 0) AS confirmed, 
+  COALESCE(MAX(deaths), 0) AS deaths, 
+  COALESCE(MAX(recovered), 0) AS recovered, 
+  A.posted_date as created
+FROM 
+  arcgis AS A
+LEFT JOIN 
+  apps_countries AS AC
+ON 
+  A.country = AC.country_alias
+GROUP BY 
+  A.country, A.posted_date 
+HAVING 
+  A.posted_date = (SELECT MAX(posted_date) FROM arcgis) AND countryCode = ?
+`;
 
   const args = [countryCode];
   let result = await conn.query(query, args);

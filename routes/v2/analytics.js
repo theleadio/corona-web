@@ -148,22 +148,27 @@ async function fetchAffectedCountries(limit) {
   const conn = db.conn.promise()
   const args = []
   let query = `
-    SELECT 
-    AC.country_code AS countryCode,
-    IFNULL(AC.country_name, A.country) AS countryName,
-    IFNULL(AC.latitude, A.lat) + 0.0 AS lat,
-    IFNULL(AC.longitude, A.lng) + 0.0 AS lng,
-    CAST(SUM(confirmed) AS UNSIGNED) AS confirmed,
-    CAST(SUM(deaths) AS UNSIGNED) AS deaths, 
-    CAST(SUM(recovered) AS UNSIGNED) AS recovered,
-    CAST(posted_date AS DATETIME) AS dateAsOf
-    FROM arcgis AS A
-    LEFT JOIN apps_countries AS AC 
-    ON A.country = AC.country_alias
-    GROUP BY A.country, A.posted_date 
-    HAVING A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
-    ORDER BY confirmed DESC
-    LIMIT ?`
+SELECT 
+  AC.country_code AS countryCode,
+  IFNULL(AC.country_name, A.country) AS countryName,
+  IFNULL(AC.latitude, A.lat) + 0.0 AS lat,
+  IFNULL(AC.longitude, A.lng) + 0.0 AS lng,
+  CAST(SUM(confirmed) AS UNSIGNED) AS confirmed,
+  CAST(SUM(deaths) AS UNSIGNED) AS deaths, 
+   CAST(SUM(recovered) AS UNSIGNED) AS recovered,
+   AST(posted_date AS DATETIME) AS dateAsOf
+FROM 
+  arcgis AS A
+LEFT JOIN 
+  apps_countries AS AC 
+ON A.country = AC.country_alias
+GROUP BY 
+  A.country, A.posted_date 
+HAVING 
+  A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
+ORDER BY confirmed DESC
+LIMIT ?
+`
 
   args.push(limit)
 
