@@ -155,18 +155,19 @@ SELECT
   IFNULL(AC.longitude, A.lng) + 0.0 AS lng,
   CAST(SUM(confirmed) AS UNSIGNED) AS confirmed,
   CAST(SUM(deaths) AS UNSIGNED) AS deaths, 
-   CAST(SUM(recovered) AS UNSIGNED) AS recovered,
-   AST(posted_date AS DATETIME) AS dateAsOf
+  CAST(SUM(recovered) AS UNSIGNED) AS recovered,
+  CAST(posted_date AS DATETIME) AS dateAsOf
 FROM 
   arcgis AS A
-LEFT JOIN 
+INNER JOIN 
   apps_countries AS AC 
-ON A.country = AC.country_alias
+ON
+  A.country = AC.country_alias
+  AND A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
 GROUP BY 
   A.country, A.posted_date 
-HAVING 
-  A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
-ORDER BY confirmed DESC
+ORDER BY
+  confirmed DESC, recovered DESC
 LIMIT ?
 `
 

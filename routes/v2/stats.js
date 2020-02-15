@@ -112,20 +112,20 @@ async function getStatsByAggregateDataFilterByCountry(countryCode) {
 SELECT
   AC.country_code AS countryCode,
   IFNULL(AC.country_name, A.country) AS countryName,
-  COALESCE(MAX(confirmed), 0) AS confirmed, 
-  COALESCE(MAX(deaths), 0) AS deaths, 
-  COALESCE(MAX(recovered), 0) AS recovered, 
+  CAST(SUM(A.confirmed) AS UNSIGNED) as confirmed,
+  CAST(SUM(A.deaths) AS UNSIGNED) as deaths,
+  CAST(SUM(A.recovered) AS UNSIGNED) as recovered, 
   A.posted_date as created
 FROM 
   arcgis AS A
-LEFT JOIN 
+INNER JOIN 
   apps_countries AS AC
 ON 
   A.country = AC.country_alias
+  AND A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
+  AND AC.country_code = ?
 GROUP BY 
-  A.country, A.posted_date 
-HAVING 
-  A.posted_date = (SELECT MAX(posted_date) FROM arcgis) AND countryCode = ?
+  A.country, A.posted_date   
 `;
 
   const args = [countryCode];
@@ -167,12 +167,17 @@ SELECT
   CAST(SUM(A.deaths) AS UNSIGNED) as deaths,
   CAST(SUM(A.recovered) AS UNSIGNED) as recovered,
   A.posted_date as created
-FROM arcgis AS A
-LEFT JOIN apps_countries AS AC
-ON A.country = AC.country_alias
-GROUP BY A.country, A.posted_date 
-HAVING A.posted_date = (SELECT MAX(posted_date) FROM arcgis)   
-ORDER BY confirmed DESC 
+FROM
+  arcgis AS A
+INNER JOIN
+  apps_countries AS AC
+ON
+  A.country = AC.country_alias
+  AND A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
+GROUP BY
+  A.country, A.posted_date 
+ORDER BY
+  confirmed DESC, recovered DESC
 LIMIT ?`;
 
   const args = [limit];
@@ -200,9 +205,24 @@ LIMIT ?`;
 
 async function getLatestArcgisStats() {
   const conn = db.conn.promise();
-  let query = `SELECT t.nid, t.country, t.state, t.last_update as lastUpdate, t.lat, t.lng, t.confirmed, t.deaths, t.recovered, t.posted_date AS postedDate, CURRENT_TIMESTAMP() as currentTimestamp
-FROM coronatracker.arcgis AS t 
-WHERE posted_date = (SELECT MAX(posted_date) FROM coronatracker.arcgis)`;
+  let query = `
+SELECT 
+  t.nid,
+  t.country,
+  t.state,
+  t.last_update AS lastUpdate,
+  t.lat,
+  t.lng,
+  t.confirmed,
+  t.deaths,
+  t.recovered,
+  t.posted_date AS postedDate,
+  CURRENT_TIMESTAMP() AS currentTimestamp
+FROM
+  coronatracker.arcgis AS t 
+WHERE
+  posted_date = (SELECT MAX(posted_date) FROM arcgis)
+`;
 
   let result = await conn.query(query);
 
