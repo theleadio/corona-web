@@ -4,6 +4,7 @@ const asyncHandler = require("express-async-handler");
 const db = require('../../system/database');
 const cache = require('../../system/redis-cache');
 const { getCustomStats } = require('../../services/customStats');
+const { cacheCheck } = require('../../services/cacheMiddleware');
 
 /**
  * @api {get} /stats
@@ -12,7 +13,7 @@ const { getCustomStats } = require('../../services/customStats');
  *
  * @apiParam {String} [country] Optional Country to retrieve the stats for.
  */
-router.get('/', cache.route(), asyncHandler(async function (req, res, next) {
+router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
   const { countryCode } = req.query;
   try {
     const results = await getStatsByAggregateData(countryCode);
@@ -29,7 +30,7 @@ router.get('/', cache.route(), asyncHandler(async function (req, res, next) {
  * @apiName FetchLatestStats
  * @apiGroup Stats
  */
-router.get('/latest', cache.route(), asyncHandler(async function (req, res, next) {
+router.get('/latest', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
   try {
     const results = await getLatestArcgisStats();
     return res.json(results);
@@ -47,7 +48,7 @@ router.get('/latest', cache.route(), asyncHandler(async function (req, res, next
  * @apiName FetchTopStats
  * @apiGroup Stats
  */
-router.get('/top', cache.route(), asyncHandler(async function(req, res, next) {
+router.get('/top', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   const { limit = 7 } = req.query;
   try {
     const results = await getTopStats(limit);

@@ -3,6 +3,7 @@ const router = express.Router();
 const cache = require('../system/redis-cache');
 const asyncHandler = require("express-async-handler");
 const db = require('../system/database');
+const { cacheCheck } = require('../services/cacheMiddleware');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -17,7 +18,7 @@ router.get('/timestamp', function(req, res, next) {
   return res.json({ timestamp: new Date().getTime() });
 });
 
-router.get('/timestamp-cache', cache.route(), function(req, res, next) {
+router.get('/timestamp-cache', cacheCheck, cache.route(), function(req, res, next) {
   return res.json({ timestamp: new Date().getTime() });
 });
 

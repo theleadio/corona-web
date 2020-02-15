@@ -5,6 +5,7 @@ const db = require('../../system/database')
 const cache = require('../../system/redis-cache')
 const router = express.Router()
 const { getCustomStats } = require('../../services/customStats')
+const { cacheCheck } = require('../../services/cacheMiddleware');
 
 /**
  * @api {get} /analytics/trend
@@ -78,7 +79,7 @@ router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
  * 
  * @apiParam {Integer} [limit] Optional limit the number of results
  */
-router.get('/country', cache.route(), asyncHandler(async function(req, res, next) {
+router.get('/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   let limit = 200
 
   if (req.query.hasOwnProperty('limit')) {
