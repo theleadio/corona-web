@@ -179,7 +179,7 @@ LIMIT ?
   try {
     const customStats = await getCustomStats();
 
-    return data.map(d => {
+    const overriddenData = data.map(d => {
       const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
 
       if (!customCountryStat) {
@@ -191,9 +191,28 @@ LIMIT ?
         confirmed: Math.max(d.confirmed, customCountryStat.confirmed),
         deaths: Math.max(d.deaths, customCountryStat.deaths),
         recovered: Math.max(d.recovered, customCountryStat.recovered),
-        created: data.created > customCountryStat.created ? data.created : customCountryStat.created,
       }
-    }).sort((a, b) => { return b.confirmed - a.confirmed });
+    });
+
+    customStats.forEach(cs => {
+      if (!cs.countryCode || typeof cs.countryCode !== 'string') {
+        return false;
+      }
+
+      // Add custom country stats if it does not exist in current data.
+      if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
+        overriddenData.push({
+          countryCode: cs.countryCode,
+          countryName: cs.countryName,
+          confirmed: cs.confirmed || 0,
+          deaths: cs.deaths || 0,
+          recovered: cs.recovered || 0,
+          created: new Date(),
+        });
+      }
+    });
+
+    return overriddenData.sort((a, b) => { return b.confirmed - a.confirmed });
   }
   catch (e) {
     console.log("[fetchAffectedCountries] error:", e);
