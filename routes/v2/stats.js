@@ -185,22 +185,27 @@ LIMIT ?`;
   let result = await conn.query(query, args);
   const data = result[0];
 
-  const customStats = await getCustomStats();
+  try {
+    const customStats = await getCustomStats();
 
-  return data.map(d => {
-    const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
+    return data.map(d => {
+      const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
 
-    if (!customCountryStat) {
-      return d;
-    }
+      if (!customCountryStat) {
+        return d;
+      }
 
-    return {
-      ...d,
-      confirmed: Math.max(d.confirmed, customCountryStat.confirmed),
-      deaths: Math.max(d.deaths, customCountryStat.deaths),
-      recovered: Math.max(d.recovered, customCountryStat.recovered),
-    }
-  }).sort((a, b) => { return b.confirmed - a.confirmed });
+      return {
+        ...d,
+        confirmed: Math.max(d.confirmed, customCountryStat.confirmed),
+        deaths: Math.max(d.deaths, customCountryStat.deaths),
+        recovered: Math.max(d.recovered, customCountryStat.recovered),
+      }
+    }).sort((a, b) => { return b.confirmed - a.confirmed });
+  } catch (e) {
+    console.log("[getTopStats] error:", error);
+    return data;
+  }
 }
 
 async function getLatestArcgisStats() {
