@@ -223,7 +223,7 @@ LIMIT ?`;
 
     return overriddenData.sort((a, b) => { return b.confirmed - a.confirmed });
   } catch (e) {
-    console.log("[getTopStats] error:", error);
+    console.log("[getTopStats] error:", e);
     return data;
   }
 }
