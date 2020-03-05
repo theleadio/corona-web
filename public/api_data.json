@@ -439,29 +439,6 @@
   },
   {
     "type": "get",
-    "url": "/stats/qq",
-    "title": "",
-    "name": "FetchStatsByQq",
-    "group": "Stats",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": true,
-            "field": "country",
-            "description": "<p>Optional Country to retrieve the stats for.</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/stats.js",
-    "groupTitle": "Stats"
-  },
-  {
-    "type": "get",
     "url": "/v2/stats/top",
     "title": "Top stats",
     "name": "FetchTopStats",
@@ -507,7 +484,7 @@
   {
     "type": "get",
     "url": "/v1/travel-alert",
-    "title": "List travel alert information.",
+    "title": "List",
     "name": "FetchTravelAlert",
     "group": "Travel_Alert",
     "version": "1.0.0",
@@ -515,7 +492,7 @@
       "examples": [
         {
           "title": "Response (example):",
-          "content": "  HTTP/1.1 200 Success\n[\n  {\n    \"countryCode\": \"AG\",\n    \"countryName\": \"ANTIGUA AND BARBUDA\",\n    \"publishedDate\": \"2020-03-04T00:00:00.000Z\",\n    \"alertMessage\": \"1. Visitors and airline crew who have been in China (People's Rep.) in the past 28 days are not allowed to enter Antigua and Barbuda.||2. Nationals and resident diplomats of Antigua and Barbuda who have been in China (People's Rep.) in the past 28 days are allowed to enter Antigua and Barbuda. Airlines must provide their advance passenger information before departure. ||3. Visitors and airline crew who have been in Italy (in cities and towns which have been quarantined by the Government of Italy) are not allowed to enter Antigua and Barbuda.  |-This does not apply to nationals of Antigua and Barbuda and resident diplomats.\"\n  },\n]",
+          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"countryCode\": \"AG\",\n    \"countryName\": \"ANTIGUA AND BARBUDA\",\n    \"publishedDate\": \"2020-03-04T00:00:00.000Z\",\n    \"alertMessage\": \"1. Visitors and airline crew who have been in China (People's Rep.) in the past 28 days are not allowed to enter Antigua and Barbuda.||2. Nationals and resident diplomats of Antigua and Barbuda who have been in China (People's Rep.) in the past 28 days are allowed to enter Antigua and Barbuda. Airlines must provide their advance passenger information before departure. ||3. Visitors and airline crew who have been in Italy (in cities and towns which have been quarantined by the Government of Italy) are not allowed to enter Antigua and Barbuda.  |-This does not apply to nationals of Antigua and Barbuda and resident diplomats.\"\n  },\n]",
           "type": "json"
         }
       ]
