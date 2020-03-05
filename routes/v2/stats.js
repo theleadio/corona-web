@@ -7,11 +7,20 @@ const { getCustomStats, fetchDataFromGoogleSheet } = require('../../services/cus
 const { cacheCheck } = require('../../services/cacheMiddleware');
 
 /**
- * @api {get} /stats
+ * @api {get} /v2/stats
  * @apiName FetchStats
  * @apiGroup Stats
- *
+ * @apiVersion 2.0.0
+ * @apiDescription Returns the stats of top X countries sorted by number of confirmed cases.
  * @apiParam {String} [country] Optional Country to retrieve the stats for.
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+{
+  "confirmed": 96785,
+  "deaths": 3303,
+  "recovered": 53610,
+  "created": "2020-03-05T14:35:03.000Z"
+}
  */
 router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
   const { countryCode } = req.query;
@@ -26,9 +35,10 @@ router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res
 }));
 
 /**
- * @api {get} /stats/latest
+ * @api {get} /v2/stats/latest
  * @apiName FetchLatestStats
  * @apiGroup Stats
+ * @apiVersion 2.0.0
  */
 router.get('/latest', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
   try {
@@ -42,11 +52,24 @@ router.get('/latest', cacheCheck, cache.route(), asyncHandler(async function (re
 }));
 
 /**
- * Returns the stats of top X countries with the most number of confirmed cases.
- *
- * @api {get} /stats/top
+ * @api {get} /v2/stats/top Top stats
  * @apiName FetchTopStats
  * @apiGroup Stats
+ * @apiVersion 2.0.0
+ * @apiDescription Returns the stats of top X countries sorted by number of confirmed cases.
+ * @apiParam {Number} [limit=7] Number of countries' stats to retrieve.
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "countryCode": "CN",
+    "countryName": "China",
+    "confirmed": 80411,
+    "deaths": 3013,
+    "recovered": 52201,
+    "created": "2020-03-05T14:50:02.000Z"
+  }
+]
  */
 router.get('/top', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   const { limit = 7 } = req.query;
@@ -61,9 +84,26 @@ router.get('/top', cacheCheck, cache.route(), asyncHandler(async function(req, r
 }));
 
 /**
- * @api {get} /v2/stats/custom
+ * @api {get} /v2/stats/custom Custom
  * @apiName FetchCustomOverriddenStats
  * @apiGroup Stats
+ * @apiVersion 2.0.0
+ * @apiDescription Returns country stats combined with overridden stats in our google sheet.
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "id": 2,
+    "countryCode": "SG",
+    "countryName": "Singapore",
+    "confirmed": 89,
+    "recovered": 51,
+    "deaths": 0,
+    "created": "2020-02-23 (UTC 1355)",
+    "createdBy": "",
+    "sourceUrl": "https://www.cna.com.tw/news/aopl/202002230219.aspx"
+  }
+]
  */
 router.get('/custom', cacheCheck, asyncHandler(async function(req, res, next) {
   const result = await getCustomStats();
@@ -71,9 +111,27 @@ router.get('/custom', cacheCheck, asyncHandler(async function(req, res, next) {
 }));
 
 /**
- * @api {get} /v2/stats/custom-debug
+ * @api {get} /v2/stats/custom-debug Custom (for debug)
  * @apiName FetchCustomOverriddenStatsDebug
  * @apiGroup Stats
+ * @apiVersion 2.0.0
+ * @apiDescription This endpoint is used for debugging purpose.
+ * It returns the list of overridden stats in our google sheet.
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "id": 2,
+    "countryCode": "SG",
+    "countryName": "Singapore",
+    "confirmed": 89,
+    "recovered": 51,
+    "deaths": 0,
+    "created": "2020-02-23 (UTC 1355)",
+    "createdBy": "",
+    "sourceUrl": "https://www.cna.com.tw/news/aopl/202002230219.aspx"
+  }
+]
  */
 router.get('/custom-debug', cacheCheck, asyncHandler(async function(req, res, next) {
   const result = await fetchDataFromGoogleSheet();

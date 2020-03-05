@@ -5,19 +5,55 @@ const asyncHandler = require("express-async-handler");
 const db = require('../system/database');
 const { cacheCheck } = require('../services/cacheMiddleware');
 
-/* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+/**
+ * @api {get} /health Health check
+ * @apiName Health
+ * @apiGroup Miscellaneous
+ * @apiVersion 0.0.0
+ * @apiDescription Endpoint to check if the service is up.
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+{
+  "status": "OK"
+}
+ */
 router.get('/health', function(req, res, next) {
   return res.json({ status: 'OK' });
 });
 
+/**
+ * @api {get} /timestamp Timestamp
+ * @apiName Timestamp
+ * @apiGroup Miscellaneous
+ * @apiVersion 0.0.0
+ * @apiDescription Return current timestamp.
+ * Useful for debugging redis cache together with Timestamp cache endpoint.
+ * @apiSuccessExample Response (example):
+{
+  "timestamp": 1583419781518
+}
+ */
 router.get('/timestamp', function(req, res, next) {
   return res.json({ timestamp: new Date().getTime() });
 });
 
+/**
+ * @api {get} /timestamp-cache Timestamp cache
+ * @apiName TimestampCache
+ * @apiGroup Miscellaneous
+ * @apiVersion 0.0.0
+ * @apiDescription Endpoint to check if redis cache is working.
+ * If redis cache is working, the response should return the cached timestamp.
+ * Useful for debugging redis cache together with Timestamp endpoint.
+ * @apiSuccessExample Response (example):
+{
+  "timestamp": 1583419781500
+}
+ */
 router.get('/timestamp-cache', cacheCheck, cache.route(), function(req, res, next) {
   return res.json({ timestamp: new Date().getTime() });
 });

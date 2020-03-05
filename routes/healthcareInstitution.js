@@ -5,9 +5,32 @@ const axios = require('axios');
 const cache = require('../system/redis-cache');
 
 /**
- * @api {get} /healthcare-institution
+ * @api {get} /v1/healthcare-institution List
  * @apiName FetchHealthcareInstitution
- * @apiGroup HealthcareInstitution
+ * @apiGroup Healthcare Institution
+ * @apiVersion 1.0.0
+ * @apiDescription Returns list of health care institutions
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+{
+  "hospitalsAndHealthcareProviders": [
+    {
+      "id": 2,
+      "name": "Singapore General Hospital",
+      "description": "",
+      "address": "Outram Road, Singapore 169608",
+      "city": "SINGAPORE",
+      "state": "SINGAPORE",
+      "country": "SG",
+      "telNo": "+65 6222 3322",
+      "lat": "1.278523",
+      "long": "103.834011",
+      "addedBy": "ivan",
+      "source": "http://hcidirectory.sg/hcidirectory",
+      "officialAdvisory": "https://www.moh.gov.sg/2019-ncov-wuhan"
+    }
+  ]
+}
  */
 router.get('/', cache.route({
   expire: {

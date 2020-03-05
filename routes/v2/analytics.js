@@ -8,12 +8,13 @@ const { getCustomStats } = require('../../services/customStats')
 const { cacheCheck } = require('../../services/cacheMiddleware');
 
 /**
- * @api {get} /analytics/trend
+ * @api {get} /v2/analytics/trend By date
  * @apiName FetchAnalyticsTrendByDate
  * @apiGroup Analytics
- * 
- * @apiParam {Date} [start_date] Required Start date
- * @apiParam {Date} [end_date] Required end date
+ * @apiVersion 2.0.0
+ *
+ * @apiParam {String} start_date Start date in YYYY-MM-DD format
+ * @apiParam {String} end_date End date in YYYY-MM-DD format
  */
 router.get('/trend', cache.route(), asyncHandler(async function(req, res, next) {
   const start_date = req.query.start_date
@@ -44,11 +45,12 @@ router.get('/trend', cache.route(), asyncHandler(async function(req, res, next) 
 }))
 
 /**
- * @api {get} /analytics/area
- * @apiName FetchMostAffectedbyArea
+ * @api {get} /v2/analytics/area By area
+ * @apiName FetchMostAffectedByArea
  * @apiGroup Analytics
+ * @apiVersion 2.0.0
  * 
- * @apiParam {Integer} [limit] Optional limit the number of results
+ * @apiParam {Number} [limit=10] limit the number of results
  */
 router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
   let limit = 10
@@ -73,11 +75,12 @@ router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
 }))
 
 /**
- * @api {get} /analytics/country
+ * @api {get} /v2/analytics/country By country
  * @apiName FetchAffectedCountries
  * @apiGroup Analytics
+ * @apiVersion 2.0.0
  * 
- * @apiParam {Integer} [limit] Optional limit the number of results
+ * @apiParam {Number} [limit=200] limit the number of results
  */
 router.get('/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   let limit = 200

@@ -6,9 +6,20 @@ const cache = require('../system/redis-cache');
 const db = require('../system/database');
 
 /**
- * @api {get} /travel-alert
+ * @api {get} /v1/travel-alert List
  * @apiName FetchTravelAlert
- * @apiGroup TravelAlert
+ * @apiGroup Travel Alert
+ * @apiVersion 1.0.0
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "countryCode": "AG",
+    "countryName": "ANTIGUA AND BARBUDA",
+    "publishedDate": "2020-03-04T00:00:00.000Z",
+    "alertMessage": "1. Visitors and airline crew who have been in China (People's Rep.) in the past 28 days are not allowed to enter Antigua and Barbuda.||2. Nationals and resident diplomats of Antigua and Barbuda who have been in China (People's Rep.) in the past 28 days are allowed to enter Antigua and Barbuda. Airlines must provide their advance passenger information before departure. ||3. Visitors and airline crew who have been in Italy (in cities and towns which have been quarantined by the Government of Italy) are not allowed to enter Antigua and Barbuda.  |-This does not apply to nationals of Antigua and Barbuda and resident diplomats."
+  },
+]
  */
 router.get('/', cache.route({
   expire: {
