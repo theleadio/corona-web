@@ -6,7 +6,7 @@ async function getCustomStats() {
 
   if (!cache.connected) {
     const data = await fetchDataFromGoogleSheet();
-    console.log("latestStats:", data);
+    console.log("getCustomStats:", data);
 
     return data;
   }
