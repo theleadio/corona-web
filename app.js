@@ -61,9 +61,13 @@ app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
+  console.log('[ERROR]', err.message);
+
   // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  const status = err.status || 500;
+  res.status(status);
+  // res.render('error');
+  res.json({ status, message: 'An error has occurred.' })
 });
 
 module.exports = app;
