@@ -235,10 +235,9 @@ ON
 GROUP BY
   A.country, A.posted_date 
 ORDER BY
-  confirmed DESC, recovered DESC
-LIMIT ?`;
+  confirmed DESC, recovered DESC`;
 
-  const args = [limit];
+  const args = [];
 
   let result = await conn.query(query, args);
   const data = result[0];
@@ -279,7 +278,18 @@ LIMIT ?`;
       }
     });
 
-    return overriddenData.sort((a, b) => { return b.confirmed - a.confirmed });
+    return overriddenData
+      .sort((a, b) => {
+        // Sort by recovered desc if confirmed is same
+        if (b.confirmed === a.confirmed) {
+          return b.recovered - a.recovered;
+        }
+
+        // Sort by confirmed desc
+        return b.confirmed - a.confirmed;
+      })
+      // Take first {limit} results.
+      .slice(0, limit);
   } catch (e) {
     console.log("[getTopStats] error:", e);
     return data;
