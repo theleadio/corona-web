@@ -4,7 +4,7 @@ const moment = require('moment')
 const db = require('../../system/database')
 const cache = require('../../system/redis-cache')
 const router = express.Router()
-const { getCustomStats } = require('../../services/customStats')
+const { getStatsWithCountryDetail } = require('../../services/statsService')
 const { cacheCheck } = require('../../services/cacheMiddleware');
 
 /**
@@ -147,80 +147,93 @@ async function fetchMostAffectedByArea(limit) {
   return result[0]
 }
 
-async function fetchAffectedCountries(limit) {
-  const conn = db.conn.promise()
-  const args = []
-  let query = `
-SELECT 
-  AC.country_code AS countryCode,
-  IFNULL(AC.country_name, A.country) AS countryName,
-  IFNULL(AC.latitude, A.lat) + 0.0 AS lat,
-  IFNULL(AC.longitude, A.lng) + 0.0 AS lng,
-  CAST(SUM(confirmed) AS UNSIGNED) AS confirmed,
-  CAST(SUM(deaths) AS UNSIGNED) AS deaths, 
-  CAST(SUM(recovered) AS UNSIGNED) AS recovered,
-  CAST(posted_date AS DATETIME) AS dateAsOf
-FROM 
-  arcgis AS A
-INNER JOIN 
-  apps_countries AS AC 
-ON
-  A.country = AC.country_alias
-  AND A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
-GROUP BY 
-  A.country, A.posted_date 
-ORDER BY
-  confirmed DESC, recovered DESC
-LIMIT ?
-`
+async function fetchAffectedCountries(limit = 999) {
+  const results = await getStatsWithCountryDetail(limit);
+  return results.map(s => {
+    return {
+      country: s.countryName,
+      lat: s.lat,
+      lng: s.lng,
+      total_confirmed: s.confirmed,
+      total_dead: s.deaths,
+      total_recovered: s.recovered,
+      date_as_of: s.created,
+    }
+  });
 
-  args.push(limit)
-
-  const result = await conn.query(query, args)
-  const data = result[0];
-
-  try {
-    const customStats = await getCustomStats();
-
-    const overriddenData = data.map(d => {
-      const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
-
-      if (!customCountryStat) {
-        return d;
-      }
-
-      return {
-        ...d,
-        confirmed: Math.max(d.confirmed, customCountryStat.confirmed),
-        deaths: Math.max(d.deaths, customCountryStat.deaths),
-        recovered: Math.max(d.recovered, customCountryStat.recovered),
-      }
-    });
-
-    customStats.forEach(cs => {
-      if (!cs.countryCode || typeof cs.countryCode !== 'string') {
-        return false;
-      }
-
-      // Add custom country stats if it does not exist in current data.
-      if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
-        overriddenData.push({
-          countryCode: cs.countryCode,
-          countryName: cs.countryName,
-          confirmed: cs.confirmed || 0,
-          deaths: cs.deaths || 0,
-          recovered: cs.recovered || 0,
-          created: new Date(),
-        });
-      }
-    });
-
-    return overriddenData.sort((a, b) => { return b.confirmed - a.confirmed });
-  }
-  catch (e) {
-    console.log("[fetchAffectedCountries] error:", e);
-    return data;
-  }
+//   const conn = db.conn.promise()
+//   const args = []
+//   let query = `
+// SELECT
+//   AC.country_code AS countryCode,
+//   IFNULL(AC.country_name, A.country) AS countryName,
+//   IFNULL(AC.latitude, A.lat) + 0.0 AS lat,
+//   IFNULL(AC.longitude, A.lng) + 0.0 AS lng,
+//   CAST(SUM(confirmed) AS UNSIGNED) AS confirmed,
+//   CAST(SUM(deaths) AS UNSIGNED) AS deaths,
+//   CAST(SUM(recovered) AS UNSIGNED) AS recovered,
+//   CAST(posted_date AS DATETIME) AS dateAsOf
+// FROM
+//   arcgis AS A
+// INNER JOIN
+//   apps_countries AS AC
+// ON
+//   A.country = AC.country_alias
+//   AND A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
+// GROUP BY
+//   A.country, A.posted_date
+// ORDER BY
+//   confirmed DESC, recovered DESC
+// LIMIT ?
+// `
+//
+//   args.push(limit)
+//
+//   const result = await conn.query(query, args)
+//   const data = result[0];
+//
+//   try {
+//     const customStats = await getCustomStats();
+//
+//     const overriddenData = data.map(d => {
+//       const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
+//
+//       if (!customCountryStat) {
+//         return d;
+//       }
+//
+//       return {
+//         ...d,
+//         confirmed: Math.max(d.confirmed, customCountryStat.confirmed),
+//         deaths: Math.max(d.deaths, customCountryStat.deaths),
+//         recovered: Math.max(d.recovered, customCountryStat.recovered),
+//       }
+//     });
+//
+//     customStats.forEach(cs => {
+//       if (!cs.countryCode || typeof cs.countryCode !== 'string') {
+//         return false;
+//       }
+//
+//       // Add custom country stats if it does not exist in current data.
+//       if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
+//         overriddenData.push({
+//           countryCode: cs.countryCode,
+//           countryName: cs.countryName,
+//           confirmed: cs.confirmed || 0,
+//           deaths: cs.deaths || 0,
+//           recovered: cs.recovered || 0,
+//           created: new Date(),
+//         });
+//       }
+//     });
+//
+//     return overriddenData.sort((a, b) => { return b.confirmed - a.confirmed });
+//   }
+//   catch (e) {
+//     console.log("[fetchAffectedCountries] error:", e);
+//     return data;
+//   }
 }
 
 module.exports = router

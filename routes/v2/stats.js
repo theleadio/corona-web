@@ -4,6 +4,7 @@ const asyncHandler = require("express-async-handler");
 const db = require('../../system/database');
 const cache = require('../../system/redis-cache');
 const { getCustomStats, fetchDataFromGoogleSheet } = require('../../services/customStats');
+const { getStatsWithCountryDetail } = require('../../services/statsService');
 const { cacheCheck } = require('../../services/cacheMiddleware');
 
 /**
@@ -74,7 +75,7 @@ router.get('/latest', cacheCheck, cache.route(), asyncHandler(async function (re
 router.get('/top', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   const { limit = 7 } = req.query;
   try {
-    const results = await getTopStats(limit);
+    const results = await getStatsWithCountryDetail(limit);
     return res.json(results);
   }
   catch (error) {
