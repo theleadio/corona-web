@@ -58,13 +58,6 @@ router.get('/top', cache.route(), asyncHandler(async function(req, res, next) {
   }
 }));
 
-/**
- * @api {get} /stats/qq
- * @apiName FetchStatsByQq
- * @apiGroup Stats
- *
- * @apiParam {String} [country] Optional Country to retrieve the stats for.
- */
 router.get('/qq', cache.route(), asyncHandler(async function(req, res, next) {
   const { country } = req.query;
   try {

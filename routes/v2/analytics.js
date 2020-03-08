@@ -4,14 +4,17 @@ const moment = require('moment')
 const db = require('../../system/database')
 const cache = require('../../system/redis-cache')
 const router = express.Router()
+const { getStatsWithCountryDetail } = require('../../services/statsService')
+const { cacheCheck } = require('../../services/cacheMiddleware');
 
 /**
- * @api {get} /analytics/trend
+ * @api {get} /v2/analytics/trend By date
  * @apiName FetchAnalyticsTrendByDate
  * @apiGroup Analytics
- * 
- * @apiParam {Date} [start_date] Required Start date
- * @apiParam {Date} [end_date] Required end date
+ * @apiVersion 2.0.0
+ *
+ * @apiParam {String} start_date Start date in YYYY-MM-DD format
+ * @apiParam {String} end_date End date in YYYY-MM-DD format
  */
 router.get('/trend', cache.route(), asyncHandler(async function(req, res, next) {
   const start_date = req.query.start_date
@@ -42,11 +45,12 @@ router.get('/trend', cache.route(), asyncHandler(async function(req, res, next) 
 }))
 
 /**
- * @api {get} /analytics/area
- * @apiName FetchMostAffectedbyArea
+ * @api {get} /v2/analytics/area By area
+ * @apiName FetchMostAffectedByArea
  * @apiGroup Analytics
+ * @apiVersion 2.0.0
  * 
- * @apiParam {Integer} [limit] Optional limit the number of results
+ * @apiParam {Number} [limit=10] limit the number of results
  */
 router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
   let limit = 10
@@ -71,13 +75,14 @@ router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
 }))
 
 /**
- * @api {get} /analytics/country
+ * @api {get} /v2/analytics/country By country
  * @apiName FetchAffectedCountries
  * @apiGroup Analytics
+ * @apiVersion 2.0.0
  * 
- * @apiParam {Integer} [limit] Optional limit the number of results
+ * @apiParam {Number} [limit=200] limit the number of results
  */
-router.get('/country', cache.route(), asyncHandler(async function(req, res, next) {
+router.get('/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   let limit = 200
 
   if (req.query.hasOwnProperty('limit')) {
@@ -142,33 +147,94 @@ async function fetchMostAffectedByArea(limit) {
   return result[0]
 }
 
-async function fetchAffectedCountries(limit) {
-  const conn = db.conn.promise()
-  let query = ''
-  const args = []
+async function fetchAffectedCountries(limit = 999) {
+  const results = await getStatsWithCountryDetail(limit);
+  return results.map(s => {
+    return {
+      countryCode: s.countryCode,
+      countryName: s.countryName,
+      lat: s.lat,
+      lng: s.lng,
+      confirmed: s.confirmed,
+      deaths: s.deaths,
+      recovered: s.recovered,
+      dateAsOf: s.created,
+    }
+  });
 
-  query = `
-    SELECT 
-    C.country_name AS country,
-    C.latitude + 0.0 AS lat,
-    C.longitude + 0.0 AS lng,
-    CAST(SUM(confirmed) AS UNSIGNED) AS total_confirmed,
-    CAST(SUM(deaths) AS UNSIGNED) AS total_dead, 
-    CAST(SUM(recovered) AS UNSIGNED) AS total_recovered,
-    CAST(posted_at AS DATETIME) AS date_as_of
-    FROM data_aggregated AS A
-    INNER JOIN apps_countries AS C 
-    ON A.countryCode = C.country_code
-    WHERE posted_at IN (SELECT MAX(posted_at) from data_aggregated)
-    GROUP BY countryCode
-    ORDER BY confirmed DESC
-    LIMIT ?`
-
-  args.push(limit)
-
-  let result = await conn.query(query, args)
-
-  return result[0]
+//   const conn = db.conn.promise()
+//   const args = []
+//   let query = `
+// SELECT
+//   AC.country_code AS countryCode,
+//   IFNULL(AC.country_name, A.country) AS countryName,
+//   IFNULL(AC.latitude, A.lat) + 0.0 AS lat,
+//   IFNULL(AC.longitude, A.lng) + 0.0 AS lng,
+//   CAST(SUM(confirmed) AS UNSIGNED) AS confirmed,
+//   CAST(SUM(deaths) AS UNSIGNED) AS deaths,
+//   CAST(SUM(recovered) AS UNSIGNED) AS recovered,
+//   CAST(posted_date AS DATETIME) AS dateAsOf
+// FROM
+//   arcgis AS A
+// INNER JOIN
+//   apps_countries AS AC
+// ON
+//   A.country = AC.country_alias
+//   AND A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
+// GROUP BY
+//   A.country, A.posted_date
+// ORDER BY
+//   confirmed DESC, recovered DESC
+// LIMIT ?
+// `
+//
+//   args.push(limit)
+//
+//   const result = await conn.query(query, args)
+//   const data = result[0];
+//
+//   try {
+//     const customStats = await getCustomStats();
+//
+//     const overriddenData = data.map(d => {
+//       const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
+//
+//       if (!customCountryStat) {
+//         return d;
+//       }
+//
+//       return {
+//         ...d,
+//         confirmed: Math.max(d.confirmed, customCountryStat.confirmed),
+//         deaths: Math.max(d.deaths, customCountryStat.deaths),
+//         recovered: Math.max(d.recovered, customCountryStat.recovered),
+//       }
+//     });
+//
+//     customStats.forEach(cs => {
+//       if (!cs.countryCode || typeof cs.countryCode !== 'string') {
+//         return false;
+//       }
+//
+//       // Add custom country stats if it does not exist in current data.
+//       if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
+//         overriddenData.push({
+//           countryCode: cs.countryCode,
+//           countryName: cs.countryName,
+//           confirmed: cs.confirmed || 0,
+//           deaths: cs.deaths || 0,
+//           recovered: cs.recovered || 0,
+//           created: new Date(),
+//         });
+//       }
+//     });
+//
+//     return overriddenData.sort((a, b) => { return b.confirmed - a.confirmed });
+//   }
+//   catch (e) {
+//     console.log("[fetchAffectedCountries] error:", e);
+//     return data;
+//   }
 }
 
 module.exports = router

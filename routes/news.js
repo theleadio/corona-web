@@ -5,33 +5,6 @@ const asyncHandler = require("express-async-handler");
 const db = require('../system/database');
 const cache = require('../system/redis-cache');
 
-/**
- * @api {get} /news
- * @apiName FetchNews
- * @apiGroup News
- *
- * @apiParam {Number} limit number of news to return
- * @apiParam {Number} offset number of news to skip
- * @apiParam {String} country country name to search in title/description
- * @apiParam {String} countryCode countryCode to filter news by
- * @apiParam {String} sort field name to sort news by. `-field` to sort field in descending order.
- * @apiParam {String} q text to search in description
- * @apiSuccessExample Response (example):
- *     HTTP/1.1 200 Success
-      [
-        {
-          "nid": 1,
-          "author": "BBC News",
-          "title": "Road blocks and ghost towns",
-          "description": "A BBC team travels into Hubei province, where the deadly new coronavirus originated.",
-          "url": "https://www.bbc.co.uk/news/av/world-asia-china-51255918/china-coronavirus-road-blocks-and-ghost-towns",
-          "urlToImage": "https://ichef.bbci.co.uk/news/1024/branded_news/1218D/production/_110652147_p081fsgp.jpg",
-          "publishedAt": "2020-01-26T11:44:46Z",
-          "content": null,
-          "countryCodes": 'CN,SG'
-        }
-      ]
- */
 router.get('/', cache.route(), asyncHandler(async function (req, res, next) {
   const { limit, offset, country, countryCode, sort, q } = req.query;
   try {
@@ -45,32 +18,33 @@ router.get('/', cache.route(), asyncHandler(async function (req, res, next) {
 }));
 
 /**
- * @api {get} /news/trending
+ * @api {get} /news/trending List
  * @apiName FetchTrendingNews
  * @apiGroup News
+ * @apiVersion 1.0.0
  *
- * @apiParam {Number} limit number of news to return
- * @apiParam {Number} offset number of news to skip
- * @apiParam {String} country country name to search in title/description
- * @apiParam {String} countryCode countryCode to filter news by
+ * @apiParam {Number} [limit=9] number of news to return
+ * @apiParam {Number} [offset=0] number of news to skip
+ * @apiParam {String} [country] country name to search in title/description
+ * @apiParam {String} [countryCode] countryCode to filter news by
  * @apiSuccessExample Response (example):
- *     HTTP/1.1 200 Success
-      [
-        "total": 9
-        "items": [
-          {
-            "nid": 1,
-            "author": "BBC News",
-            "title": "Road blocks and ghost towns",
-            "description": "A BBC team travels into Hubei province, where the deadly new coronavirus originated.",
-            "url": "https://www.bbc.co.uk/news/av/world-asia-china-51255918/china-coronavirus-road-blocks-and-ghost-towns",
-            "urlToImage": "https://ichef.bbci.co.uk/news/1024/branded_news/1218D/production/_110652147_p081fsgp.jpg",
-            "publishedAt": "2020-01-26T11:44:46Z",
-            "content": null,
-            "countryCodes": 'CN,SG'
-          }
-        ]
-      ]
+ * HTTP/1.1 200 Success
+[
+  "total": 9
+  "items": [
+    {
+      "nid": 1,
+      "author": "BBC News",
+      "title": "Road blocks and ghost towns",
+      "description": "A BBC team travels into Hubei province, where the deadly new coronavirus originated.",
+      "url": "https://www.bbc.co.uk/news/av/world-asia-china-51255918/china-coronavirus-road-blocks-and-ghost-towns",
+      "urlToImage": "https://ichef.bbci.co.uk/news/1024/branded_news/1218D/production/_110652147_p081fsgp.jpg",
+      "publishedAt": "2020-01-26T11:44:46Z",
+      "content": null,
+      "countryCodes": 'CN,SG'
+    }
+  ]
+]
  */
 router.get('/trending', cache.route(), asyncHandler(async function (req, res, next) {
   const { limit = 9, offset, country, countryCode, language } = req.query;

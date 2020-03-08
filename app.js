@@ -9,10 +9,11 @@ const healthcareInstitutionRouter = require('./routes/healthcareInstitution');
 const indexRouter = require('./routes/index');
 const newsRouter = require('./routes/news');
 const statsRouter = require('./routes/stats');
-const travelBanRouter = require('./routes/travelBan');
+const travelAlertRouter = require('./routes/travelAlert');
 const imageProxyRouter = require('./routes/imageProxy');
 
 const v2AnalyticsRouter = require('./routes/v2/analytics');
+const v2CacheRouter = require('./routes/v2/cache');
 const v2StatsRouter = require('./routes/v2/stats');
 
 const cors = require('cors')
@@ -39,11 +40,12 @@ app.use('/analytics', analyticsRouter);
 app.use('/v1/news', newsRouter);
 app.use('/v1/healthcare-institution', healthcareInstitutionRouter);
 app.use('/v1/stats', statsRouter);
-app.use('/v1/travel-ban', travelBanRouter);
+app.use('/v1/travel-alert', travelAlertRouter);
 app.use('/v1/analytics', analyticsRouter);
 
 app.use('/v2/analytics', v2AnalyticsRouter);
 app.use('/v2/stats', v2StatsRouter);
+app.use('/v2/cache', v2CacheRouter);
 
 app.use('/image-proxy', imageProxyRouter);
 app.use('/doc', express.static(__dirname + '/public'));
@@ -59,9 +61,13 @@ app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
+  console.log('[ERROR]', err.message);
+
   // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  const status = err.status || 500;
+  res.status(status);
+  // res.render('error');
+  res.json({ status, message: 'An error has occurred.' })
 });
 
 module.exports = app;
