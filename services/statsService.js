@@ -23,8 +23,8 @@ async function getStatsWithCountryDetail(limit = 999) {
 SELECT
   AC.country_code AS countryCode,
   IFNULL(AC.country_name, A.country) AS countryName,
-  A.lat,
-  A.lng,
+  AC.latitude + 0.0 AS lat,
+  AC.longitude + 0.0 AS lng,
   CAST(SUM(A.confirmed) AS UNSIGNED) as confirmed,
   CAST(SUM(A.deaths) AS UNSIGNED) as deaths,
   CAST(SUM(A.recovered) AS UNSIGNED) as recovered,

@@ -151,13 +151,14 @@ async function fetchAffectedCountries(limit = 999) {
   const results = await getStatsWithCountryDetail(limit);
   return results.map(s => {
     return {
-      country: s.countryName,
+      countryCode: s.countryCode,
+      countryName: s.countryName,
       lat: s.lat,
       lng: s.lng,
-      total_confirmed: s.confirmed,
-      total_dead: s.deaths,
-      total_recovered: s.recovered,
-      date_as_of: s.created,
+      confirmed: s.confirmed,
+      deaths: s.deaths,
+      recovered: s.recovered,
+      dateAsOf: s.created,
     }
   });
 
