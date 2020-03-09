@@ -180,7 +180,7 @@ router.get('/diff/global', cacheCheck, asyncHandler(async function(req, res, nex
  * @apiGroup Stats
  * @apiVersion 2.0.0
  * @apiDescription Returns difference in country stats between days.
- * @apiParam {String} [sort=confirm] The stats number to sort by in descending order. Valid values are 'confirmed', 'recover', 'death'
+ * @apiParam {String} [sort=confirmed] The stats number to sort by in descending order. Valid values are 'confirmed', 'recover', 'death'
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
 [
