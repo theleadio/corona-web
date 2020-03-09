@@ -140,11 +140,11 @@ router.get('/custom-debug', cacheCheck, asyncHandler(async function(req, res, ne
 }));
 
 /**
- * @api {get} /v2/stats/diff
- * @apiName FetchStatsDifferenceBetweenDays
+ * @api {get} /v2/stats/diff/global
+ * @apiName FetchGlobalStatsDifferenceBetweenDays
  * @apiGroup Stats
  * @apiVersion 2.0.0
- * @apiDescription Returns difference in stats between days.
+ * @apiDescription Returns difference in global stats between days.
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
 [
@@ -163,13 +163,13 @@ router.get('/custom-debug', cacheCheck, asyncHandler(async function(req, res, ne
   }
 ]
  */
-router.get('/diff', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/diff/global', cacheCheck, asyncHandler(async function(req, res, next) {
   try {
-    const result = await getDiff();
+    const result = await getGlobalStatsDiff();
     return res.json(result);
   }
   catch (error) {
-    console.log('[/stats/diff] error', error);
+    console.log('[/stats/diff/global] error', error);
     return res.json(error);
   }
 }));
@@ -358,19 +358,19 @@ WHERE
   return result[0];
 }
 
-async function getDiff() {
+async function getGlobalStatsDiff() {
   const conn = db.conn.promise();
   let query = `
 SELECT
-  a.agg_confirmed as todayConfirmed,
-  b.agg_confirmed as ytdConfirmed,
-  (a.agg_confirmed - b.agg_confirmed) as diffConfirmed,
-  a.agg_death as todayDeath,
-  b.agg_death as ytdDeath,
-  (a.agg_death - b.agg_death) as diffDeath,
-  a.agg_recover as todayRecover,
-  b.agg_recover as ytdRecover,
-  (a.agg_recover - b.agg_recover) as diffRecover,
+  IFNULL(a.agg_confirmed, 0) as todayConfirmed,
+  IFNULL(b.agg_confirmed, 0) as ytdConfirmed,
+  IFNULL((a.agg_confirmed - b.agg_confirmed), 0) as diffConfirmed,
+  IFNULL(a.agg_death, 0) as todayDeath,
+  IFNULL(b.agg_death, 0) as ytdDeath,
+  IFNULL((a.agg_death - b.agg_death), 0) as diffDeath,
+  IFNULL(a.agg_recover, 0) as todayRecover,
+  IFNULL(b.agg_recover, 0) as ytdRecover,
+  IFNULL((a.agg_recover - b.agg_recover), 0) as diffRecover,
   a.agg_date as today,
   b.agg_date as ytd
 FROM
