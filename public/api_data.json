@@ -337,7 +337,7 @@
             "type": "String",
             "optional": true,
             "field": "sort",
-            "defaultValue": "confirm",
+            "defaultValue": "confirmed",
             "description": "<p>The stats number to sort by in descending order. Valid values are 'confirmed', 'recover', 'death'</p>"
           }
         ]
