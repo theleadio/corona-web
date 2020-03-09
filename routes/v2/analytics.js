@@ -129,26 +129,15 @@ async function fetchMostAffectedByArea(limit) {
   let query = ''
   const args = []
 
-  // query = `
-  //   SELECT IFNULL(state, 'N/A') as state, lat, lng,
-  //   SUM(confirmed) as total_confirmed,
-  //   SUM(deaths) as total_dead, SUM(recovered) as total_recovered,
-  //   CAST(posted_date as DATETIME) as date_as_of
-  //   FROM arcgis
-  //   WHERE posted_date IN (SELECT MAX(posted_date) from arcgis)
-  //   GROUP BY state
-  //   ORDER BY total_confirmed DESC
-  //   LIMIT ?`
   query = `
-    SELECT a.* FROM arcgis AS a
-    INNER JOIN(
-      SELECT country, state,
-      max(posted_date) AS MaxDateTime
-      FROM arcgis GROUP BY state
-    ) as groupedA
-    ON a.state = groupedA.state
-    AND a.posted_date = groupedA.MaxDateTime
-    ORDER BY confirmed DESC
+    SELECT IFNULL(state, 'N/A') as state, lat, lng,
+    SUM(confirmed) as total_confirmed,
+    SUM(deaths) as total_dead, SUM(recovered) as total_recovered,
+    CAST(posted_date as DATETIME) as date_as_of
+    FROM arcgis
+    WHERE posted_date IN (SELECT MAX(posted_date) from arcgis)
+    GROUP BY state
+    ORDER BY total_confirmed DESC
     LIMIT ?`
 
   args.push(limit)
