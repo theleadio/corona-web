@@ -140,7 +140,7 @@ router.get('/custom-debug', cacheCheck, asyncHandler(async function(req, res, ne
 }));
 
 /**
- * @api {get} /v2/stats/diff/global
+ * @api {get} /v2/stats/diff/global Diff global stats
  * @apiName FetchGlobalStatsDifferenceBetweenDays
  * @apiGroup Stats
  * @apiVersion 2.0.0
@@ -175,7 +175,7 @@ router.get('/diff/global', cacheCheck, asyncHandler(async function(req, res, nex
 }));
 
 /**
- * @api {get} /v2/stats/diff/country
+ * @api {get} /v2/stats/diff/country Diff country stats
  * @apiName FetchCountryStatsDifferenceBetweenDays
  * @apiGroup Stats
  * @apiVersion 2.0.0
