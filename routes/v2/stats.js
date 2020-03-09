@@ -174,6 +174,44 @@ router.get('/diff/global', cacheCheck, asyncHandler(async function(req, res, nex
   }
 }));
 
+/**
+ * @api {get} /v2/stats/diff/country
+ * @apiName FetchCountryStatsDifferenceBetweenDays
+ * @apiGroup Stats
+ * @apiVersion 2.0.0
+ * @apiDescription Returns difference in country stats between days.
+ * @apiParam {String} [sort=confirm] The stats number to sort by in descending order. Valid values are 'confirmed', 'recover', 'death'
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "countryName": "Italy",
+    "todayConfirmed": 7375,
+    "ytdConfirmed": 5883,
+    "diffConfirmed": 1492,
+    "todayDeath": 366,
+    "ytdDeath": 233,
+    "diffDeath": 133,
+    "todayRecover": 622,
+    "ytdRecover": 589,
+    "diffRecover": 33,
+    "today": "2020-03-09T00:00:00.000Z",
+    "ytd": "2020-03-08T00:00:00.000Z"
+  }
+]
+ */
+router.get('/diff/country', cacheCheck, asyncHandler(async function(req, res, next) {
+  try {
+    const { sort = 'confirmed' } = req.query;
+    const result = await getCountryStatsDiff(sort);
+    return res.json(result);
+  }
+  catch (error) {
+    console.log('[/stats/diff/country] error', error);
+    return res.json(error);
+  }
+}));
+
 async function getStatsByAggregateData(countryCode) {
   if (countryCode) {
     return getStatsByAggregateDataFilterByCountry(countryCode);
@@ -390,6 +428,65 @@ WHERE
   a.agg_date = b.minusDate
 ORDER BY
   a.agg_date DESC
+`;
+
+  const result = await conn.query(query);
+  return result[0];
+}
+
+async function getCountryStatsDiff(sort = 'confirmed') {
+  let orderBy = '';
+  if (sort === 'confirmed') {
+    orderBy = 'diffConfirmed DESC'
+  }
+  else if (sort === 'death') {
+    orderBy = 'diffDeath DESC'
+  }
+  else if (sort === 'recover') {
+    orderBy = 'diffRecover DESC'
+  }
+
+  if (orderBy) {
+    orderBy += ', '
+  }
+
+  const conn = db.conn.promise();
+  let query = `
+SELECT
+  a.agg_country AS countryName,
+  IFNULL(a.agg_confirmed, 0) AS todayConfirmed,
+  IFNULL(b.agg_confirmed, 0) AS ytdConfirmed,
+  IFNULL((a.agg_confirmed - b.agg_confirmed), 0) AS diffConfirmed,
+  IFNULL(a.agg_death, 0) AS todayDeath,
+  IFNULL(b.agg_death, 0) AS ytdDeath,
+  IFNULL((a.agg_death - b.agg_death), 0) AS diffDeath,
+  IFNULL(a.agg_recover, 0) AS todayRecover,
+  IFNULL(b.agg_recover, 0) AS ytdRecover,
+  IFNULL((a.agg_recover - b.agg_recover), 0) AS diffRecover,
+  a.agg_date AS today,
+  b.agg_date AS ytd
+FROM
+  AGGREGATE_arcgis_country a,
+  (
+  SELECT
+    agg_country,
+    agg_confirmed,
+    agg_death,
+    agg_recover,
+    agg_date,
+    DATE_ADD(agg_date,
+    INTERVAL 1 DAY) AS minusDate
+  FROM
+    AGGREGATE_arcgis_country
+) b
+WHERE
+  a.agg_date = b.minusDate
+  AND a.agg_country = b.agg_country
+  AND a.agg_date = (SELECT MAX(agg_date) FROM AGGREGATE_arcgis_country)
+ORDER BY
+  ${orderBy}
+  a.agg_date DESC,
+  a.agg_country
 `;
 
   const result = await conn.query(query);
