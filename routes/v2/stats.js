@@ -139,6 +139,41 @@ router.get('/custom-debug', cacheCheck, asyncHandler(async function(req, res, ne
   return res.json(result);
 }));
 
+/**
+ * @api {get} /v2/stats/diff
+ * @apiName FetchStatsDifferenceBetweenDays
+ * @apiGroup Stats
+ * @apiVersion 2.0.0
+ * @apiDescription Returns difference in stats between days.
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "todayConfirmed": 111243,
+    "ytdConfirmed": 107642,
+    "diffConfirmed": 3601,
+    "todayDeath": 3890,
+    "ytdDeath": 3655,
+    "diffDeath": 235,
+    "todayRecover": 62370,
+    "ytdRecover": 60655,
+    "diffRecover": 1715,
+    "today": "2020-03-09T00:00:00.000Z",
+    "ytd": "2020-03-08T00:00:00.000Z"
+  }
+]
+ */
+router.get('/diff', cacheCheck, asyncHandler(async function(req, res, next) {
+  try {
+    const result = await getDiff();
+    return res.json(result);
+  }
+  catch (error) {
+    console.log('[/stats/diff] error', error);
+    return res.json(error);
+  }
+}));
+
 async function getStatsByAggregateData(countryCode) {
   if (countryCode) {
     return getStatsByAggregateDataFilterByCountry(countryCode);
@@ -320,6 +355,44 @@ WHERE
 
   let result = await conn.query(query);
 
+  return result[0];
+}
+
+async function getDiff() {
+  const conn = db.conn.promise();
+  let query = `
+SELECT
+  a.agg_confirmed as todayConfirmed,
+  b.agg_confirmed as ytdConfirmed,
+  (a.agg_confirmed - b.agg_confirmed) as diffConfirmed,
+  a.agg_death as todayDeath,
+  b.agg_death as ytdDeath,
+  (a.agg_death - b.agg_death) as diffDeath,
+  a.agg_recover as todayRecover,
+  b.agg_recover as ytdRecover,
+  (a.agg_recover - b.agg_recover) as diffRecover,
+  a.agg_date as today,
+  b.agg_date as ytd
+FROM
+  AGGREGATE_arcgis a,
+  (
+  SELECT
+    agg_confirmed,
+    agg_death,
+    agg_recover,
+      agg_date,
+    DATE_ADD(agg_date,
+    INTERVAL 1 DAY) AS minusDate
+  FROM
+    AGGREGATE_arcgis
+) b
+WHERE
+  a.agg_date = b.minusDate
+ORDER BY
+  a.agg_date DESC
+`;
+
+  const result = await conn.query(query);
   return result[0];
 }
 
