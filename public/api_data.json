@@ -324,7 +324,7 @@
   {
     "type": "get",
     "url": "/v2/stats/diff/country",
-    "title": "",
+    "title": "Diff country stats",
     "name": "FetchCountryStatsDifferenceBetweenDays",
     "group": "Stats",
     "version": "2.0.0",
@@ -398,7 +398,7 @@
   {
     "type": "get",
     "url": "/v2/stats/diff/global",
-    "title": "",
+    "title": "Diff global stats",
     "name": "FetchGlobalStatsDifferenceBetweenDays",
     "group": "Stats",
     "version": "2.0.0",
