@@ -239,26 +239,46 @@ LIMIT 1
 
 async function getStatsByAggregateDataFilterByCountry(countryCode) {
   const conn = db.conn.promise();
-
-  let query = `
-SELECT
-  AC.country_code AS countryCode,
-  IFNULL(AC.country_name, A.country) AS countryName,
-  CAST(SUM(A.confirmed) AS UNSIGNED) as confirmed,
-  CAST(SUM(A.deaths) AS UNSIGNED) as deaths,
-  CAST(SUM(A.recovered) AS UNSIGNED) as recovered, 
-  A.posted_date as created
+console.log('getStatsByAggregateDataFilterByCountry:'+countryCode);
+//   let query = `
+// SELECT
+//   AC.country_code AS countryCode,
+//   IFNULL(AC.country_name, A.country) AS countryName,
+//   CAST(SUM(A.confirmed) AS UNSIGNED) as confirmed,
+//   CAST(SUM(A.deaths) AS UNSIGNED) as deaths,
+//   CAST(SUM(A.recovered) AS UNSIGNED) as recovered, 
+//   A.posted_date as created
+// FROM 
+//   arcgis AS A
+// INNER JOIN 
+//   apps_countries AS AC
+// ON 
+//   A.country = AC.country_alias
+//   AND A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
+//   AND AC.country_code = ?
+// GROUP BY 
+//   A.country, A.posted_date   
+// `;
+let query = `SELECT
+AC.country_code AS countryCode,
+IFNULL(AC.country_name, b.country) AS countryName,
+CAST(SUM(cases) AS UNSIGNED) AS confirmed,
+CAST(SUM(deaths) AS UNSIGNED) AS deaths,
+CAST(SUM(recovered) AS UNSIGNED) AS recovered,
+MAX(art_updated) as created
 FROM 
-  arcgis AS A
+bno as b
 INNER JOIN 
   apps_countries AS AC
 ON 
-  A.country = AC.country_alias
-  AND A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
+  b.country = AC.country_alias
+  AND b.art_updated = (SELECT MAX(art_updated) FROM bno)
   AND AC.country_code = ?
+WHERE 
+art_updated = (SELECT MAX(art_updated) FROM bno)
 GROUP BY 
-  A.country, A.posted_date   
-`;
+  b.country, b.art_updated   
+LIMIT 1`;
 
   const args = [countryCode];
   let result = await conn.query(query, args);
