@@ -4,6 +4,7 @@ The main web application for CoronaTracker
 ## Get Start
 
 run `npm install`
+run `cp .env.local .env` and fill with values
 run `npm run dev` and enter `http://localhost:3000/`
 
 ## API Document
