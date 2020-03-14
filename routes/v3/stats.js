@@ -24,7 +24,7 @@ const { cacheCheck } = require('../../services/cacheMiddleware');
 }
  */
 router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
-  console.log('calling v2/stats');
+  console.log('calling v3/stats');
   const { countryCode } = req.query;
   try {
     const results = await getStatsByAggregateData(countryCode);
@@ -240,26 +240,27 @@ LIMIT 1
 
 async function getStatsByAggregateDataFilterByCountry(countryCode) {
   const conn = db.conn.promise();
-console.log('getStatsByAggregateDataFilterByCountry:'+countryCode);
-  let query = `
-SELECT
-  AC.country_code AS countryCode,
-  IFNULL(AC.country_name, A.country) AS countryName,
-  CAST(SUM(A.confirmed) AS UNSIGNED) as confirmed,
-  CAST(SUM(A.deaths) AS UNSIGNED) as deaths,
-  CAST(SUM(A.recovered) AS UNSIGNED) as recovered, 
-  A.posted_date as created
-FROM 
-  arcgis AS A
-INNER JOIN 
-  apps_countries AS AC
-ON 
-  A.country = AC.country_alias
-  AND A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
-  AND AC.country_code = ?
-GROUP BY 
-  A.country, A.posted_date   
-`;
+console.log('bno getStatsByAggregateDataFilterByCountry:'+countryCode);
+let query = `SELECT
+AC.country_code AS countryCode,
+IFNULL(AC.country_name, b.country) AS countryName,
+CAST(SUM(cases) AS UNSIGNED) AS confirmed,
+CAST(SUM(deaths) AS UNSIGNED) AS deaths,
+CAST(SUM(recovered) AS UNSIGNED) AS recovered,
+MAX(art_updated) as created
+FROM
+bno as b
+INNER JOIN
+ apps_countries AS AC
+ON
+ b.country = AC.country_alias
+ AND b.art_updated = (SELECT MAX(art_updated) FROM bno)
+ AND AC.country_code = ?
+WHERE
+art_updated = (SELECT MAX(art_updated) FROM bno)
+GROUP BY
+ b.country, b.art_updated
+ORDER BY b.cases DESC;`;
 
   const args = [countryCode];
   let result = await conn.query(query, args);
