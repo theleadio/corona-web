@@ -15,6 +15,7 @@ const imageProxyRouter = require('./routes/imageProxy');
 const v2AnalyticsRouter = require('./routes/v2/analytics');
 const v2CacheRouter = require('./routes/v2/cache');
 const v2StatsRouter = require('./routes/v2/stats');
+const v3StatsRouter = require('./routes/v3/stats');
 
 const cors = require('cors')
 
@@ -45,6 +46,7 @@ app.use('/v1/analytics', analyticsRouter);
 
 app.use('/v2/analytics', v2AnalyticsRouter);
 app.use('/v2/stats', v2StatsRouter);
+app.use('/v3/stats/bno', v3StatsRouter);
 app.use('/v2/cache', v2CacheRouter);
 
 app.use('/image-proxy', imageProxyRouter);
