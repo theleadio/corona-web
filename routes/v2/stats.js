@@ -266,19 +266,19 @@ CAST(SUM(cases) AS UNSIGNED) AS confirmed,
 CAST(SUM(deaths) AS UNSIGNED) AS deaths,
 CAST(SUM(recovered) AS UNSIGNED) AS recovered,
 MAX(art_updated) as created
-FROM 
+FROM
 bno as b
-INNER JOIN 
-  apps_countries AS AC
-ON 
-  b.country = AC.country_alias
-  AND b.art_updated = (SELECT MAX(art_updated) FROM bno)
-  AND AC.country_code = ?
-WHERE 
+INNER JOIN
+ apps_countries AS AC
+ON
+ b.country = AC.country_alias
+ AND b.art_updated = (SELECT MAX(art_updated) FROM bno)
+ AND AC.country_code = ?
+WHERE
 art_updated = (SELECT MAX(art_updated) FROM bno)
-GROUP BY 
-  b.country, b.art_updated   
-LIMIT 1`;
+GROUP BY
+ b.country, b.art_updated
+ORDER BY b.cases DESC;`;
 
   const args = [countryCode];
   let result = await conn.query(query, args);
