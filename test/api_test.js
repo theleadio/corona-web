@@ -12,7 +12,7 @@ describe ("Get stats using bno", function(){
             .get("/v3/stats/bno?countryCode="+countryCode)
             .end((err, result)=>{                    
                 result.should.have.status(200)
-                console.log("Successfully fetch info", result.body)
+                //console.log("Successfully fetch info", result.body)
                 done()
             })
     })
@@ -25,7 +25,33 @@ describe ("Get stats using JHU Arcgis", function(){
             .get("/v2/stats?countryCode="+countryCode)
             .end((err, result)=>{                    
                 result.should.have.status(200)
-                console.log("Successfully fetch info", result.body)
+                //console.log("Successfully fetch info", result.body)
+                done()
+            })
+    })
+})
+
+describe ("Get diff stats using JHU Arcgis", function(){
+
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v2/stats/diff/global")
+            .end((err, result)=>{                    
+                result.should.have.status(200)
+                //console.log("Successfully fetch info", result.body)
+                done()
+            })
+    })
+})
+
+describe ("Get diff stats using bno", function(){
+
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v3/stats/bno/diff/global")
+            .end((err, result)=>{                    
+                result.should.have.status(200)
+                //console.log("Successfully fetch info", result.body)
                 done()
             })
     })

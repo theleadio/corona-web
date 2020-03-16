@@ -7,7 +7,7 @@
     "gendoc": "apidoc -i ./routes -o ./public",
     "start:staging": "PORT=3001 pm2 start --name \"corona-web-staging\" ./bin/www",
     "start:production": "PORT=3000 pm2 start --name \"corona-web-production\" ./bin/www",
-    "test":"mocha --colors ./test/*.js"
+    "test":"mocha --colors --timeout 10000 ./test/*.js"
   },
   "dependencies": {
     "apidoc": "^0.20.0",
