@@ -499,26 +499,26 @@ async function getCountryStatsDiff(countryCode) {
  SELECT
   c.country_code as countryCode,
   a.country,
-  a.cases as todayConfirmed,
-  b.cases as ytdConfirmed,
-  (a.cases - b.cases) as diffConfirmed,
+  cast(a.cases as signed) as todayConfirmed,
+  cast(b.cases as signed) ytdConfirmed,
+  cast((a.cases - b.cases) as signed) as diffConfirmed,
   CASE 
      WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
      ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
    END AS pctDiffconfirmed,
-  a.deaths as todayDeaths,
-  b.deaths as ytdDeaths,
+   cast(a.deaths as signed) as todayDeaths,
+    cast(b.deaths as signed) ytdDeaths,
   (a.deaths - b.deaths) as diffDeaths,
-  CASE 
+  cast(CASE 
      WHEN a.recovered = '-' THEN 0
      WHEN a.recovered = '' THEN 0
      ELSE a.recovered 
-   END AS todayRecovered,
-  CASE 
+   END as signed) AS todayRecovered,
+   cast(CASE 
      WHEN b.recovered = '-' THEN 0
      WHEN b.recovered = '' THEN 0
      ELSE b.recovered 
-   END AS ytdRecovered,
+   END as signed) AS ytdRecovered,
   (a.recovered - b.recovered) as diffRecovered,
   a.deaths / (a.cases + b.cases) * 100 as tdyFR,
   b.deaths / b.cases * 100 as ytdFR,
@@ -533,7 +533,6 @@ async function getCountryStatsDiff(countryCode) {
  WHERE
   DATE(a.art_updated) = DATE(b.minusDate)
   and a.country = b.country
-  and c.country_code = ?
   and time(a.art_updated) = (
      Select max(time(art_updated))
      from bno
