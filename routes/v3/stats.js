@@ -468,7 +468,7 @@ async function getGlobalStatsDiff() {
      from bno
    )
   and a.country = c.country_name
-  group by a.country,a.art_updated
+  group by a.country
  ORDER BY
   a.art_updated desc, a.country
 `;
@@ -499,26 +499,26 @@ async function getCountryStatsDiff(countryCode) {
  SELECT
   c.country_code as countryCode,
   a.country,
-  cast(a.cases as signed) as todayConfirmed,
-  cast(b.cases as signed) ytdConfirmed,
-  cast((a.cases - b.cases) as signed) as diffConfirmed,
+  a.cases as todayConfirmed,
+  b.cases as ytdConfirmed,
+  (a.cases - b.cases) as diffConfirmed,
   CASE 
      WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
      ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
    END AS pctDiffconfirmed,
-   cast(a.deaths as signed) as todayDeaths,
-    cast(b.deaths as signed) ytdDeaths,
+  a.deaths as todayDeaths,
+  b.deaths as ytdDeaths,
   (a.deaths - b.deaths) as diffDeaths,
-  cast(CASE 
+  CASE 
      WHEN a.recovered = '-' THEN 0
      WHEN a.recovered = '' THEN 0
      ELSE a.recovered 
-   END as signed) AS todayRecovered,
-   cast(CASE 
+   END AS todayRecovered,
+  CASE 
      WHEN b.recovered = '-' THEN 0
      WHEN b.recovered = '' THEN 0
      ELSE b.recovered 
-   END as signed) AS ytdRecovered,
+   END AS ytdRecovered,
   (a.recovered - b.recovered) as diffRecovered,
   a.deaths / (a.cases + b.cases) * 100 as tdyFR,
   b.deaths / b.cases * 100 as ytdFR,
@@ -539,10 +539,9 @@ async function getCountryStatsDiff(countryCode) {
      from bno
    )
   and a.country = c.country_name
-  group by a.country,a.art_updated
+  group by a.country
  ORDER BY
   a.art_updated desc, a.country
-  limit 1
 `;
   const args = [countryCode];
   let result = await conn.query(query, args);
