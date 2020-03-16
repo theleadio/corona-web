@@ -401,35 +401,58 @@ WHERE
 async function getGlobalStatsDiff() {
   const conn = db.conn.promise();
   let query = `
-SELECT
-  IFNULL(a.agg_confirmed, 0) as todayConfirmed,
-  IFNULL(b.agg_confirmed, 0) as ytdConfirmed,
-  IFNULL((a.agg_confirmed - b.agg_confirmed), 0) as diffConfirmed,
-  IFNULL(a.agg_death, 0) as todayDeath,
-  IFNULL(b.agg_death, 0) as ytdDeath,
-  IFNULL((a.agg_death - b.agg_death), 0) as diffDeath,
-  IFNULL(a.agg_recover, 0) as todayRecover,
-  IFNULL(b.agg_recover, 0) as ytdRecover,
-  IFNULL((a.agg_recover - b.agg_recover), 0) as diffRecover,
-  a.agg_date as today,
-  b.agg_date as ytd
-FROM
-  AGGREGATE_arcgis a,
-  (
-  SELECT
-    agg_confirmed,
-    agg_death,
-    agg_recover,
-      agg_date,
-    DATE_ADD(agg_date,
-    INTERVAL 1 DAY) AS minusDate
+  With bno2 as(
+    SELECT
+   cases,
+   deaths,
+   recovered,
+   country,
+   serious,
+   critical,
+    art_updated,
+    max(time(art_updated)),
+   DATE_ADD(art_updated,
+   INTERVAL 1 DAY) AS minusDate
   FROM
-    AGGREGATE_arcgis
-) b
-WHERE
-  a.agg_date = b.minusDate
-ORDER BY
-  a.agg_date DESC
+   bno
+   group by date(art_updated),country
+ )
+ SELECT
+  a.country,
+  a.cases as todayConfirmed,
+  b.cases as ytdConfirmed,
+  CAST((a.cases - b.cases) AS UNSIGNED) as diffConfirmed,
+  (a.cases - b.cases) / (a.cases + b.cases) * 100 AS pctDiffConfirmed,
+  a.deaths as todayDeath,
+  b.deaths as ytdDeath,
+  CAST((a.deaths - b.deaths) AS UNSIGNED) as diffDeath,
+   (a.deaths - b.deaths) / (a.deaths + b.deaths) * 100 as pctDiffDeaths,
+  a.recovered as todayRecover,
+  b.recovered as ytdRecover,
+  CAST((a.recovered - b.recovered) AS UNSIGNED) AS diffRecover,
+   (a.recovered - b.recovered) / (a.recovered + b.recovered) * 100 as pctDiffRecovered,
+   a.critical as todayCritical,
+   b.critical as ytdCritical,
+   CAST((a.critical - b.critical) AS UNSIGNED) as diffCritical,
+   (a.critical - b.critical) / (a.critical + b.critical) * 100 as pctCiffCritical,
+   a.serious as todaySerious,
+   b.serious as ytdSerious,
+   CAST((a.serious - b.serious) AS UNSIGNED) AS diffSerious,
+   (a.serious - b.serious) / (a.serious + b.serious) * 100 as pctDiffSerious,
+   (a.deaths / a.cases + b.cases) * 100 as tdy_FR,
+   (b.deaths / b.cases) * 100 as ytdFR,
+   (a.recovered/a.cases + b.cases) * 100 as tdyPR,
+   (b.recovered/b.cases) * 100 as tdyPR,
+  a.art_updated as today,
+  b.art_updated as ytd
+ FROM
+  bno a,
+  bno2 b
+ WHERE
+  a.art_updated = b.minusDate
+  and a.country = b.country
+ ORDER BY
+  a.art_updated desc
 `;
 
   const result = await conn.query(query);
