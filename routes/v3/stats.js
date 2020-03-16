@@ -202,15 +202,24 @@ router.get('/diff/global', cacheCheck, asyncHandler(async function(req, res, nex
 ]
  */
 router.get('/diff/country', cacheCheck, asyncHandler(async function(req, res, next) {
+  const { countryCode } = req.query;
   try {
-    const { sort = 'confirmed' } = req.query;
-    const result = await getCountryStatsDiff(sort);
-    return res.json(result);
+    const results = await getCountryStatsDiff(countryCode);
+    return res.json(results);
   }
   catch (error) {
-    console.log('[/stats/diff/country] error', error);
+    console.log('[/stats] error', error);
     return res.json(error);
   }
+  // try {
+  //   const { sort = 'confirmed' } = req.query;
+  //   const result = await getCountryStatsDiff(sort);
+  //   return res.json(result);
+  // }
+  // catch (error) {
+  //   console.log('[/stats/diff/country] error', error);
+  //   return res.json(error);
+  // }
 }));
 
 async function getStatsByAggregateData(countryCode) {
@@ -459,63 +468,70 @@ async function getGlobalStatsDiff() {
   return result[0];
 }
 
-async function getCountryStatsDiff(sort = 'confirmed') {
-  let orderBy = '';
-  if (sort === 'confirmed') {
-    orderBy = 'diffConfirmed DESC'
-  }
-  else if (sort === 'death') {
-    orderBy = 'diffDeath DESC'
-  }
-  else if (sort === 'recover') {
-    orderBy = 'diffRecover DESC'
-  }
-
-  if (orderBy) {
-    orderBy += ', '
-  }
-
+async function getCountryStatsDiff(countryCode) {
   const conn = db.conn.promise();
   let query = `
-SELECT
-  a.agg_country AS countryName,
-  IFNULL(a.agg_confirmed, 0) AS todayConfirmed,
-  IFNULL(b.agg_confirmed, 0) AS ytdConfirmed,
-  IFNULL((a.agg_confirmed - b.agg_confirmed), 0) AS diffConfirmed,
-  IFNULL(a.agg_death, 0) AS todayDeath,
-  IFNULL(b.agg_death, 0) AS ytdDeath,
-  IFNULL((a.agg_death - b.agg_death), 0) AS diffDeath,
-  IFNULL(a.agg_recover, 0) AS todayRecover,
-  IFNULL(b.agg_recover, 0) AS ytdRecover,
-  IFNULL((a.agg_recover - b.agg_recover), 0) AS diffRecover,
-  a.agg_date AS today,
-  b.agg_date AS ytd
-FROM
-  AGGREGATE_arcgis_country a,
-  (
-  SELECT
-    agg_country,
-    agg_confirmed,
-    agg_death,
-    agg_recover,
-    agg_date,
-    DATE_ADD(agg_date,
-    INTERVAL 1 DAY) AS minusDate
+  With bno2 as(
+    SELECT
+   cases,
+   deaths,
+   recovered,
+   country,
+   serious,
+   critical,
+    art_updated,
+    max(time(art_updated)),
+   DATE_ADD(art_updated,
+   INTERVAL 1 DAY) AS minusDate
   FROM
-    AGGREGATE_arcgis_country
-) b
+   bno
+   group by date(art_updated),country
+ )
+ SELECT
+  a.country,
+  a.cases as todayConfirmed,
+  b.cases as ytdConfirmed,
+  CAST((a.cases - b.cases) AS UNSIGNED) as diffConfirmed,
+  (a.cases - b.cases) / (a.cases + b.cases) * 100 AS pctDiffConfirmed,
+  a.deaths as todayDeath,
+  b.deaths as ytdDeath,
+  CAST((a.deaths - b.deaths) AS UNSIGNED) as diffDeath,
+   (a.deaths - b.deaths) / (a.deaths + b.deaths) * 100 as pctDiffDeaths,
+  a.recovered as todayRecover,
+  b.recovered as ytdRecover,
+  CAST((a.recovered - b.recovered) AS UNSIGNED) AS diffRecover,
+   (a.recovered - b.recovered) / (a.recovered + b.recovered) * 100 as pctDiffRecovered,
+   a.critical as todayCritical,
+   b.critical as ytdCritical,
+   CAST((a.critical - b.critical) AS UNSIGNED) as diffCritical,
+   (a.critical - b.critical) / (a.critical + b.critical) * 100 as pctCiffCritical,
+   a.serious as todaySerious,
+   b.serious as ytdSerious,
+   CAST((a.serious - b.serious) AS UNSIGNED) AS diffSerious,
+   (a.serious - b.serious) / (a.serious + b.serious) * 100 as pctDiffSerious,
+   (a.deaths / a.cases + b.cases) * 100 as tdy_FR,
+   (b.deaths / b.cases) * 100 as ytdFR,
+   (a.recovered/a.cases + b.cases) * 100 as tdyPR,
+   (b.recovered/b.cases) * 100 as tdyPR,
+  a.art_updated as today,
+  b.art_updated as ytd
+FROM
+ bno a,
+ bno2 b,
+ countries
 WHERE
-  a.agg_date = b.minusDate
-  AND a.agg_country = b.agg_country
-  AND a.agg_date = (SELECT MAX(agg_date) FROM AGGREGATE_arcgis_country)
+ a.art_updated = b.minusDate
+ and a.country = b.country
+ and countries.countryName = b.country
+ and countries.countryCode = ?
 ORDER BY
-  ${orderBy}
-  a.agg_date DESC,
-  a.agg_country
+ a.art_updated desc
+ limit 1
 `;
-
-  const result = await conn.query(query);
-  return result[0];
+  const args = [countryCode];
+  let result = await conn.query(query, args);
+  //const result = await conn.query(query);
+  return result[0][0];
 }
 
 module.exports = router;

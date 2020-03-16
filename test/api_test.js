@@ -44,11 +44,11 @@ describe ("Get diff stats using JHU Arcgis", function(){
     })
 })
 
-describe ("Get diff stats using bno", function(){
+describe ("Get diff stats for country JHU Arcgis", function(){
 
     it ("Should get ", (done)=>{
         chai.request(server)
-            .get("/v3/stats/bno/diff/global")
+            .get("/v2/stats/diff/country")
             .end((err, result)=>{                    
                 result.should.have.status(200)
                 //console.log("Successfully fetch info", result.body)
@@ -56,3 +56,17 @@ describe ("Get diff stats using bno", function(){
             })
     })
 })
+
+describe ("Get diff stats using bno on per country basis", function(){
+    countryCode = 'au';
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v3/stats/bno/diff/country?countryCode="+countryCode)
+            .end((err, result)=>{                    
+                result.should.have.status(200)
+                //console.log("Successfully fetch info", result.body)
+                done()
+            })
+    })
+})
+
