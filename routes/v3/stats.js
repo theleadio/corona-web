@@ -416,52 +416,61 @@ async function getGlobalStatsDiff() {
    deaths,
    recovered,
    country,
-   serious,
-   critical,
     art_updated,
-    max(time(art_updated)),
    DATE_ADD(art_updated,
    INTERVAL 1 DAY) AS minusDate
   FROM
    bno
-   group by date(art_updated),country
+   where time(art_updated) = (
+     Select max(time(art_updated))
+     from bno
+   )
  )
  SELECT
+  c.country_code as countryCode,
   a.country,
-  a.cases as todayConfirmed,
-  b.cases as ytdConfirmed,
-  CAST((a.cases - b.cases) AS UNSIGNED) as diffConfirmed,
-  (a.cases - b.cases) / (a.cases + b.cases) * 100 AS pctDiffConfirmed,
-  a.deaths as todayDeath,
-  b.deaths as ytdDeath,
-  CAST((a.deaths - b.deaths) AS UNSIGNED) as diffDeath,
-   (a.deaths - b.deaths) / (a.deaths + b.deaths) * 100 as pctDiffDeaths,
-  a.recovered as todayRecover,
-  b.recovered as ytdRecover,
-  CAST((a.recovered - b.recovered) AS UNSIGNED) AS diffRecover,
-   (a.recovered - b.recovered) / (a.recovered + b.recovered) * 100 as pctDiffRecovered,
-   a.critical as todayCritical,
-   b.critical as ytdCritical,
-   CAST((a.critical - b.critical) AS UNSIGNED) as diffCritical,
-   (a.critical - b.critical) / (a.critical + b.critical) * 100 as pctCiffCritical,
-   a.serious as todaySerious,
-   b.serious as ytdSerious,
-   CAST((a.serious - b.serious) AS UNSIGNED) AS diffSerious,
-   (a.serious - b.serious) / (a.serious + b.serious) * 100 as pctDiffSerious,
-   (a.deaths / a.cases + b.cases) * 100 as tdy_FR,
-   (b.deaths / b.cases) * 100 as ytdFR,
-   (a.recovered/a.cases + b.cases) * 100 as tdyPR,
-   (b.recovered/b.cases) * 100 as tdyPR,
+  cast(a.cases as signed) as todayConfirmed,
+  cast(b.cases as signed) ytdConfirmed,
+  cast((a.cases - b.cases) as signed) as diffConfirmed,
+  CASE 
+     WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
+     ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
+   END AS pctDiffconfirmed,
+   cast(a.deaths as signed) as todayDeaths,
+    cast(b.deaths as signed) ytdDeaths,
+  (a.deaths - b.deaths) as diffDeaths,
+  cast(CASE 
+     WHEN a.recovered = '-' THEN 0
+     WHEN a.recovered = '' THEN 0
+     ELSE a.recovered 
+   END as signed) AS todayRecovered,
+   cast(CASE 
+     WHEN b.recovered = '-' THEN 0
+     WHEN b.recovered = '' THEN 0
+     ELSE b.recovered 
+   END as signed) AS ytdRecovered,
+  (a.recovered - b.recovered) as diffRecovered,
+  a.deaths / (a.cases + b.cases) * 100 as tdyFR,
+  b.deaths / b.cases * 100 as ytdFR,
+  a.recovered/(a.cases + b.cases) * 100 as tdyPR,
+  b.recovered/b.cases * 100 as ytdPR,
   a.art_updated as today,
   b.art_updated as ytd
  FROM
   bno a,
   bno2 b
+  ,apps_countries c
  WHERE
-  a.art_updated = b.minusDate
+  DATE(a.art_updated) = DATE(b.minusDate)
   and a.country = b.country
+  and time(a.art_updated) = (
+     Select max(time(art_updated))
+     from bno
+   )
+  and a.country = c.country_name
+  group by a.country,a.art_updated
  ORDER BY
-  a.art_updated desc
+  a.art_updated desc, a.country
 `;
 
   const result = await conn.query(query);
@@ -477,56 +486,63 @@ async function getCountryStatsDiff(countryCode) {
    deaths,
    recovered,
    country,
-   serious,
-   critical,
     art_updated,
-    max(time(art_updated)),
    DATE_ADD(art_updated,
    INTERVAL 1 DAY) AS minusDate
   FROM
    bno
-   group by date(art_updated),country
+   where time(art_updated) = (
+     Select max(time(art_updated))
+     from bno
+   )
  )
  SELECT
+  c.country_code as countryCode,
   a.country,
-  a.cases as todayConfirmed,
-  b.cases as ytdConfirmed,
-  CAST((a.cases - b.cases) AS UNSIGNED) as diffConfirmed,
-  (a.cases - b.cases) / (a.cases + b.cases) * 100 AS pctDiffConfirmed,
-  a.deaths as todayDeath,
-  b.deaths as ytdDeath,
-  CAST((a.deaths - b.deaths) AS UNSIGNED) as diffDeath,
-   (a.deaths - b.deaths) / (a.deaths + b.deaths) * 100 as pctDiffDeaths,
-  a.recovered as todayRecover,
-  b.recovered as ytdRecover,
-  CAST((a.recovered - b.recovered) AS UNSIGNED) AS diffRecover,
-   (a.recovered - b.recovered) / (a.recovered + b.recovered) * 100 as pctDiffRecovered,
-   a.critical as todayCritical,
-   b.critical as ytdCritical,
-   CAST((a.critical - b.critical) AS UNSIGNED) as diffCritical,
-   (a.critical - b.critical) / (a.critical + b.critical) * 100 as pctCiffCritical,
-   a.serious as todaySerious,
-   b.serious as ytdSerious,
-   CAST((a.serious - b.serious) AS UNSIGNED) AS diffSerious,
-   (a.serious - b.serious) / (a.serious + b.serious) * 100 as pctDiffSerious,
-   (a.deaths / a.cases + b.cases) * 100 as tdy_FR,
-   (b.deaths / b.cases) * 100 as ytdFR,
-   (a.recovered/a.cases + b.cases) * 100 as tdyPR,
-   (b.recovered/b.cases) * 100 as tdyPR,
+  cast(a.cases as signed) as todayConfirmed,
+  cast(b.cases as signed) ytdConfirmed,
+  cast((a.cases - b.cases) as signed) as diffConfirmed,
+  CASE 
+     WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
+     ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
+   END AS pctDiffconfirmed,
+   cast(a.deaths as signed) as todayDeaths,
+    cast(b.deaths as signed) ytdDeaths,
+  (a.deaths - b.deaths) as diffDeaths,
+  cast(CASE 
+     WHEN a.recovered = '-' THEN 0
+     WHEN a.recovered = '' THEN 0
+     ELSE a.recovered 
+   END as signed) AS todayRecovered,
+   cast(CASE 
+     WHEN b.recovered = '-' THEN 0
+     WHEN b.recovered = '' THEN 0
+     ELSE b.recovered 
+   END as signed) AS ytdRecovered,
+  (a.recovered - b.recovered) as diffRecovered,
+  a.deaths / (a.cases + b.cases) * 100 as tdyFR,
+  b.deaths / b.cases * 100 as ytdFR,
+  a.recovered/(a.cases + b.cases) * 100 as tdyPR,
+  b.recovered/b.cases * 100 as ytdPR,
   a.art_updated as today,
   b.art_updated as ytd
-FROM
- bno a,
- bno2 b,
- countries
-WHERE
- a.art_updated = b.minusDate
- and a.country = b.country
- and countries.countryName = b.country
- and countries.countryCode = ?
-ORDER BY
- a.art_updated desc
- limit 1
+ FROM
+  bno a,
+  bno2 b
+  ,apps_countries c
+ WHERE
+  DATE(a.art_updated) = DATE(b.minusDate)
+  and a.country = b.country
+  and c.country_code = ?
+  and time(a.art_updated) = (
+     Select max(time(art_updated))
+     from bno
+   )
+  and a.country = c.country_name
+  group by a.country,a.art_updated
+ ORDER BY
+  a.art_updated desc, a.country
+  limit 1
 `;
   const args = [countryCode];
   let result = await conn.query(query, args);
