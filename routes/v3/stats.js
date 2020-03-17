@@ -468,9 +468,9 @@ async function getGlobalStatsDiff() {
      from bno
    )
   and a.country = c.country_name
-  group by a.country
+  group by a.country, a.art_updated
  ORDER BY
-  a.art_updated desc, a.country
+  a.art_updated desc
 `;
 
   const result = await conn.query(query);
@@ -539,9 +539,10 @@ async function getCountryStatsDiff(countryCode) {
      from bno
    )
   and a.country = c.country_name
-  group by a.country
+  group by a.country, a.art_updated
  ORDER BY
   a.art_updated desc, a.country
+  limit 1
 `;
   const args = [countryCode];
   let result = await conn.query(query, args);
