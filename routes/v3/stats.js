@@ -533,6 +533,7 @@ async function getCountryStatsDiff(countryCode) {
  WHERE
   DATE(a.art_updated) = DATE(b.minusDate)
   and a.country = b.country
+  and c.country_code = ?
   and time(a.art_updated) = (
      Select max(time(art_updated))
      from bno
