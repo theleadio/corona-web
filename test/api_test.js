@@ -12,6 +12,17 @@ describe ("Get stats using bno", function(){
             .get("/v3/stats/bno?countryCode="+countryCode)
             .end((err, result)=>{                    
                 result.should.have.status(200)
+                responseCountrycode = result.body.countryCode.toLowerCase();
+                console.log("Successfully fetch and country code:", responseCountrycode);
+                if (countryCode == responseCountrycode){
+                    console.log('got the correct country code');
+                    //console.log("Successfully fetch info", result.body)
+
+                }
+                else{
+                    console.log('got the wrong country code');
+                    assert.fail(responseCountrycode, 'au', "Country code does not match");
+                }
                 //console.log("Successfully fetch info", result.body)
                 done()
             })
@@ -45,7 +56,6 @@ describe ("Get diff stats using JHU Arcgis", function(){
 })
 
 describe ("Get diff stats for country JHU Arcgis", function(){
-
     it ("Should get ", (done)=>{
         chai.request(server)
             .get("/v2/stats/diff/country")
@@ -64,8 +74,18 @@ describe ("Get diff stats using bno on per country basis", function(){
             .get("/v3/stats/bno/diff/country?countryCode="+countryCode)
             .end((err, result)=>{                    
                 result.should.have.status(200)
-                //console.log("Successfully fetch info", result.body)
-                done()
+                responseCountrycode = result.body.countryCode.toLowerCase();
+                console.log("Successfully fetch and country code:", responseCountrycode);
+                if (countryCode == responseCountrycode){
+                    console.log('got the correct country code');
+                    //console.log("Successfully fetch info", result.body)
+
+                }
+                else{
+                    console.log('got the wrong country code');
+                    assert.fail(responseCountrycode, 'au', "Country code does not match");
+                }
+                done();
             })
     })
 })
