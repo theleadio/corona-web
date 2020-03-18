@@ -6,7 +6,7 @@ async function getCustomStats() {
 
   if (!cache.connected) {
     const data = await fetchDataFromGoogleSheet();
-    console.log("getCustomStats:", data);
+    // console.log("getCustomStats:", data);
 
     return data;
   }
@@ -19,7 +19,7 @@ async function getCustomStats() {
       }
 
       if (entries && entries.length) {
-        console.log("[getCustomStats] entries:", entries);
+        // console.log("[getCustomStats] entries:", entries);
         try {
           const parsedData = JSON.parse(entries[[0]].body);
           return resolve(parsedData);
@@ -45,7 +45,7 @@ async function getCustomStats() {
         console.log("[getCustomStats] error, added:", error, added);
       });
 
-      console.log("[getCustomStats] data:", data);
+      // console.log("[getCustomStats] data:", data);
       return resolve(data);
     });
   });

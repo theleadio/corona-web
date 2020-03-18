@@ -240,7 +240,7 @@ LIMIT 1
 
 async function getStatsByAggregateDataFilterByCountry(countryCode) {
   const conn = db.conn.promise();
-console.log('getStatsByAggregateDataFilterByCountry:'+countryCode);
+// console.log('getStatsByAggregateDataFilterByCountry:'+countryCode);
   let query = `
 SELECT
   AC.country_code AS countryCode,
