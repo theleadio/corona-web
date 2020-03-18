@@ -90,3 +90,70 @@ describe ("Get diff stats using bno on per country basis", function(){
     })
 })
 
+describe ("Get total daily cases using bno on per country basis", function(){
+    countryCode = 'my';
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v3/stats/bno/total_daily_cases/country?countryCode="+countryCode)
+            .end((err, result)=>{                    
+                result.should.have.status(200)
+                responseCountrycode = result.body.countryCode.toLowerCase();
+                console.log("Successfully fetch and country code:", responseCountrycode);
+                if (countryCode == responseCountrycode){
+                    console.log('got the correct country code');
+                    //console.log("Successfully fetch info", result.body)
+
+                }
+                else{
+                    console.log('got the wrong country code');
+                    assert.fail(responseCountrycode, 'au', "Country code does not match");
+                }
+                done();
+            })
+    })
+})
+
+describe ("Get total daily cases using bno globally", function(){
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v3/stats/bno/total_daily_cases")
+            .end((err, result)=>{                    
+                result.should.have.status(200)
+                done();
+            })
+    })
+})
+
+describe ("Get daily cases using bno on per country basis", function(){
+    countryCode = 'my';
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v3/stats/bno/daily_cases/country?countryCode="+countryCode)
+            .end((err, result)=>{                    
+                result.should.have.status(200)
+                responseCountrycode = result.body.countryCode.toLowerCase();
+                console.log("Successfully fetch and country code:", responseCountrycode);
+                if (countryCode == responseCountrycode){
+                    console.log('got the correct country code');
+                    //console.log("Successfully fetch info", result.body)
+
+                }
+                else{
+                    console.log('got the wrong country code');
+                    assert.fail(responseCountrycode, 'au', "Country code does not match");
+                }
+                done();
+            })
+    })
+})
+
+describe ("Get daily cases using bno globally", function(){
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v3/stats/bno/daily_cases")
+            .end((err, result)=>{                    
+                result.should.have.status(200)
+                done();
+            })
+    })
+})
