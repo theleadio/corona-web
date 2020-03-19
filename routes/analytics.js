@@ -163,14 +163,15 @@ async function fetchTrendByCountryAndDate(country_code, start_date, end_date) {
   const args = []
 
   if (start_date && end_date) {
-    query = `SELECT a.agg_confirmed as confirmed,
-    a.agg_death as dead,
-    a.agg_recover as recovered,
+    query = `SELECT MAX(a.agg_confirmed) as confirmed,
+    MAX(a.agg_death) as dead,
+    MAX(a.agg_recover) as recovered,
     a.agg_date as date_posted
     FROM AGGREGATE_arcgis_country as a
     INNER JOIN apps_countries AS AC
     ON a.agg_country = AC.country_alias AND AC.country_code=?
     WHERE (a.agg_date BETWEEN ? AND ?)
+    GROUP BY date_posted
     ORDER BY date_posted ASC`
     args.push(country_code, start_date, end_date)
   }
