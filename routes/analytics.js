@@ -42,6 +42,44 @@ router.get('/trend', cache.route(), asyncHandler(async function(req, res, next) 
 }))
 
 /**
+ * @api {get} /analytics/trend/country
+ * @apiName FetchAnalyticsTrendByCountryAndDate
+ * @apiGroup Analytics
+ *
+ * @apiParam {String} [country_code] Required Country code
+ * @apiParam {Date} [start_date] Required Start date
+ * @apiParam {Date} [end_date] Required end date
+ */
+router.get('/trend/country', cache.route(), asyncHandler(async function(req, res, next) {
+  const country_code = req.query.country_code
+  const start_date = req.query.start_date
+  const end_date = req.query.end_date
+
+  // enforce date format
+  if (
+    moment(start_date, 'YYYY-MM-DD').format('YYYY-MM-DD') != start_date ||
+    moment(end_date, 'YYYY-MM-DD').format('YYYY-MM-DD') != end_date
+  ) {
+    res.json('Invalid date format. Date format should be YYYY-MM-DD')
+  }
+
+  // make sure end_date isn't less than start_date
+  if (moment(end_date).isBefore(start_date)) {
+    res.json('Invalid date')
+  }
+
+  try {
+    const results = await fetchTrendByCountryAndDate(country_code, start_date, end_date)
+
+    return res.json(results)
+  } catch (error) {
+    console.log('[/analytics/trend/country] error', error)
+
+    return res.json(error)
+  }
+}))
+
+/**
  * @api {get} /analytics/area
  * @apiName FetchMostAffectedbyArea
  * @apiGroup Analytics
@@ -112,6 +150,29 @@ async function fetchTrendByDate(start_date, end_date) {
       FROM AGGREGATE_arcgis
       WHERE (agg_date BETWEEN ? AND ?)`
     args.push(start_date, end_date)
+  }
+
+  let result = await conn.query(query, args)
+
+  return result[0]
+}
+
+async function fetchTrendByCountryAndDate(country_code, start_date, end_date) {
+  const conn = db.conn.promise()
+  let query = ''
+  const args = []
+
+  if (start_date && end_date) {
+    query = `SELECT a.agg_confirmed as confirmed,
+    a.agg_death as dead,
+    a.agg_recover as recovered,
+    a.agg_date as date_posted
+    FROM AGGREGATE_arcgis_country as a
+    INNER JOIN apps_countries AS AC
+    ON a.agg_country = AC.country_alias AND AC.country_code=?
+    WHERE (a.agg_date BETWEEN ? AND ?)
+    ORDER BY date_posted ASC`
+    args.push(country_code, start_date, end_date)
   }
 
   let result = await conn.query(query, args)
