@@ -613,7 +613,7 @@ async function getGlobalStatsDiff() {
      Select max(time(art_updated))
      from bno
    )
-  and a.country = c.country_name
+  and a.country = c.country_alias
   group by a.country, a.art_updated
  ORDER BY
   a.art_updated desc
@@ -679,7 +679,7 @@ async function getDailyCases() {
        Select max(time(art_updated))
        from bno
      )
-   and a.country = c.country_name
+   and a.country = c.country_alias
    group by a.country,a.art_updated
  ORDER BY
    a.art_updated desc, a.country
@@ -745,7 +745,7 @@ async function getDailyCasesByCountry(countryCode) {
        Select max(time(art_updated))
        from bno
      )
-   and a.country = c.country_name
+   and a.country = c.country_alias
    and c.country_code = ?
    group by a.country,a.art_updated
  ORDER BY
@@ -899,7 +899,7 @@ async function getCountryStatsDiff(countryCode) {
      Select max(time(art_updated))
      from bno
    )
-  and a.country = c.country_name
+  and a.country = c.country_alias
   group by a.country, a.art_updated
  ORDER BY
   a.art_updated desc, a.country
