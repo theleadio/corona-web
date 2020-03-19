@@ -768,28 +768,36 @@ ORDER BY
 async function getTotalDailyCases(countryCode) {
   const conn = db.conn.promise();
   let query = `
-  SELECT
-AC.country_code AS countryCode,
-IFNULL(AC.country_name, b.country) AS countryName,
-CAST(SUM(cases) AS UNSIGNED) AS confirmed,
-CAST(SUM(deaths) AS UNSIGNED) AS deaths,
-CAST(SUM(recovered) AS UNSIGNED) AS recovered,
-CAST(SUM(critical) AS UNSIGNED) AS critical,
-CAST(SUM(serious) AS UNSIGNED) AS serious,
-CAST(SUM(cases) - SUM(recovered) AS UNSIGNED) AS activeCases,
-MAX(art_updated) as created
-FROM
-bno as b
-INNER JOIN
- apps_countries AS AC
-ON
- b.country = AC.country_alias
- AND b.art_updated = (SELECT MAX(art_updated) FROM bno)
-WHERE
-art_updated = (SELECT MAX(art_updated) FROM bno)
-GROUP BY
- b.country, b.art_updated
-ORDER BY b.cases DESC
+  SELECT ac.country_code as countryCode,
+  tt.country as countryName, cast(tt.cases as unsigned) as confirmed, cast(tt.deaths as unsigned) as deaths,
+      cast(CASE 
+        WHEN tt.recovered = '-' THEN 0
+        WHEN tt.recovered = '' THEN 0
+        ELSE tt.recovered 
+      END as unsigned) AS recovered,
+      cast(CASE 
+          WHEN tt.critical = '-' THEN 0
+          WHEN tt.critical = '' THEN 0
+          ELSE tt.critical 
+      END as unsigned) AS critical,
+      cast(CASE 
+        WHEN tt.serious = '-' THEN 0
+        WHEN tt.serious = '' THEN 0
+        ELSE tt.serious 
+      END as unsigned) AS serious,
+      CAST((tt.cases - tt.recovered) AS UNSIGNED) AS activeCases,
+  tt.art_updated as created
+      FROM bno tt INNER JOIN (
+        SELECT country,
+        max(art_updated) AS MaxDateTime
+        FROM bno
+        where country not in ("Mainland China","Denmark*", "UAE")
+        GROUP BY country) groupedtt
+      ON tt.country = groupedtt.country
+      AND tt.art_updated = groupedtt.MaxDateTime
+      left JOIN (Select country_name, country_code from apps_countries) ac on tt.country = ac.country_name
+      group by tt.country
+      order by tt.country
 `;
   //const args = [countryCode];
   let result = await conn.query(query);
@@ -800,29 +808,37 @@ ORDER BY b.cases DESC
 async function getTotalDailyCasesByCountry(countryCode) {
   const conn = db.conn.promise();
   let query = `
-  SELECT
-AC.country_code AS countryCode,
-IFNULL(AC.country_name, b.country) AS countryName,
-CAST(SUM(cases) AS UNSIGNED) AS confirmed,
-CAST(SUM(deaths) AS UNSIGNED) AS deaths,
-CAST(SUM(recovered) AS UNSIGNED) AS recovered,
-CAST(SUM(critical) AS UNSIGNED) AS critical,
-CAST(SUM(serious) AS UNSIGNED) AS serious,
-CAST(SUM(cases) - SUM(recovered) AS UNSIGNED) AS activeCases,
-MAX(art_updated) as created
-FROM
-bno as b
-INNER JOIN
- apps_countries AS AC
-ON
- b.country = AC.country_alias
- AND b.art_updated = (SELECT MAX(art_updated) FROM bno)
- AND AC.country_code = ?
-WHERE
-art_updated = (SELECT MAX(art_updated) FROM bno)
-GROUP BY
- b.country, b.art_updated
-ORDER BY b.cases DESC
+  SELECT ac.country_code as countryCode,
+tt.country as countryName, cast(tt.cases as unsigned) as confirmed, cast(tt.deaths as unsigned) as deaths,
+    cast(CASE 
+      WHEN tt.recovered = '-' THEN 0
+      WHEN tt.recovered = '' THEN 0
+      ELSE tt.recovered 
+    END as unsigned) AS recovered,
+    cast(CASE 
+        WHEN tt.critical = '-' THEN 0
+        WHEN tt.critical = '' THEN 0
+        ELSE tt.critical 
+    END as unsigned) AS critical,
+    cast(CASE 
+      WHEN tt.serious = '-' THEN 0
+      WHEN tt.serious = '' THEN 0
+      ELSE tt.serious 
+    END as unsigned) AS serious,
+    CAST((tt.cases - tt.recovered) AS UNSIGNED) AS activeCases,
+tt.art_updated as created
+		FROM bno tt INNER JOIN (
+			SELECT country,
+			max(art_updated) AS MaxDateTime
+			FROM bno
+      where country not in ("Mainland China","Denmark*", "UAE")
+			GROUP BY country) groupedtt
+		ON tt.country = groupedtt.country
+		AND tt.art_updated = groupedtt.MaxDateTime
+    left JOIN (Select country_name, country_code from apps_countries) ac on tt.country = ac.country_name
+    where ac.country_code = ?
+		group by tt.country
+		order by tt.country
 `;
   const args = [countryCode];
   let result = await conn.query(query, args);
