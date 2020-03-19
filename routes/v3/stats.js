@@ -613,7 +613,7 @@ async function getGlobalStatsDiff() {
      Select max(time(art_updated))
      from bno
    )
-  and a.country = c.country_name
+  and a.country = c.country_alias
   group by a.country, a.art_updated
  ORDER BY
   a.art_updated desc
@@ -627,66 +627,62 @@ async function getDailyCases() {
   const conn = db.conn.promise();
   let query = `
   With bno2 as(
- 	 SELECT
-  cases,
-  deaths,
-  recovered,
-  country,
-   art_updated,
-  DATE_ADD(art_updated,
-  INTERVAL 1 DAY) AS minusDate
+    SELECT
+     cases,
+     deaths,
+     recovered,
+     country,
+       art_updated,
+     DATE_ADD(art_updated,
+     INTERVAL 1 DAY) AS minusDate
+   FROM
+     bno
+     where time(art_updated) = (
+       Select max(time(art_updated))
+       from bno
+     )
+ )
+ SELECT
+   c.country_code as countryCode,
+   a.country,
+   cast(a.cases as signed) as dailyConfirmed,
+   cast(b.cases as signed) as ytdDailyConfirmed,
+   (a.cases - b.cases) as diffDailyConfirmed,
+   CASE 
+         WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
+         ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
+     END AS pctDiffconfirmed,
+   cast(a.deaths as signed) as dailyDeaths,
+   cast(b.deaths as signed) as ytdDailyDeaths,
+   (a.deaths - b.deaths) as diffDailyDeaths,
+   cast(CASE 
+         WHEN a.recovered = '-' THEN 0
+         WHEN a.recovered = '' THEN 0
+         ELSE a.recovered 
+     END as signed) AS todayRecovered,
+    cast(CASE 
+         WHEN b.recovered = '-' THEN 0
+         WHEN b.recovered = '' THEN 0
+         ELSE b.recovered 
+     END as signed) AS ytdRecovered,
+   (a.recovered - b.recovered) as diffDailyRecovered,
+   a.art_updated as today,
+   b.art_updated as ytd
  FROM
-  bno
-  where time(art_updated) = (
-  	Select max(time(art_updated))
-  	from bno
-  )
-)
-SELECT
- c.country_code as countryCode,
- a.country,
- cast(a.cases as signed) as dailyConfirmed,
-cast(b.cases as signed) as ytdDailyConfirmed,
-a.cases - b.cases as diffDailyConfirmed,
- CASE 
-    WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
-    ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
-  END AS pctDiffconfirmed,
-  cast(a.deaths as signed) as dailyDeaths,
-  cast(b.deaths as signed) as ytdDailyDeaths,
- (a.deaths - b.deaths) as diffDailyDeaths,
- cast(CASE 
-    WHEN a.recovered = '-' THEN 0
-    WHEN a.recovered = '' THEN 0
-    ELSE a.recovered 
-  END as signed) AS todayRecovered,
-  cast(CASE 
-    WHEN b.recovered = '-' THEN 0
-    WHEN b.recovered = '' THEN 0
-    ELSE b.recovered 
-  END as signed) AS ytdRecovered,
- (a.recovered - b.recovered) as diffDailyRecovered,
- a.deaths / (a.cases + b.cases) * 100 as tdyFR,
- b.deaths / b.cases * 100 as ytdFR,
- a.recovered/(a.cases + b.cases) * 100 as tdyPR,
- b.recovered/b.cases * 100 as ytdPR,
- a.art_updated as today,
- b.art_updated as ytd
-FROM
- bno a,
- bno2 b
- ,apps_countries c
-WHERE
- DATE(a.art_updated) = DATE(b.minusDate)
- and a.country = b.country
- and time(a.art_updated) = (
-  	Select max(time(art_updated))
-  	from bno
-  )
- and a.country = c.country_alias
- group by a.country
-ORDER BY
- a.art_updated desc, a.country
+   bno a,
+  bno2 b
+  ,apps_countries c
+ WHERE
+   DATE(a.art_updated) = DATE(b.minusDate)
+   and a.country = b.country
+   and time(a.art_updated) = (
+       Select max(time(art_updated))
+       from bno
+     )
+   and a.country = c.country_alias
+   group by a.country,a.art_updated
+ ORDER BY
+   a.art_updated desc, a.country
 `;
   let result = await conn.query(query);
   //const result = await conn.query(query);
@@ -697,67 +693,63 @@ async function getDailyCasesByCountry(countryCode) {
   const conn = db.conn.promise();
   let query = `
   With bno2 as(
- 	 SELECT
-  cases,
-  deaths,
-  recovered,
-  country,
-   art_updated,
-  DATE_ADD(art_updated,
-  INTERVAL 1 DAY) AS minusDate
+    SELECT
+     cases,
+     deaths,
+     recovered,
+     country,
+       art_updated,
+     DATE_ADD(art_updated,
+     INTERVAL 1 DAY) AS minusDate
+   FROM
+     bno
+     where time(art_updated) = (
+       Select max(time(art_updated))
+       from bno
+     )
+ )
+ SELECT
+   c.country_code as countryCode,
+   a.country,
+   cast(a.cases as signed) as dailyConfirmed,
+   cast(b.cases as signed) as ytdDailyConfirmed,
+   (a.cases - b.cases) as diffDailyConfirmed,
+   CASE 
+         WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
+         ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
+     END AS pctDiffconfirmed,
+   cast(a.deaths as signed) as dailyDeaths,
+   cast(b.deaths as signed) as ytdDailyDeaths,
+   (a.deaths - b.deaths) as diffDailyDeaths,
+   cast(CASE 
+         WHEN a.recovered = '-' THEN 0
+         WHEN a.recovered = '' THEN 0
+         ELSE a.recovered 
+     END as signed) AS todayRecovered,
+    cast(CASE 
+         WHEN b.recovered = '-' THEN 0
+         WHEN b.recovered = '' THEN 0
+         ELSE b.recovered 
+     END as signed) AS ytdRecovered,
+   (a.recovered - b.recovered) as diffDailyRecovered,
+   a.art_updated as today,
+   b.art_updated as ytd
  FROM
-  bno
-  where time(art_updated) = (
-  	Select max(time(art_updated))
-  	from bno
-  )
-)
-SELECT
- c.country_code as countryCode,
- a.country,
- cast(a.cases as signed) as dailyConfirmed,
-cast(b.cases as signed) as ytdDailyConfirmed,
-a.cases - b.cases as diffDailyConfirmed,
- CASE 
-    WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
-    ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
-  END AS pctDiffconfirmed,
-  cast(a.deaths as signed) as dailyDeaths,
-  cast(b.deaths as signed) as ytdDailyDeaths,
- (a.deaths - b.deaths) as diffDailyDeaths,
- cast(CASE 
-    WHEN a.recovered = '-' THEN 0
-    WHEN a.recovered = '' THEN 0
-    ELSE a.recovered 
-  END as signed) AS todayRecovered,
-  cast(CASE 
-    WHEN b.recovered = '-' THEN 0
-    WHEN b.recovered = '' THEN 0
-    ELSE b.recovered 
-  END as signed) AS ytdRecovered,
- (a.recovered - b.recovered) as diffDailyRecovered,
- a.deaths / (a.cases + b.cases) * 100 as tdyFR,
- b.deaths / b.cases * 100 as ytdFR,
- a.recovered/(a.cases + b.cases) * 100 as tdyPR,
- b.recovered/b.cases * 100 as ytdPR,
- a.art_updated as today,
- b.art_updated as ytd
-FROM
- bno a,
- bno2 b
- ,apps_countries c
-WHERE
- DATE(a.art_updated) = DATE(b.minusDate)
- and a.country = b.country
- and time(a.art_updated) = (
-  	Select max(time(art_updated))
-  	from bno
-  )
- and c.country_code = ?
- and a.country = c.country_alias
- group by a.country
-ORDER BY
- a.art_updated desc, a.country
+   bno a,
+  bno2 b
+  ,apps_countries c
+ WHERE
+   DATE(a.art_updated) = DATE(b.minusDate)
+   and a.country = b.country
+   and time(a.art_updated) = (
+       Select max(time(art_updated))
+       from bno
+     )
+   and a.country = c.country_alias
+   and c.country_code = ?
+   group by a.country,a.art_updated
+ ORDER BY
+   a.art_updated desc, a.country
 `;
   const args = [countryCode];
   let result = await conn.query(query, args);
@@ -765,7 +757,7 @@ ORDER BY
   return result[0][0];
 }
 
-async function getTotalDailyCases(countryCode) {
+async function getTotalDailyCases() {
   const conn = db.conn.promise();
   let query = `
   SELECT ac.country_code as countryCode,
@@ -846,38 +838,6 @@ tt.art_updated as created
   return result[0][0];
 }
 
-async function getTotalDailyCases(countryCode) {
-  const conn = db.conn.promise();
-  let query = `
-  SELECT
-AC.country_code AS countryCode,
-IFNULL(AC.country_name, b.country) AS countryName,
-CAST(SUM(cases) AS UNSIGNED) AS confirmed,
-CAST(SUM(deaths) AS UNSIGNED) AS deaths,
-CAST(SUM(recovered) AS UNSIGNED) AS recovered,
-CAST(SUM(critical) AS UNSIGNED) AS critical,
-CAST(SUM(serious) AS UNSIGNED) AS serious,
-CAST(SUM(cases) - SUM(recovered) AS UNSIGNED) AS activeCases,
-MAX(art_updated) as created
-FROM
-bno as b
-INNER JOIN
- apps_countries AS AC
-ON
- b.country = AC.country_alias
- AND b.art_updated = (SELECT MAX(art_updated) FROM bno)
-WHERE
-art_updated = (SELECT MAX(art_updated) FROM bno)
-GROUP BY
- b.country, b.art_updated
-ORDER BY b.cases DESC
-`;
-  //const args = [countryCode];
-  let result = await conn.query(query);
-  //const result = await conn.query(query);
-  return result[0];
-}
-
 async function getCountryStatsDiff(countryCode) {
   const conn = db.conn.promise();
   let query = `
@@ -939,7 +899,7 @@ async function getCountryStatsDiff(countryCode) {
      Select max(time(art_updated))
      from bno
    )
-  and a.country = c.country_name
+  and a.country = c.country_alias
   group by a.country, a.art_updated
  ORDER BY
   a.art_updated desc, a.country
