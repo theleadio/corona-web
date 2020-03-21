@@ -35,9 +35,19 @@ describe ("Get stats using JHU Arcgis", function(){
         chai.request(server)
             .get("/v2/stats?countryCode="+countryCode)
             .end((err, result)=>{                    
-                result.should.have.status(200)
+                responseCountrycode = result.body.countryCode.toLowerCase();
+                console.log("Successfully fetch and country code:", responseCountrycode);
+                if (countryCode == responseCountrycode){
+                    console.log('got the correct country code');
+                    //console.log("Successfully fetch info", result.body)
+
+                }
+                else{
+                    console.log('got the wrong country code');
+                    assert.fail(responseCountrycode, 'au', "Country code does not match");
+                }
                 //console.log("Successfully fetch info", result.body)
-                done()
+                done();
             })
     })
 })
@@ -47,10 +57,19 @@ describe ("Get diff stats using JHU Arcgis", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
             .get("/v2/stats/diff/global")
-            .end((err, result)=>{                    
-                result.should.have.status(200)
+            .end((err, result)=>{   
+                var num = result.body.length;
+                console.log('got '+ num + ' results');    
+                if (num > 0){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }    
+                else{
+                    assert.fail("There are 0 results");
+                }                       
+
                 //console.log("Successfully fetch info", result.body)
-                done()
+                done();
             })
     })
 })
@@ -60,9 +79,18 @@ describe ("Get diff stats for country JHU Arcgis", function(){
         chai.request(server)
             .get("/v2/stats/diff/country")
             .end((err, result)=>{                    
-                result.should.have.status(200)
+                var num = result.body.length;
+                console.log('got '+ num + ' results');    
+                if (num > 0){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }    
+                else{
+                    assert.fail("There are 0 results");
+                }                       
+
                 //console.log("Successfully fetch info", result.body)
-                done()
+                done();
             })
     })
 })
@@ -120,7 +148,17 @@ describe ("Get total daily cases using bno globally", function(){
         chai.request(server)
             .get("/v3/stats/bno/total_daily_cases")
             .end((err, result)=>{                    
-                result.should.have.status(200)
+                var num = result.body.length;
+                console.log('got '+ num + ' results');    
+                if (num > 0){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }    
+                else{
+                    assert.fail("There are 0 results");
+                }                       
+
+                //console.log("Successfully fetch info", result.body)
                 done();
             })
     })
@@ -173,7 +211,26 @@ describe ("Get worldometer stats", function(){
                     console.log('Test pass');
                 }    
                 else{
-                    assert.fail(0, num_countries, "There are 0 countries");
+                    assert.fail("There are 0 countries");
+                }      
+                done();
+            })
+    })
+})
+
+describe ("Get stats overview", function(){
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v3/stats/bno/stats_overview")
+            .end((err, result)=>{      
+                var total_confirmed = result.body.totalConfirmed;
+                console.log('got '+ total_confirmed + ' total_confirmed');    
+                if (total_confirmed > 0){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }    
+                else{
+                    assert.fail("There are 0 total_confirmed");
                 }      
                 done();
             })

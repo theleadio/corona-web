@@ -690,36 +690,6 @@ async function getDailyCases() {
   return result[0];
 }
 
-async function getWorldometer() {
-  const conn = db.conn.promise();
-  let query = `SELECT ac.country_code as countryCode,
-  tt.country, 
-  tt.total_cases AS totalConfirmed, 
-  tt.total_deaths as totalDeaths, 
-  tt.total_recovered as totalRecovered,
-  tt.new_cases AS dailyConfirmed, 
-  tt.new_deaths AS dailyDeaths, 
-  tt.active_cases as activeCases, 
-  tt.serious_critical_cases AS totalCritical, 
-  CAST(tt.total_cases_per_million_pop AS UNSIGNED) AS totalConfirmedPerMillionPopulation,
-  (tt.total_deaths / tt.total_cases * 100) AS FR,
-  (tt.total_recovered / tt.total_cases * 100) AS PR,
-  tt.last_updated as lastUpdated
-        FROM worldometers tt INNER JOIN (
-            SELECT country,
-            max(last_updated) AS MaxDateTime
-            FROM worldometers tt 
-            where country not in ("Sint Maarten","Congo")
-           GROUP BY country) groupedtt
-      ON tt.country = groupedtt.country
-       AND tt.last_updated = groupedtt.MaxDateTime
-      left JOIN (Select country_name, country_code, country_alias from apps_countries) AS ac on tt.country = ac.country_alias
-      group by tt.country
-      order by tt.total_cases DESC`;
-  let result = await conn.query(query);
-  //const result = await conn.query(query);
-  return result[0];
-}
 
 async function getDailyCasesByCountry(countryCode) {
   const conn = db.conn.promise();

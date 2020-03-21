@@ -22,35 +22,30 @@ router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res
 }));
 
  /**
- * @api {get} /v3/stats/bno
- * @apiName worldometer
- * @apiGroup Worldometer stats
+ * @api {get} /v3/stats/bno/stats_overview
+ * @apiName stats_overview
+ * @apiGroup Get overview stats
  * @apiVersion 2.0.0
- * @apiDescription Returns worldometer stats
+ * @apiDescription Returns stats overview on main and analytics page
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
-[
   {
-    "countryCode": "CN",
-    "country": "China",
-    "totalConfirmed": 81008,
-    "totalDeaths": 3255,
-    "totalRecovered": 71740,
-    "dailyConfirmed": 41,
-    "dailyDeaths": 7,
-    "activeCases": 6013,
-    "totalCritical": 1927,
-    "totalConfirmedPerMillionPopulation": 56,
-    "FR": "4.0181",
-    "PR": "88.5592",
-    "lastUpdated": "2020-03-21T04:00:12.000Z"
-  },
-]
+  "totalConfirmed": 276113,
+  "totalDeaths": 11402,
+  "totalRecovered": 91952,
+  "totalNewCases": 562,
+  "totalNewDeaths": 23,
+  "totalActiveCases": 172759,
+  "totalCasesPerMillionPop": 35,
+  "created": "2020-03-21T13:00:13.000Z"
+  }
  */
-router.get('/worldometer', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/stats_overview', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
+  console.log('calling v3/stats_overview');
+  // const { countryCode } = req.query;
   try {
-    const result = await getWorldometer();
-    return res.json(result);
+    const results = await getStatsOverview();
+    return res.json(results);
   }
   catch (error) {
     console.log('[/stats] error', error);
@@ -250,6 +245,8 @@ LIMIT 1
   return result[0] && result[0][0] || { confirmed: '?', deaths: '?', recovered: '?', created: null };
 }
 
+
+
 async function getStatsByAggregateDataFilterByCountry(countryCode) {
   const conn = db.conn.promise();
 console.log('bno getStatsByAggregateDataFilterByCountry:'+countryCode);
@@ -298,186 +295,6 @@ ORDER BY b.cases DESC;`;
     recovered: Math.max(data.recovered, customCountryStat.recovered),
     created: data.created > customCountryStat.created ? data.created : customCountryStat.created,
   }
-}
-
-async function getTopStats(limit = 7) {
-  limit = parseInt(limit);
-
-  const conn = db.conn.promise();
-
-  const query = `
-SELECT
-  AC.country_code AS countryCode,
-  IFNULL(AC.country_name, A.country) AS countryName,
-  CAST(SUM(A.confirmed) AS UNSIGNED) as confirmed,
-  CAST(SUM(A.deaths) AS UNSIGNED) as deaths,
-  CAST(SUM(A.recovered) AS UNSIGNED) as recovered,
-  A.posted_date as created
-FROM
-  arcgis AS A
-INNER JOIN
-  apps_countries AS AC
-ON
-  A.country = AC.country_alias
-  AND A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
-GROUP BY
-  A.country, A.posted_date 
-ORDER BY
-  confirmed DESC, recovered DESC`;
-
-  const args = [];
-
-  let result = await conn.query(query, args);
-  const data = result[0];
-
-  try {
-    const customStats = await getCustomStats();
-
-    const overriddenData = data.map(d => {
-      const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
-
-      if (!customCountryStat) {
-        return d;
-      }
-
-      return {
-        ...d,
-        confirmed: Math.max(d.confirmed, customCountryStat.confirmed),
-        deaths: Math.max(d.deaths, customCountryStat.deaths),
-        recovered: Math.max(d.recovered, customCountryStat.recovered),
-      }
-    });
-
-    customStats.forEach(cs => {
-      if (!cs.countryCode || typeof cs.countryCode !== 'string') {
-        return false;
-      }
-
-      // Add custom country stats if it does not exist in current data.
-      if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
-        overriddenData.push({
-          countryCode: cs.countryCode,
-          countryName: cs.countryName,
-          confirmed: cs.confirmed || 0,
-          deaths: cs.deaths || 0,
-          recovered: cs.recovered || 0,
-          created: new Date(),
-        });
-      }
-    });
-
-    return overriddenData
-      .sort((a, b) => {
-        // Sort by recovered desc if confirmed is same
-        if (b.confirmed === a.confirmed) {
-          return b.recovered - a.recovered;
-        }
-
-        // Sort by confirmed desc
-        return b.confirmed - a.confirmed;
-      })
-      // Take first {limit} results.
-      .slice(0, limit);
-  } catch (e) {
-    console.log("[getTopStats] error:", e);
-    return data;
-  }
-}
-
-async function getLatestArcgisStats() {
-  const conn = db.conn.promise();
-  let query = `
-SELECT 
-  t.nid,
-  t.country,
-  t.state,
-  t.last_update AS lastUpdate,
-  t.lat,
-  t.lng,
-  t.confirmed,
-  t.deaths,
-  t.recovered,
-  t.posted_date AS postedDate,
-  CURRENT_TIMESTAMP() AS currentTimestamp
-FROM
-  coronatracker.arcgis AS t 
-WHERE
-  posted_date = (SELECT MAX(posted_date) FROM arcgis)
-`;
-
-  let result = await conn.query(query);
-
-  return result[0];
-}
-
-async function getGlobalStatsDiff() {
-  const conn = db.conn.promise();
-  let query = `
-  With bno2 as(
-    SELECT
-   cases,
-   deaths,
-   recovered,
-   country,
-    art_updated,
-   DATE_ADD(art_updated,
-   INTERVAL 1 DAY) AS minusDate
-  FROM
-   bno
-   where time(art_updated) = (
-     Select max(time(art_updated))
-     from bno
-   )
- )
- SELECT
-  c.country_code as countryCode,
-  a.country,
-  cast(a.cases as signed) as todayConfirmed,
-  cast(b.cases as signed) ytdConfirmed,
-  cast((a.cases - b.cases) as signed) as diffConfirmed,
-  CASE 
-     WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
-     ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
-   END AS pctDiffconfirmed,
-   cast(a.deaths as signed) as todayDeaths,
-    cast(b.deaths as signed) ytdDeaths,
-  (a.deaths - b.deaths) as diffDeaths,
-  cast(CASE 
-     WHEN a.recovered = '-' THEN 0
-     WHEN a.recovered = '' THEN 0
-     ELSE a.recovered 
-   END as signed) AS todayRecovered,
-   cast(CASE 
-     WHEN b.recovered = '-' THEN 0
-     WHEN b.recovered = '' THEN 0
-     ELSE b.recovered 
-   END as signed) AS ytdRecovered,
-  (a.recovered - b.recovered) as diffRecovered,
-  a.deaths / (a.cases + b.cases) * 100 as tdyFR,
-  b.deaths / b.cases * 100 as ytdFR,
-  a.recovered/(a.cases + b.cases) * 100 as tdyPR,
-  b.recovered/b.cases * 100 as ytdPR,
-  a.art_updated as today,
-  b.art_updated as ytd
- FROM
-  bno a,
-  bno2 b
-  ,apps_countries c
- WHERE
-  DATE(a.art_updated) = DATE(b.minusDate)
-  and a.country = b.country
-  and time(a.art_updated) = (
-     Select max(time(art_updated))
-     from bno
-   )
-  and a.country = c.country_alias
-  group by a.country, a.art_updated
- ORDER BY
-  a.art_updated desc
-`;
-
-  const result = await conn.query(query);
-  return result[0];
 }
 
 async function getDailyCases() {
@@ -541,37 +358,6 @@ async function getDailyCases() {
  ORDER BY
    a.art_updated desc, a.country
 `;
-  let result = await conn.query(query);
-  //const result = await conn.query(query);
-  return result[0];
-}
-
-async function getWorldometer() {
-  const conn = db.conn.promise();
-  let query = `SELECT ac.country_code as countryCode,
-  tt.country, 
-  tt.total_cases AS totalConfirmed, 
-  tt.total_deaths as totalDeaths, 
-  tt.total_recovered as totalRecovered,
-  tt.new_cases AS dailyConfirmed, 
-  tt.new_deaths AS dailyDeaths, 
-  tt.active_cases as activeCases, 
-  tt.serious_critical_cases AS totalCritical, 
-  CAST(tt.total_cases_per_million_pop AS UNSIGNED) AS totalConfirmedPerMillionPopulation,
-  (tt.total_deaths / tt.total_cases * 100) AS FR,
-  (tt.total_recovered / tt.total_cases * 100) AS PR,
-  tt.last_updated as lastUpdated
-        FROM worldometers tt INNER JOIN (
-            SELECT country,
-            max(last_updated) AS MaxDateTime
-            FROM worldometers tt 
-            where country not in ("Sint Maarten","Congo")
-           GROUP BY country) groupedtt
-      ON tt.country = groupedtt.country
-       AND tt.last_updated = groupedtt.MaxDateTime
-      left JOIN (Select country_name, country_code, country_alias from apps_countries) AS ac on tt.country = ac.country_alias
-      group by tt.country
-      order by tt.total_cases DESC`;
   let result = await conn.query(query);
   //const result = await conn.query(query);
   return result[0];
@@ -795,6 +581,27 @@ async function getCountryStatsDiff(countryCode) {
 `;
   const args = [countryCode];
   let result = await conn.query(query, args);
+  //const result = await conn.query(query);
+  return result[0][0];
+}
+
+async function getStatsOverview() {
+  const conn = db.conn.promise();
+  let query = `
+  SELECT 
+total_cases AS totalConfirmed,
+total_deaths as totalDeaths,
+total_recovered as totalRecovered,
+new_cases AS totalNewCases,
+new_deaths AS totalNewDeaths,
+active_cases AS totalActiveCases,
+CAST(total_cases_per_million_pop AS UNSIGNED) AS totalCasesPerMillionPop,
+MAX(last_updated) as created
+FROM worldometers_total_sum
+LIMIT 1
+`;
+
+  let result = await conn.query(query);
   //const result = await conn.query(query);
   return result[0][0];
 }
