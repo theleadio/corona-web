@@ -91,7 +91,7 @@ async function processData(data) {
 
       return accumulate;
   }, {});
-  console.log("dataByArea:", Object.values(dataByArea));
+  // console.log("dataByArea:", Object.values(dataByArea));
 
   const conn = db.conn.promise();
 
@@ -111,7 +111,7 @@ async function processData(data) {
 
     return accumulate;
   }, {});
-  console.log("dataByCountry:", Object.values(dataByCountry));
+  // console.log("dataByCountry:", Object.values(dataByCountry));
 
   await importDataGroupByCountryToDb(conn, Object.values(dataByCountry));
 
