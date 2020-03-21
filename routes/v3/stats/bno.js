@@ -1,11 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const asyncHandler = require("express-async-handler");
-const db = require('../../system/database');
-const cache = require('../../system/redis-cache');
-const { getCustomStats, fetchDataFromGoogleSheet } = require('../../services/customStats');
-const { getStatsWithCountryDetail } = require('../../services/statsService');
-const { cacheCheck } = require('../../services/cacheMiddleware');
+const db = require('../../../system/database');
+const cache = require('../../../system/redis-cache');
+const { getCustomStats, fetchDataFromGoogleSheet } = require('../../../services/customStats');
+const { getStatsWithCountryDetail } = require('../../../services/statsService');
+const { cacheCheck } = require('../../../services/cacheMiddleware');
+
+
+router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
+  console.log('calling v3/stats');
+  const { countryCode } = req.query;
+  try {
+    const results = await getStatsByAggregateData(countryCode);
+    return res.json(results);
+  }
+  catch (error) {
+    console.log('[/stats] error', error);
+    return res.json(error);
+  }
+}));
 
  /**
  * @api {get} /v3/stats/bno

@@ -45,7 +45,7 @@ async function getCustomStats() {
         console.log("[getCustomStats] error, added:", error, added);
       });
 
-      console.log("[getCustomStats] data:", data);
+      //console.log("[getCustomStats] data:", data);
       return resolve(data);
     });
   });
