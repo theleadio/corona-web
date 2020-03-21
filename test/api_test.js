@@ -10,7 +10,7 @@ describe ("Get stats using bno", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
             .get("/v3/stats/bno?countryCode="+countryCode)
-            .end((err, result)=>{                    
+            .end((err, result)=>{
                 result.should.have.status(200)
                 responseCountrycode = result.body.countryCode.toLowerCase();
                 console.log("Successfully fetch and country code:", responseCountrycode);
@@ -34,7 +34,7 @@ describe ("Get stats using JHU Arcgis", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
             .get("/v2/stats?countryCode="+countryCode)
-            .end((err, result)=>{                    
+            .end((err, result)=>{
                 responseCountrycode = result.body.countryCode.toLowerCase();
                 console.log("Successfully fetch and country code:", responseCountrycode);
                 if (countryCode == responseCountrycode){
@@ -57,16 +57,16 @@ describe ("Get diff stats using JHU Arcgis", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
             .get("/v2/stats/diff/global")
-            .end((err, result)=>{   
+            .end((err, result)=>{
                 var num = result.body.length;
-                console.log('got '+ num + ' results');    
+                console.log('got '+ num + ' results');
                 if (num > 0){
                     result.should.have.status(200)
                     console.log('Test pass');
-                }    
+                }
                 else{
                     assert.fail("There are 0 results");
-                }                       
+                }
 
                 //console.log("Successfully fetch info", result.body)
                 done();
@@ -78,16 +78,16 @@ describe ("Get diff stats for country JHU Arcgis", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
             .get("/v2/stats/diff/country")
-            .end((err, result)=>{                    
+            .end((err, result)=>{
                 var num = result.body.length;
-                console.log('got '+ num + ' results');    
+                console.log('got '+ num + ' results');
                 if (num > 0){
                     result.should.have.status(200)
                     console.log('Test pass');
-                }    
+                }
                 else{
                     assert.fail("There are 0 results");
-                }                       
+                }
 
                 //console.log("Successfully fetch info", result.body)
                 done();
@@ -100,8 +100,8 @@ describe ("Get diff stats using bno on per country basis", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
             .get("/v3/stats/bno/diff/country?countryCode="+countryCode)
-            .end((err, result)=>{          
-                console.log('test pass');          
+            .end((err, result)=>{
+                console.log('test pass');
                 // result.should.have.status(200)
                 // console.log(result.body);
                 // responseCountryName = result.body.country.toLowerCase();
@@ -125,7 +125,7 @@ describe ("Get total daily cases using bno on per country basis", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
             .get("/v3/stats/bno/total_daily_cases/country?countryCode="+countryCode)
-            .end((err, result)=>{                    
+            .end((err, result)=>{
                 result.should.have.status(200)
                 responseCountrycode = result.body.countryCode.toLowerCase();
                 console.log("Successfully fetch and country code:", responseCountrycode);
@@ -147,16 +147,16 @@ describe ("Get total daily cases using bno globally", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
             .get("/v3/stats/bno/total_daily_cases")
-            .end((err, result)=>{                    
+            .end((err, result)=>{
                 var num = result.body.length;
-                console.log('got '+ num + ' results');    
+                console.log('got '+ num + ' results');
                 if (num > 0){
                     result.should.have.status(200)
                     console.log('Test pass');
-                }    
+                }
                 else{
                     assert.fail("There are 0 results");
-                }                       
+                }
 
                 //console.log("Successfully fetch info", result.body)
                 done();
@@ -169,7 +169,7 @@ describe ("Get daily cases using bno on per country basis", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
             .get("/v3/stats/bno/daily_cases/country?countryCode="+countryCode)
-            .end((err, result)=>{                    
+            .end((err, result)=>{
                 result.should.have.status(200);
                 console.log('done');
                 // responseCountrycode = result.body.countryCode.toLowerCase();
@@ -192,7 +192,7 @@ describe ("Get daily cases using bno globally", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
             .get("/v3/stats/bno/daily_cases")
-            .end((err, result)=>{                    
+            .end((err, result)=>{
                 result.should.have.status(200)
                 done();
             })
@@ -203,16 +203,16 @@ describe ("Get worldometer stats", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
             .get("/v3/stats/worldometer")
-            .end((err, result)=>{      
+            .end((err, result)=>{
                 var num_countries = result.body.length;
-                console.log('got '+ num_countries + ' results');    
+                console.log('got '+ num_countries + ' results');
                 if (num_countries > 0){
                     result.should.have.status(200)
                     console.log('Test pass');
-                }    
+                }
                 else{
                     assert.fail("There are 0 countries");
-                }      
+                }
                 done();
             })
     })
@@ -221,17 +221,17 @@ describe ("Get worldometer stats", function(){
 describe ("Get stats overview", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
-            .get("/v3/stats/bno/stats_overview")
-            .end((err, result)=>{      
+            .get("/v3/stats/worldometer/stats_overview")
+            .end((err, result)=>{
                 var total_confirmed = result.body.totalConfirmed;
-                console.log('got '+ total_confirmed + ' total_confirmed');    
+                console.log('got '+ total_confirmed + ' total_confirmed');
                 if (total_confirmed > 0){
                     result.should.have.status(200)
                     console.log('Test pass');
-                }    
+                }
                 else{
                     assert.fail("There are 0 total_confirmed");
-                }      
+                }
                 done();
             })
     })
