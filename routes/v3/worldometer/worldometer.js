@@ -8,7 +8,7 @@ const { getStatsWithCountryDetail } = require('../../../services/statsService');
 const { cacheCheck } = require('../../../services/cacheMiddleware');
 
  /**
- * @api {get} /v3/stats/bno
+ * @api {get} /v3/stats/worldometer
  * @apiName worldometer
  * @apiGroup Worldometer stats
  * @apiVersion 2.0.0

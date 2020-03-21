@@ -50,7 +50,7 @@ app.use('/v2/analytics', v2AnalyticsRouter);
 app.use('/v2/stats', v2StatsRouter);
 app.use('/v3/stats', v3StatsRouter);
 app.use('/v3/stats/bno', v3StatsBnoRouter);
-app.use('/v3/stats/bno', v3StatsWorldometerRouter);
+app.use('/v3/stats', v3StatsWorldometerRouter);
 app.use('/v2/cache', v2CacheRouter);
 
 app.use('/image-proxy', imageProxyRouter);
