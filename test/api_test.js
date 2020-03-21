@@ -202,7 +202,7 @@ describe ("Get daily cases using bno globally", function(){
 describe ("Get worldometer stats", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
-            .get("/v3/stats/worldometer")
+            .get("/v4/stats/worldometer")
             .end((err, result)=>{      
                 var num_countries = result.body.length;
                 console.log('got '+ num_countries + ' results');    
