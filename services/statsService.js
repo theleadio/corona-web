@@ -14,10 +14,19 @@ const { getCustomStats } = require('./customStats');
  * @param limit
  * @returns {Promise<*>}
  */
-async function getStatsWithCountryDetail(limit = 999) {
+async function getStatsWithCountryDetail(limit = 999, date = null) {
   limit = parseInt(limit);
 
   const conn = db.conn.promise();
+  const args = [];
+  
+  let dateQuery = '(SELECT MAX(posted_date) FROM arcgis)'
+  if (date) {
+    const dateFrom = moment(date).format('YYYY-MM-DD')
+    const dateTo = moment(date).add(1, 'day').format('YYYY-MM-DD')
+    dateQuery = `(SELECT MAX(posted_date) FROM arcgis WHERE posted_date >= ? and posted_date < ?)`
+    args.push(dateFrom, dateTo)
+  }
 
   const query = `
 SELECT
@@ -35,13 +44,11 @@ INNER JOIN
   apps_countries AS AC
 ON
   A.country = AC.country_alias
-  AND A.posted_date = (SELECT MAX(posted_date) FROM arcgis)
+  AND A.posted_date = ${dateQuery}
 GROUP BY
   A.country, A.posted_date 
 ORDER BY
   confirmed DESC, recovered DESC`;
-
-  const args = [];
 
   let result = await conn.query(query, args);
   const data = result[0];

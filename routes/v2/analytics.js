@@ -84,17 +84,27 @@ router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
  */
 router.get('/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   let limit = 200
+  let date = null
 
   if (req.query.hasOwnProperty('limit')) {
     if (parseInt(req.query.limit)) {
       limit = parseInt(req.query.limit)
     } else {
-      res.json('Invalid data type. Limit should be an integer.')
+      return res.json('Invalid data type. Limit should be an integer.')
+    }
+  }
+
+  if (req.query.hasOwnProperty('date')) {
+    date = req.query.date
+
+    // enforce date format
+    if (moment(date, 'YYYY-MM-DD').format('YYYY-MM-DD') !== date) {
+      return res.json('Invalid date format. Date format should be YYYY-MM-DD')
     }
   }
 
   try {
-    const results = await fetchAffectedCountries(limit)
+    const results = await fetchAffectedCountries(limit, date)
 
     return res.json(results)
   } catch (error) {
@@ -147,8 +157,8 @@ async function fetchMostAffectedByArea(limit) {
   return result[0]
 }
 
-async function fetchAffectedCountries(limit = 999) {
-  const results = await getStatsWithCountryDetail(limit);
+async function fetchAffectedCountries(limit = 999, date = null) {
+  const results = await getStatsWithCountryDetail(limit, date);
   return results.map(s => {
     return {
       countryCode: s.countryCode,
