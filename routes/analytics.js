@@ -114,9 +114,11 @@ router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
  * @apiGroup Analytics
  * 
  * @apiParam {Integer} [limit] Optional limit the number of results
+ * @apiParam {Date} [date] Optional. Get results for that date
  */
 router.get('/country', cache.route(), asyncHandler(async function(req, res, next) {
   let limit = 200
+  let date = null
 
   if (req.query.hasOwnProperty('limit')) {
     if (parseInt(req.query.limit)) {
@@ -126,8 +128,16 @@ router.get('/country', cache.route(), asyncHandler(async function(req, res, next
     }
   }
 
+  if (req.query.hasOwnProperty('date')) {
+    if (Date.parse(req.query.date)) {
+      date = Date.parse(req.query.date)
+    } else {
+      res.json('Invalid data type. Date should be a date.')
+    }
+  }
+
   try {
-    const results = await fetchAffectedCountries(limit)
+    const results = await fetchAffectedCountries(limit, date)
 
     return res.json(results)
   } catch (error) {
@@ -204,10 +214,17 @@ async function fetchMostAffectedByArea(limit) {
   return result[0]
 }
 
-async function fetchAffectedCountries(limit) {
+async function fetchAffectedCountries(limit, date=null) {
   const conn = db.conn.promise()
   let query = ''
   const args = []
+  let dateQuery = '(SELECT MAX(posted_date) FROM arcgis)';
+  if(date) {
+    let dateFrom = date;
+    let dateTo = new Date(date);
+    dateTo.setDate(dateTo.getDate() + 1);
+    dateQuery = `(SELECT MAX(posted_date) FROM arcgis WHERE posted_date >= ${dateFrom.toISOString()} and posted_date < ${dateTo.toISOString()})`;
+  }
 
   query = `
     SELECT IFNULL(country, 'N/A') as country, lat, lng,
@@ -215,7 +232,7 @@ async function fetchAffectedCountries(limit) {
     SUM(deaths) as total_dead, SUM(recovered) as total_recovered,
     CAST(posted_date as DATETIME) as date_as_of
     FROM arcgis
-    WHERE posted_date IN (SELECT MAX(posted_date) from arcgis)
+    WHERE posted_date IN ${dateQuery}
     GROUP BY country
     ORDER BY total_confirmed DESC
     LIMIT ?`
