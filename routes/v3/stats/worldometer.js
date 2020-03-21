@@ -33,7 +33,7 @@ const { cacheCheck } = require('../../../services/cacheMiddleware');
   },
 ]
  */
-router.get('/worldometer', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/', cacheCheck, asyncHandler(async function(req, res, next) {
   try {
     const result = await getWorldometer();
     return res.json(result);
