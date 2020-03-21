@@ -124,15 +124,16 @@ router.get('/country', cache.route(), asyncHandler(async function(req, res, next
     if (parseInt(req.query.limit)) {
       limit = parseInt(req.query.limit)
     } else {
-      res.json('Invalid data type. Limit should be an integer.')
+      return res.json('Invalid data type. Limit should be an integer.')
     }
   }
 
   if (req.query.hasOwnProperty('date')) {
-    if (Date.parse(req.query.date)) {
-      date = Date.parse(req.query.date)
-    } else {
-      res.json('Invalid data type. Date should be a date.')
+    date = req.query.date
+
+    // enforce date format
+    if (moment(date, 'YYYY-MM-DD').format('YYYY-MM-DD') !== date) {
+      return res.json('Invalid date format. Date format should be YYYY-MM-DD')
     }
   }
 
@@ -214,19 +215,19 @@ async function fetchMostAffectedByArea(limit) {
   return result[0]
 }
 
-async function fetchAffectedCountries(limit, date=null) {
+async function fetchAffectedCountries(limit, date = null) {
   const conn = db.conn.promise()
-  let query = ''
   const args = []
-  let dateQuery = '(SELECT MAX(posted_date) FROM arcgis)';
-  if(date) {
-    let dateFrom = date;
-    let dateTo = new Date(date);
-    dateTo.setDate(dateTo.getDate() + 1);
-    dateQuery = `(SELECT MAX(posted_date) FROM arcgis WHERE posted_date >= ${dateFrom.toISOString()} and posted_date < ${dateTo.toISOString()})`;
+
+  let dateQuery = '(SELECT MAX(posted_date) FROM arcgis)'
+  if (date) {
+    const dateFrom = moment(date).format('YYYY-MM-DD')
+    const dateTo = moment(date).add(1, 'day').format('YYYY-MM-DD')
+    dateQuery = `(SELECT MAX(posted_date) FROM arcgis WHERE posted_date >= ? and posted_date < ?)`
+    args.push(dateFrom, dateTo)
   }
 
-  query = `
+  const query = `
     SELECT IFNULL(country, 'N/A') as country, lat, lng,
     SUM(confirmed) as total_confirmed,
     SUM(deaths) as total_dead, SUM(recovered) as total_recovered,
