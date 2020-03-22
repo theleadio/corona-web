@@ -126,6 +126,7 @@ router.get('/top', cacheCheck, cache.route(), asyncHandler(async function(req, r
 }));
 
 async function getCountryStats(countryCode=null, limit=999) {
+
   const conn = db.conn.promise();
   let countryCodeQuery = ''
   let args = []
@@ -134,6 +135,7 @@ async function getCountryStats(countryCode=null, limit=999) {
     countryCodeQuery = 'WHERE ac.country_code=?'
     args.push(countryCode)
   }
+
   args.push(parseInt(limit))
 
   let query = `
@@ -161,6 +163,7 @@ async function getCountryStats(countryCode=null, limit=999) {
   GROUP BY tt.country
   ORDER BY tt.total_cases DESC
   LIMIT ?`;
+
 
   let result = await conn.query(query, args);
   return result[0];
