@@ -80,8 +80,53 @@ router.get('/global', cacheCheck, cache.route(), asyncHandler(async function (re
   }
 }));
 
+/**
+ * @api {get} /v3/stats/worldometer/top Top N countries
+ * @apiName worldometer
+ * @apiGroup Stats - Worldometer
+ * @apiVersion 3.0.0
+ * @apiParam {Integer} [limit] Limit to top N countries to return
+ * @apiDescription Returns N country data or country-specific stats based on worldometer data.
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "countryCode": "CN",
+    "country": "China",
+    "totalConfirmed": 81008,
+    "totalDeaths": 3255,
+    "totalRecovered": 71740,
+    "dailyConfirmed": 41,
+    "dailyDeaths": 7,
+    "activeCases": 6013,
+    "totalCritical": 1927,
+    "totalConfirmedPerMillionPopulation": 56,
+    "FR": "4.0181",
+    "PR": "88.5592",
+    "lastUpdated": "2020-03-21T04:00:12.000Z"
+  },
+]
+ */
+router.get('/top', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
+  // console.log('calling /v3/stats/worldometer/top');
+  let limit = 999
 
-async function getCountryStats(countryCode=null) {
+  if (req.query.hasOwnProperty('limit')) {
+    limit = req.query.limit;
+  }
+
+  try {
+    const result = await getCountryStats(null, limit);
+    return res.json(result);
+  }
+  catch (error) {
+    console.log('[/v3/stats/worldometer/top] error', error);
+    return res.json(error);
+  }
+}));
+
+async function getCountryStats(countryCode=null, limit=999) {
+
   const conn = db.conn.promise();
   let countryCodeQuery = ''
   let args = []
@@ -91,31 +136,34 @@ async function getCountryStats(countryCode=null) {
     args.push(countryCode)
   }
 
-  let query = `SELECT ac.country_code as countryCode,
-  tt.country,
-  tt.total_cases AS totalConfirmed,
-  tt.total_deaths as totalDeaths,
-  tt.total_recovered as totalRecovered,
-  tt.new_cases AS dailyConfirmed,
-  tt.new_deaths AS dailyDeaths,
-  tt.active_cases as activeCases,
-  tt.serious_critical_cases AS totalCritical,
-  CAST(tt.total_cases_per_million_pop AS UNSIGNED) AS totalConfirmedPerMillionPopulation,
-  (tt.total_deaths / tt.total_cases * 100) AS FR,
-  (tt.total_recovered / tt.total_cases * 100) AS PR,
-  tt.last_updated as lastUpdated
-        FROM worldometers tt INNER JOIN (
-            SELECT country,
-            max(last_updated) AS MaxDateTime
-            FROM worldometers tt
-            where country not in ("Sint Maarten","Congo")
-           GROUP BY country) groupedtt
-      ON tt.country = groupedtt.country
-       AND tt.last_updated = groupedtt.MaxDateTime
-      left JOIN (Select country_name, country_code, country_alias from apps_countries) AS ac on tt.country = ac.country_alias
-      ${countryCodeQuery}
-      group by tt.country
-      order by tt.total_cases DESC`;
+  args.push(parseInt(limit))
+
+  let query = `
+  SELECT ac.country_code AS countryCode, tt.country, tt.total_cases AS totalConfirmed, tt.total_deaths AS totalDeaths, tt.total_recovered AS totalRecovered, tt.new_cases AS dailyConfirmed, tt.new_deaths AS dailyDeaths, tt.active_cases AS activeCases, tt.serious_critical_cases AS totalCritical, CAST(tt.total_cases_per_million_pop AS UNSIGNED) AS totalConfirmedPerMillionPopulation, (tt.total_deaths / tt.total_cases * 100) AS FR, (tt.total_recovered / tt.total_cases * 100) AS PR, tt.last_updated AS lastUpdated
+  FROM worldometers tt
+  INNER JOIN
+  (
+    SELECT country,
+    max(last_updated) AS MaxDateTime
+    FROM worldometers tt
+    WHERE country NOT in ("Sint Maarten", "Congo")
+    GROUP BY country
+  )
+  groupedtt ON tt.country = groupedtt.country
+  AND tt.last_updated = groupedtt.MaxDateTime
+  LEFT JOIN
+  (
+    SELECT country_name,
+    country_code,
+    country_alias
+    FROM apps_countries
+  )
+  AS ac ON tt.country = ac.country_alias
+  ${countryCodeQuery}
+  GROUP BY tt.country
+  ORDER BY tt.total_cases DESC
+  LIMIT ?`;
+
 
   let result = await conn.query(query, args);
   return result[0];
