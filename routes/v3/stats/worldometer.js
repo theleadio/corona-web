@@ -109,16 +109,17 @@ async function getGlobalStats() {
   const conn = db.conn.promise();
   let query = `
   SELECT
-total_cases AS totalConfirmed,
-total_deaths as totalDeaths,
-total_recovered as totalRecovered,
-new_cases AS totalNewCases,
-new_deaths AS totalNewDeaths,
-active_cases AS totalActiveCases,
-CAST(total_cases_per_million_pop AS UNSIGNED) AS totalCasesPerMillionPop,
-MAX(last_updated) as created
-FROM worldometers_total_sum
-LIMIT 1
+  total_cases AS totalConfirmed,
+  total_deaths as totalDeaths,
+  total_recovered as totalRecovered,
+  new_cases AS totalNewCases,
+  new_deaths AS totalNewDeaths,
+  active_cases AS totalActiveCases,
+  CAST(total_cases_per_million_pop AS UNSIGNED) AS totalCasesPerMillionPop,
+  last_updated as created
+  FROM worldometers_total_sum
+  WHERE last_updated = (SELECT MAX(last_updated) FROM worldometers_total_sum)
+  LIMIT 1;
 `;
 
   let result = await conn.query(query);
