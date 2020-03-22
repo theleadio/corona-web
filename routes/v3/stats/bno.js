@@ -22,11 +22,11 @@ router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res
 }));
 
  /**
- * @api {get} /v3/stats/bno/daily_cases
+ * @api {get} /v3/stats/bno/daily_cases Daily cases
  * @apiName daily_cases
- * @apiGroup Stats
+ * @apiGroup Stats - BNO
  * @apiVersion 3.0.0
- * @apiDescription Return a list of countries and the daily cases for each country
+ * @apiDescription Return list of daily cases for each country
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
 [
@@ -65,12 +65,12 @@ router.get('/daily_cases', cacheCheck, asyncHandler(async function(req, res, nex
 }));
 
 /**
- * @api {get} /v3/stats/bno/daily_cases/country?countryCode=sg
+ * @api {get} /v3/stats/bno/daily_cases/country Daily cases by country
  * @apiName daily_cases/country
- * @apiGroup Stats
+ * @apiGroup Stats - BNO
  * @apiVersion 3.0.0
- * @apiDescription Return a country and the daily cases for the country
- * @apiParam {String} [countryCode=sg]
+ * @apiDescription Return the daily cases for specific country
+ * @apiParam {String} countryCode The country to retrieve the stats for
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
 {
@@ -107,12 +107,12 @@ router.get('/daily_cases/country', cacheCheck, asyncHandler(async function(req, 
 }));
 
 /**
- * @api {get} /v3/stats/bno/total_daily_cases/country
+ * @api {get} /v3/stats/bno/total_daily_cases/country Total daily cases by country
  * @apiName total_daily_cases/country
- * @apiGroup Stats
+ * @apiGroup Stats - BNO
  * @apiVersion 3.0.0
- * @apiDescription Return a country and the total daily cases for the country
- * @apiParam {String} [countryCode=my]
+ * @apiDescription Return the total daily cases for specific country
+ * @apiParam {String} countryCode The country to retrieve the stats for
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
 {
@@ -134,17 +134,17 @@ router.get('/total_daily_cases/country', cacheCheck, asyncHandler(async function
     return res.json(results);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/v3/stats/bno/total_daily_cases/country] error', error);
     return res.json(error);
   }
 }));
 
 /**
- * @api {get} /v3/stats/bno/total_daily_cases
+ * @api {get} /v3/stats/bno/total_daily_cases Total daily cases
  * @apiName total_daily_cases
- * @apiGroup Stats
+ * @apiGroup Stats - BNO
  * @apiVersion 3.0.0
- * @apiDescription Return a list of countries and the total daily cases for each country
+ * @apiDescription Return list of total daily cases for each country
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
 [
@@ -168,7 +168,7 @@ router.get('/total_daily_cases', cacheCheck, asyncHandler(async function(req, re
     return res.json(results);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/v3/stats/bno/total_daily_cases] error', error);
     return res.json(error);
   }
 }));
@@ -176,12 +176,12 @@ router.get('/total_daily_cases', cacheCheck, asyncHandler(async function(req, re
 router.get('/diff/country', cacheCheck, asyncHandler(async function(req, res, next) {
   const { countryCode } = req.query;
   try {
-    console.log('diff/country');
+    // console.log('/v3/bno/diff/country');
     const results = await getCountryStatsDiff(countryCode);
     return res.json(results);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/v3/bno/diff/country] error', error);
     return res.json(error);
   }
 }));

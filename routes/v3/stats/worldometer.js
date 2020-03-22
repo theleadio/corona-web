@@ -8,7 +8,7 @@ const { cacheCheck } = require('../../../services/cacheMiddleware');
  /**
  * @api {get} /v3/stats/worldometer/country Country-specific stats
  * @apiName worldometer
- * @apiGroup Worldometer stats
+ * @apiGroup Stats - Worldometer
  * @apiVersion 3.0.0
  * @apiDescription Returns country-specific stats based on worldometer data.
  * @apiSuccessExample Response (example):
@@ -46,7 +46,7 @@ router.get('/country', cacheCheck, asyncHandler(async function(req, res, next) {
 /**
  * @api {get} /v3/stats/worldometer/global Global stats
  * @apiName stats_overview
- * @apiGroup Worldometer stats
+ * @apiGroup Stats - Worldometer
  * @apiVersion 3.0.0
  * @apiDescription Returns global stats based on worldometer data, used in home and analytics page
  * @apiSuccessExample Response (example):
