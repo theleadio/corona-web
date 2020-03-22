@@ -46,6 +46,7 @@ router.get('/daily', cache.route(), asyncHandler(async function(req, res, next) 
  */
 router.get('/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   let limit = 200
+  let date = null
 
   if (req.query.hasOwnProperty('limit')) {
     if (parseInt(req.query.limit)) {
@@ -55,8 +56,17 @@ router.get('/country', cacheCheck, cache.route(), asyncHandler(async function(re
     }
   }
 
+  if (req.query.hasOwnProperty('date')) {
+    date = req.query.date
+
+    // enforce date format
+    if (moment(date, 'YYYY-MM-DD').format('YYYY-MM-DD') !== date) {
+      return res.json('Invalid date format. Date format should be YYYY-MM-DD')
+    }
+  }
+
   try {
-    const results = await fetchAffectedCountries(limit)
+    const results = await fetchAffectedCountries(limit, date)
     return res.json(results)
   } catch (error) {
     console.log('[/analytics/country] error', error)
@@ -75,9 +85,9 @@ async function fetchTopCountryWithDailyNewCases(limit=10) {
   INNER JOIN
   (
     SELECT country,
-    max(last_updated) AS MaxDateTime	
-    FROM worldometers tt	
-    WHERE country NOT in ("Sint Maarten", "Congo")	
+    max(last_updated) AS MaxDateTime  
+    FROM worldometers tt  
+    WHERE country NOT in ("Sint Maarten", "Congo")  
     GROUP BY country
   )
   groupedtt ON tt.country = groupedtt.country
@@ -88,7 +98,7 @@ async function fetchTopCountryWithDailyNewCases(limit=10) {
     country_code,
     country_alias,
     latitude,
-    longitude	
+    longitude 
     FROM apps_countries
   )
   AS ac ON tt.country = ac.country_alias
@@ -101,8 +111,8 @@ async function fetchTopCountryWithDailyNewCases(limit=10) {
   return result[0]
 }
 
-async function fetchAffectedCountries(limit = 999) {
-  const results = await getStatsWithCountryDetail(limit);
+async function fetchAffectedCountries(limit = 999, date = null) {
+  const results = await getStatsWithCountryDetail(limit, date);
   return results.map(s => {
     return {
       countryCode: s.countryCode,
@@ -130,21 +140,31 @@ async function fetchAffectedCountries(limit = 999) {
  * @param limit
  * @returns {Promise<*>}
  */
-async function getStatsWithCountryDetail(limit = 999) {
+async function getStatsWithCountryDetail(limit = 999, date = null) {
     limit = parseInt(limit);
   
     const conn = db.conn.promise();
-    const args = [limit];
+    const args = [];
     
+    let groupedttWhere = 'country NOT in ("Sint Maarten", "Congo")'
+    if (date) {
+      const dateFrom = moment(date).format('YYYY-MM-DD')
+      const dateTo = moment(date).add(1, 'day').format('YYYY-MM-DD')
+      groupedttWhere += ` AND last_updated >= ? and last_updated < ?`
+      args.push(dateFrom, dateTo)
+    }
+    //push limit to args in last order
+    args.push(limit);
+
     const query = `
     SELECT ac.country_code AS countryCode, ac.latitude + 0.0 AS lat, ac.longitude + 0.0 AS lng, tt.country AS countryName, tt.total_cases AS totalConfirmed, tt.total_deaths AS totalDeaths, tt.total_recovered AS totalRecovered, tt.last_updated AS lastUpdated
     FROM worldometers tt
     INNER JOIN
     (
       SELECT country,
-      max(last_updated) AS MaxDateTime	
-      FROM worldometers tt	
-      WHERE country NOT in ("Sint Maarten", "Congo")	
+      max(last_updated) AS MaxDateTime  
+      FROM worldometers tt  
+      WHERE ${groupedttWhere}
       GROUP BY country
     )
     groupedtt ON tt.country = groupedtt.country
@@ -155,7 +175,7 @@ async function getStatsWithCountryDetail(limit = 999) {
       country_code,
       country_alias,
       latitude,
-      longitude	
+      longitude 
       FROM apps_countries
     )
     AS ac ON tt.country = ac.country_alias
