@@ -6,11 +6,11 @@ const cache = require('../../../system/redis-cache');
 const { cacheCheck } = require('../../../services/cacheMiddleware');
 
  /**
- * @api {get} /v3/stats/worldometer
+ * @api {get} /v3/stats/worldometer Country-specific stats
  * @apiName worldometer
  * @apiGroup Worldometer stats
  * @apiVersion 3.0.0
- * @apiDescription Returns worldometer stats
+ * @apiDescription Returns country-specific stats based on worldometer data.
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
 [
@@ -38,20 +38,20 @@ router.get('/', cacheCheck, asyncHandler(async function(req, res, next) {
     return res.json(result);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/v3/stats/worldometer] error', error);
     return res.json(error);
   }
 }));
 
 /**
- * @api {get} /v3/stats/worldometer/stats_overview
+ * @api {get} /v3/stats/worldometer/stats_overview Global stats
  * @apiName stats_overview
- * @apiGroup Get Worldometer overview stats
+ * @apiGroup Worldometer stats
  * @apiVersion 3.0.0
- * @apiDescription Returns stats overview on main and analytics page
+ * @apiDescription Returns global stats based on worldometer data, used in home and analytics page
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
-  {
+{
   "totalConfirmed": 276113,
   "totalDeaths": 11402,
   "totalRecovered": 91952,
@@ -60,7 +60,7 @@ router.get('/', cacheCheck, asyncHandler(async function(req, res, next) {
   "totalActiveCases": 172759,
   "totalCasesPerMillionPop": 35,
   "created": "2020-03-21T13:00:13.000Z"
-  }
+}
  */
 router.get('/stats_overview', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
   console.log('calling v3/worldometer/stats_overview');
@@ -69,7 +69,7 @@ router.get('/stats_overview', cacheCheck, cache.route(), asyncHandler(async func
     return res.json(results);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/v3/stats/worldometer/stats_overview] error', error);
     return res.json(error);
   }
 }));

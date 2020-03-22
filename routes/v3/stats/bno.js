@@ -16,7 +16,7 @@ router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res
     return res.json(results);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/v3/stats] error', error);
     return res.json(error);
   }
 }));
@@ -59,7 +59,7 @@ router.get('/daily_cases', cacheCheck, asyncHandler(async function(req, res, nex
     return res.json(results);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/v3/stats/bno/daily_cases] error', error);
     return res.json(error);
   }
 }));
@@ -101,13 +101,13 @@ router.get('/daily_cases/country', cacheCheck, asyncHandler(async function(req, 
     return res.json(results);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/v3/stats/bno/daily_cases/country] error', error);
     return res.json(error);
   }
 }));
 
 /**
- * @api {get} /v3/stats/bno/total_daily_cases/country?countryCode=sg
+ * @api {get} /v3/stats/bno/total_daily_cases/country
  * @apiName total_daily_cases/country
  * @apiGroup Stats
  * @apiVersion 3.0.0

@@ -8,7 +8,7 @@ const { getStatsWithCountryDetail } = require('../../services/statsService');
 const { cacheCheck } = require('../../services/cacheMiddleware');
 
 /**
- * @api {get} /v2/stats
+ * @api {get} /v3/stats
  * @apiName FetchStats
  * @apiGroup Stats
  * @apiVersion 2.0.0
@@ -37,7 +37,7 @@ router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res
 }));
 
 /**
- * @api {get} /v2/stats/latest
+ * @api {get} /v3/stats/latest
  * @apiName FetchLatestStats
  * @apiGroup Stats
  * @apiVersion 2.0.0
@@ -54,7 +54,7 @@ router.get('/latest', cacheCheck, cache.route(), asyncHandler(async function (re
 }));
 
 /**
- * @api {get} /v2/stats/top Top stats
+ * @api {get} /v3/stats/top Top stats
  * @apiName FetchTopStats
  * @apiGroup Stats
  * @apiVersion 2.0.0
@@ -86,7 +86,7 @@ router.get('/top', cacheCheck, cache.route(), asyncHandler(async function(req, r
 }));
 
 /**
- * @api {get} /v2/stats/custom Custom
+ * @api {get} /v3/stats/custom Custom
  * @apiName FetchCustomOverriddenStats
  * @apiGroup Stats
  * @apiVersion 2.0.0
@@ -113,7 +113,7 @@ router.get('/custom', cacheCheck, asyncHandler(async function(req, res, next) {
 }));
 
 /**
- * @api {get} /v2/stats/custom-debug Custom (for debug)
+ * @api {get} /v3/stats/custom-debug Custom (for debug)
  * @apiName FetchCustomOverriddenStatsDebug
  * @apiGroup Stats
  * @apiVersion 2.0.0
@@ -141,7 +141,7 @@ router.get('/custom-debug', cacheCheck, asyncHandler(async function(req, res, ne
 }));
 
 /**
- * @api {get} /v2/stats/diff/global Diff global stats
+ * @api {get} /v3/stats/diff/global Diff global stats
  * @apiName FetchGlobalStatsDifferenceBetweenDays
  * @apiGroup Stats
  * @apiVersion 2.0.0
@@ -176,7 +176,7 @@ router.get('/diff/global', cacheCheck, asyncHandler(async function(req, res, nex
 }));
 
 /**
- * @api {get} /v2/stats/diff/country Diff country stats
+ * @api {get} /v3/stats/diff/country Diff country stats
  * @apiName FetchCountryStatsDifferenceBetweenDays
  * @apiGroup Stats
  * @apiVersion 2.0.0
