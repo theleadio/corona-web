@@ -367,6 +367,40 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/v3/stats/diff/country",
+    "title": "Diff country stats",
+    "name": "FetchCountryStatsDifferenceBetweenDays",
+    "group": "Stats",
+    "version": "3.0.0",
+    "description": "<p>Returns difference in country stats between days.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "sort",
+            "defaultValue": "confirmed",
+            "description": "<p>The stats number to sort by in descending order. Valid values are 'confirmed', 'recover', 'death'</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Response (example):",
+          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"countryName\": \"Italy\",\n    \"todayConfirmed\": 7375,\n    \"ytdConfirmed\": 5883,\n    \"diffConfirmed\": 1492,\n    \"todayDeath\": 366,\n    \"ytdDeath\": 233,\n    \"diffDeath\": 133,\n    \"todayRecover\": 622,\n    \"ytdRecover\": 589,\n    \"diffRecover\": 33,\n    \"today\": \"2020-03-09T00:00:00.000Z\",\n    \"ytd\": \"2020-03-08T00:00:00.000Z\"\n  }\n]",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "routes/v3/stats.js",
+    "groupTitle": "Stats"
+  },
+  {
+    "type": "get",
     "url": "/v2/stats/diff/country",
     "title": "Diff country stats",
     "name": "FetchCountryStatsDifferenceBetweenDays",
@@ -401,31 +435,17 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v3/stats/diff/country",
-    "title": "Diff country stats",
-    "name": "FetchCountryStatsDifferenceBetweenDays",
+    "url": "/v3/stats/custom",
+    "title": "Custom",
+    "name": "FetchCustomOverriddenStats",
     "group": "Stats",
-    "version": "2.0.0",
-    "description": "<p>Returns difference in country stats between days.</p>",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": true,
-            "field": "sort",
-            "defaultValue": "confirmed",
-            "description": "<p>The stats number to sort by in descending order. Valid values are 'confirmed', 'recover', 'death'</p>"
-          }
-        ]
-      }
-    },
+    "version": "3.0.0",
+    "description": "<p>Returns country stats combined with overridden stats in our google sheet.</p>",
     "success": {
       "examples": [
         {
           "title": "Response (example):",
-          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"countryName\": \"Italy\",\n    \"todayConfirmed\": 7375,\n    \"ytdConfirmed\": 5883,\n    \"diffConfirmed\": 1492,\n    \"todayDeath\": 366,\n    \"ytdDeath\": 233,\n    \"diffDeath\": 133,\n    \"todayRecover\": 622,\n    \"ytdRecover\": 589,\n    \"diffRecover\": 33,\n    \"today\": \"2020-03-09T00:00:00.000Z\",\n    \"ytd\": \"2020-03-08T00:00:00.000Z\"\n  }\n]",
+          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"id\": 2,\n    \"countryCode\": \"SG\",\n    \"countryName\": \"Singapore\",\n    \"confirmed\": 89,\n    \"recovered\": 51,\n    \"deaths\": 0,\n    \"created\": \"2020-02-23 (UTC 1355)\",\n    \"createdBy\": \"\",\n    \"sourceUrl\": \"https://www.cna.com.tw/news/aopl/202002230219.aspx\"\n  }\n]",
           "type": "json"
         }
       ]
@@ -455,12 +475,12 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v3/stats/custom",
-    "title": "Custom",
-    "name": "FetchCustomOverriddenStats",
+    "url": "/v3/stats/custom-debug",
+    "title": "Custom (for debug)",
+    "name": "FetchCustomOverriddenStatsDebug",
     "group": "Stats",
-    "version": "2.0.0",
-    "description": "<p>Returns country stats combined with overridden stats in our google sheet.</p>",
+    "version": "3.0.0",
+    "description": "<p>This endpoint is used for debugging purpose. It returns the list of overridden stats in our google sheet.</p>",
     "success": {
       "examples": [
         {
@@ -495,17 +515,17 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v3/stats/custom-debug",
-    "title": "Custom (for debug)",
-    "name": "FetchCustomOverriddenStatsDebug",
+    "url": "/v3/stats/diff/global",
+    "title": "Diff global stats",
+    "name": "FetchGlobalStatsDifferenceBetweenDays",
     "group": "Stats",
-    "version": "2.0.0",
-    "description": "<p>This endpoint is used for debugging purpose. It returns the list of overridden stats in our google sheet.</p>",
+    "version": "3.0.0",
+    "description": "<p>Returns difference in global stats between days.</p>",
     "success": {
       "examples": [
         {
           "title": "Response (example):",
-          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"id\": 2,\n    \"countryCode\": \"SG\",\n    \"countryName\": \"Singapore\",\n    \"confirmed\": 89,\n    \"recovered\": 51,\n    \"deaths\": 0,\n    \"created\": \"2020-02-23 (UTC 1355)\",\n    \"createdBy\": \"\",\n    \"sourceUrl\": \"https://www.cna.com.tw/news/aopl/202002230219.aspx\"\n  }\n]",
+          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"todayConfirmed\": 111243,\n    \"ytdConfirmed\": 107642,\n    \"diffConfirmed\": 3601,\n    \"todayDeath\": 3890,\n    \"ytdDeath\": 3655,\n    \"diffDeath\": 235,\n    \"todayRecover\": 62370,\n    \"ytdRecover\": 60655,\n    \"diffRecover\": 1715,\n    \"today\": \"2020-03-09T00:00:00.000Z\",\n    \"ytd\": \"2020-03-08T00:00:00.000Z\"\n  }\n]",
           "type": "json"
         }
       ]
@@ -535,21 +555,11 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v3/stats/diff/global",
-    "title": "Diff global stats",
-    "name": "FetchGlobalStatsDifferenceBetweenDays",
+    "url": "/v3/stats/latest",
+    "title": "",
+    "name": "FetchLatestStats",
     "group": "Stats",
-    "version": "2.0.0",
-    "description": "<p>Returns difference in global stats between days.</p>",
-    "success": {
-      "examples": [
-        {
-          "title": "Response (example):",
-          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"todayConfirmed\": 111243,\n    \"ytdConfirmed\": 107642,\n    \"diffConfirmed\": 3601,\n    \"todayDeath\": 3890,\n    \"ytdDeath\": 3655,\n    \"diffDeath\": 235,\n    \"todayRecover\": 62370,\n    \"ytdRecover\": 60655,\n    \"diffRecover\": 1715,\n    \"today\": \"2020-03-09T00:00:00.000Z\",\n    \"ytd\": \"2020-03-08T00:00:00.000Z\"\n  }\n]",
-          "type": "json"
-        }
-      ]
-    },
+    "version": "3.0.0",
     "filename": "routes/v3/stats.js",
     "groupTitle": "Stats"
   },
@@ -565,22 +575,45 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v3/stats/latest",
-    "title": "",
-    "name": "FetchLatestStats",
-    "group": "Stats",
-    "version": "2.0.0",
-    "filename": "routes/v3/stats.js",
-    "groupTitle": "Stats"
-  },
-  {
-    "type": "get",
     "url": "/stats/latest",
     "title": "",
     "name": "FetchLatestStats",
     "group": "Stats",
     "version": "0.0.0",
     "filename": "routes/stats.js",
+    "groupTitle": "Stats"
+  },
+  {
+    "type": "get",
+    "url": "/v3/stats",
+    "title": "",
+    "name": "FetchStats",
+    "group": "Stats",
+    "version": "3.0.0",
+    "description": "<p>Returns the stats of top X countries sorted by number of confirmed cases.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "country",
+            "description": "<p>Optional Country to retrieve the stats for.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Response (example):",
+          "content": "HTTP/1.1 200 Success\n{\n  \"confirmed\": 96785,\n  \"deaths\": 3303,\n  \"recovered\": 53610,\n  \"created\": \"2020-03-05T14:35:03.000Z\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "routes/v3/stats.js",
     "groupTitle": "Stats"
   },
   {
@@ -618,39 +651,6 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v3/stats",
-    "title": "",
-    "name": "FetchStats",
-    "group": "Stats",
-    "version": "2.0.0",
-    "description": "<p>Returns the stats of top X countries sorted by number of confirmed cases.</p>",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": true,
-            "field": "country",
-            "description": "<p>Optional Country to retrieve the stats for.</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "examples": [
-        {
-          "title": "Response (example):",
-          "content": "HTTP/1.1 200 Success\n{\n  \"confirmed\": 96785,\n  \"deaths\": 3303,\n  \"recovered\": 53610,\n  \"created\": \"2020-03-05T14:35:03.000Z\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "routes/v3/stats.js",
-    "groupTitle": "Stats"
-  },
-  {
-    "type": "get",
     "url": "/stats",
     "title": "",
     "name": "FetchStats",
@@ -670,6 +670,40 @@ define({ "api": [
     },
     "version": "0.0.0",
     "filename": "routes/stats.js",
+    "groupTitle": "Stats"
+  },
+  {
+    "type": "get",
+    "url": "/v3/stats/top",
+    "title": "Top stats",
+    "name": "FetchTopStats",
+    "group": "Stats",
+    "version": "3.0.0",
+    "description": "<p>Returns the stats of top X countries sorted by number of confirmed cases.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "limit",
+            "defaultValue": "7",
+            "description": "<p>Number of countries' stats to retrieve.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Response (example):",
+          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"countryCode\": \"CN\",\n    \"countryName\": \"China\",\n    \"confirmed\": 80411,\n    \"deaths\": 3013,\n    \"recovered\": 52201,\n    \"created\": \"2020-03-05T14:50:02.000Z\"\n  }\n]",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "routes/v3/stats.js",
     "groupTitle": "Stats"
   },
   {
@@ -708,40 +742,6 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v3/stats/top",
-    "title": "Top stats",
-    "name": "FetchTopStats",
-    "group": "Stats",
-    "version": "2.0.0",
-    "description": "<p>Returns the stats of top X countries sorted by number of confirmed cases.</p>",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": true,
-            "field": "limit",
-            "defaultValue": "7",
-            "description": "<p>Number of countries' stats to retrieve.</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "examples": [
-        {
-          "title": "Response (example):",
-          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"countryCode\": \"CN\",\n    \"countryName\": \"China\",\n    \"confirmed\": 80411,\n    \"deaths\": 3013,\n    \"recovered\": 52201,\n    \"created\": \"2020-03-05T14:50:02.000Z\"\n  }\n]",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "routes/v3/stats.js",
-    "groupTitle": "Stats"
-  },
-  {
-    "type": "get",
     "url": "/stats/top",
     "title": "",
     "name": "FetchTopStats",
@@ -753,11 +753,11 @@ define({ "api": [
   {
     "type": "get",
     "url": "/v3/stats/bno/daily_cases",
-    "title": "",
+    "title": "Daily cases",
     "name": "daily_cases",
-    "group": "Stats",
+    "group": "Stats_-_BNO",
     "version": "3.0.0",
-    "description": "<p>Return a list of countries and the daily cases for each country</p>",
+    "description": "<p>Return list of daily cases for each country</p>",
     "success": {
       "examples": [
         {
@@ -768,26 +768,25 @@ define({ "api": [
       ]
     },
     "filename": "routes/v3/stats/bno.js",
-    "groupTitle": "Stats"
+    "groupTitle": "Stats_-_BNO"
   },
   {
     "type": "get",
-    "url": "/v3/stats/bno/daily_cases/country?countryCode=sg",
-    "title": "",
+    "url": "/v3/stats/bno/daily_cases/country",
+    "title": "Daily cases by country",
     "name": "daily_cases/country",
-    "group": "Stats",
+    "group": "Stats_-_BNO",
     "version": "3.0.0",
-    "description": "<p>Return a country and the daily cases for the country</p>",
+    "description": "<p>Return the daily cases for specific country</p>",
     "parameter": {
       "fields": {
         "Parameter": [
           {
             "group": "Parameter",
             "type": "String",
-            "optional": true,
+            "optional": false,
             "field": "countryCode",
-            "defaultValue": "sg",
-            "description": ""
+            "description": "<p>The country to retrieve the stats for</p>"
           }
         ]
       }
@@ -802,50 +801,16 @@ define({ "api": [
       ]
     },
     "filename": "routes/v3/stats/bno.js",
-    "groupTitle": "Stats"
-  },
-  {
-    "type": "get",
-    "url": "/v3/stats/bno/daily_cases/country?countryCode=sg",
-    "title": "",
-    "name": "daily_cases/country",
-    "group": "Stats",
-    "version": "3.0.0",
-    "description": "<p>Return a country and the daily cases for the country</p>",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": true,
-            "field": "countryCode",
-            "defaultValue": "sg",
-            "description": ""
-          }
-        ]
-      }
-    },
-    "success": {
-      "examples": [
-        {
-          "title": "Response (example):",
-          "content": "HTTP/1.1 200 Success\n{\n  \"countryCode\": \"SG\",\n  \"country\": \"Singapore\",\n  \"dailyConfirmed\": 200,\n  \"ytdDailyConfirmed\": 178,\n  \"diffDailyConfirmed\": 22,\n  \"pctDiffconfirmed\": 5.82010582010582,\n  \"dailyDeaths\": 0,\n  \"ytdDailyDeaths\": 0,\n  \"diffDailyDeaths\": 0,\n  \"todayRecovered\": 97,\n  \"ytdRecovered\": 96,\n  \"diffDailyRecovered\": 1,\n  \"tdyFR\": 0,\n  \"ytdFR\": 0,\n  \"tdyPR\": 25.66137566137566,\n  \"ytdPR\": 53.93258426966292,\n  \"today\": \"2020-03-13T23:50:05.000Z\",\n  \"ytd\": \"2020-03-12T23:50:05.000Z\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "routes/v3/stats.js",
-    "groupTitle": "Stats"
+    "groupTitle": "Stats_-_BNO"
   },
   {
     "type": "get",
     "url": "/v3/stats/bno/total_daily_cases",
-    "title": "",
+    "title": "Total daily cases",
     "name": "total_daily_cases",
-    "group": "Stats",
+    "group": "Stats_-_BNO",
     "version": "3.0.0",
-    "description": "<p>Return a list of countries and the total daily cases for each country</p>",
+    "description": "<p>Return list of total daily cases for each country</p>",
     "success": {
       "examples": [
         {
@@ -856,26 +821,25 @@ define({ "api": [
       ]
     },
     "filename": "routes/v3/stats/bno.js",
-    "groupTitle": "Stats"
+    "groupTitle": "Stats_-_BNO"
   },
   {
     "type": "get",
     "url": "/v3/stats/bno/total_daily_cases/country",
-    "title": "",
+    "title": "Total daily cases by country",
     "name": "total_daily_cases/country",
-    "group": "Stats",
+    "group": "Stats_-_BNO",
     "version": "3.0.0",
-    "description": "<p>Return a country and the total daily cases for the country</p>",
+    "description": "<p>Return the total daily cases for specific country</p>",
     "parameter": {
       "fields": {
         "Parameter": [
           {
             "group": "Parameter",
             "type": "String",
-            "optional": true,
+            "optional": false,
             "field": "countryCode",
-            "defaultValue": "my",
-            "description": ""
+            "description": "<p>The country to retrieve the stats for</p>"
           }
         ]
       }
@@ -890,7 +854,47 @@ define({ "api": [
       ]
     },
     "filename": "routes/v3/stats/bno.js",
-    "groupTitle": "Stats"
+    "groupTitle": "Stats_-_BNO"
+  },
+  {
+    "type": "get",
+    "url": "/v3/stats/worldometer/global",
+    "title": "Global stats",
+    "name": "stats_overview",
+    "group": "Stats_-_Worldometer",
+    "version": "3.0.0",
+    "description": "<p>Returns global stats based on worldometer data, used in home and analytics page</p>",
+    "success": {
+      "examples": [
+        {
+          "title": "Response (example):",
+          "content": "HTTP/1.1 200 Success\n{\n  \"totalConfirmed\": 276113,\n  \"totalDeaths\": 11402,\n  \"totalRecovered\": 91952,\n  \"totalNewCases\": 562,\n  \"totalNewDeaths\": 23,\n  \"totalActiveCases\": 172759,\n  \"totalCasesPerMillionPop\": 35,\n  \"created\": \"2020-03-21T13:00:13.000Z\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "routes/v3/stats/worldometer.js",
+    "groupTitle": "Stats_-_Worldometer"
+  },
+  {
+    "type": "get",
+    "url": "/v3/stats/worldometer/country",
+    "title": "Country-specific stats",
+    "name": "worldometer",
+    "group": "Stats_-_Worldometer",
+    "version": "3.0.0",
+    "description": "<p>Returns country-specific stats based on worldometer data.</p>",
+    "success": {
+      "examples": [
+        {
+          "title": "Response (example):",
+          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"countryCode\": \"CN\",\n    \"country\": \"China\",\n    \"totalConfirmed\": 81008,\n    \"totalDeaths\": 3255,\n    \"totalRecovered\": 71740,\n    \"dailyConfirmed\": 41,\n    \"dailyDeaths\": 7,\n    \"activeCases\": 6013,\n    \"totalCritical\": 1927,\n    \"totalConfirmedPerMillionPopulation\": 56,\n    \"FR\": \"4.0181\",\n    \"PR\": \"88.5592\",\n    \"lastUpdated\": \"2020-03-21T04:00:12.000Z\"\n  },\n]",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "routes/v3/stats/worldometer.js",
+    "groupTitle": "Stats_-_Worldometer"
   },
   {
     "type": "get",
@@ -910,45 +914,5 @@ define({ "api": [
     },
     "filename": "routes/travelAlert.js",
     "groupTitle": "Travel_Alert"
-  },
-  {
-    "type": "get",
-    "url": "/v3/stats/worldometer/global",
-    "title": "Global stats",
-    "name": "stats_overview",
-    "group": "Worldometer_stats",
-    "version": "3.0.0",
-    "description": "<p>Returns global stats based on worldometer data, used in home and analytics page</p>",
-    "success": {
-      "examples": [
-        {
-          "title": "Response (example):",
-          "content": "HTTP/1.1 200 Success\n{\n  \"totalConfirmed\": 276113,\n  \"totalDeaths\": 11402,\n  \"totalRecovered\": 91952,\n  \"totalNewCases\": 562,\n  \"totalNewDeaths\": 23,\n  \"totalActiveCases\": 172759,\n  \"totalCasesPerMillionPop\": 35,\n  \"created\": \"2020-03-21T13:00:13.000Z\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "routes/v3/stats/worldometer.js",
-    "groupTitle": "Worldometer_stats"
-  },
-  {
-    "type": "get",
-    "url": "/v3/stats/worldometer/country",
-    "title": "Country-specific stats",
-    "name": "worldometer",
-    "group": "Worldometer_stats",
-    "version": "3.0.0",
-    "description": "<p>Returns country-specific stats based on worldometer data.</p>",
-    "success": {
-      "examples": [
-        {
-          "title": "Response (example):",
-          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"countryCode\": \"CN\",\n    \"country\": \"China\",\n    \"totalConfirmed\": 81008,\n    \"totalDeaths\": 3255,\n    \"totalRecovered\": 71740,\n    \"dailyConfirmed\": 41,\n    \"dailyDeaths\": 7,\n    \"activeCases\": 6013,\n    \"totalCritical\": 1927,\n    \"totalConfirmedPerMillionPopulation\": 56,\n    \"FR\": \"4.0181\",\n    \"PR\": \"88.5592\",\n    \"lastUpdated\": \"2020-03-21T04:00:12.000Z\"\n  },\n]",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "routes/v3/stats/worldometer.js",
-    "groupTitle": "Worldometer_stats"
   }
 ] });
