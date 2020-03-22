@@ -57,11 +57,12 @@ ORDER BY
   try {
     const customStats = await getCustomStats();
 
+    const overriddenData = [];
     if(date) {
-      const overriddenData = data;
+      overriddenData.push(...data);
     }
     else {
-      const overriddenData = data.map(d => {
+      const overriddenData.push(...data.map(d => {
         const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
 
         if (!customCountryStat) {
@@ -74,7 +75,7 @@ ORDER BY
           deaths: Math.max(d.deaths, customCountryStat.deaths),
           recovered: Math.max(d.recovered, customCountryStat.recovered),
         }
-      });
+      }));
 
       customStats.forEach(cs => {
         if (!cs.countryCode || typeof cs.countryCode !== 'string') {
