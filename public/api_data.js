@@ -232,26 +232,6 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v3/stats/worldometer/stats_overview",
-    "title": "",
-    "name": "stats_overview",
-    "group": "Get_Worldometer_overview_stats",
-    "version": "3.0.0",
-    "description": "<p>Returns stats overview on main and analytics page</p>",
-    "success": {
-      "examples": [
-        {
-          "title": "Response (example):",
-          "content": "HTTP/1.1 200 Success\n  {\n  \"totalConfirmed\": 276113,\n  \"totalDeaths\": 11402,\n  \"totalRecovered\": 91952,\n  \"totalNewCases\": 562,\n  \"totalNewDeaths\": 23,\n  \"totalActiveCases\": 172759,\n  \"totalCasesPerMillionPop\": 35,\n  \"created\": \"2020-03-21T13:00:13.000Z\"\n  }",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "routes/v3/stats/worldometer.js",
-    "groupTitle": "Get_Worldometer_overview_stats"
-  },
-  {
-    "type": "get",
     "url": "/v1/healthcare-institution",
     "title": "List",
     "name": "FetchHealthcareInstitution",
@@ -421,7 +401,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v2/stats/diff/country",
+    "url": "/v3/stats/diff/country",
     "title": "Diff country stats",
     "name": "FetchCountryStatsDifferenceBetweenDays",
     "group": "Stats",
@@ -475,7 +455,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v2/stats/custom",
+    "url": "/v3/stats/custom",
     "title": "Custom",
     "name": "FetchCustomOverriddenStats",
     "group": "Stats",
@@ -515,7 +495,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v2/stats/custom-debug",
+    "url": "/v3/stats/custom-debug",
     "title": "Custom (for debug)",
     "name": "FetchCustomOverriddenStatsDebug",
     "group": "Stats",
@@ -555,7 +535,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v2/stats/diff/global",
+    "url": "/v3/stats/diff/global",
     "title": "Diff global stats",
     "name": "FetchGlobalStatsDifferenceBetweenDays",
     "group": "Stats",
@@ -585,7 +565,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v2/stats/latest",
+    "url": "/v3/stats/latest",
     "title": "",
     "name": "FetchLatestStats",
     "group": "Stats",
@@ -638,7 +618,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v2/stats",
+    "url": "/v3/stats",
     "title": "",
     "name": "FetchStats",
     "group": "Stats",
@@ -728,7 +708,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v2/stats/top",
+    "url": "/v3/stats/top",
     "title": "Top stats",
     "name": "FetchTopStats",
     "group": "Stats",
@@ -880,7 +860,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v3/stats/bno/total_daily_cases/country?countryCode=sg",
+    "url": "/v3/stats/bno/total_daily_cases/country",
     "title": "",
     "name": "total_daily_cases/country",
     "group": "Stats",
@@ -933,12 +913,32 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v3/stats/worldometer",
-    "title": "",
+    "url": "/v3/stats/worldometer/global",
+    "title": "Global stats",
+    "name": "stats_overview",
+    "group": "Worldometer_stats",
+    "version": "3.0.0",
+    "description": "<p>Returns global stats based on worldometer data, used in home and analytics page</p>",
+    "success": {
+      "examples": [
+        {
+          "title": "Response (example):",
+          "content": "HTTP/1.1 200 Success\n{\n  \"totalConfirmed\": 276113,\n  \"totalDeaths\": 11402,\n  \"totalRecovered\": 91952,\n  \"totalNewCases\": 562,\n  \"totalNewDeaths\": 23,\n  \"totalActiveCases\": 172759,\n  \"totalCasesPerMillionPop\": 35,\n  \"created\": \"2020-03-21T13:00:13.000Z\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "routes/v3/stats/worldometer.js",
+    "groupTitle": "Worldometer_stats"
+  },
+  {
+    "type": "get",
+    "url": "/v3/stats/worldometer/country",
+    "title": "Country-specific stats",
     "name": "worldometer",
     "group": "Worldometer_stats",
     "version": "3.0.0",
-    "description": "<p>Returns worldometer stats</p>",
+    "description": "<p>Returns country-specific stats based on worldometer data.</p>",
     "success": {
       "examples": [
         {
