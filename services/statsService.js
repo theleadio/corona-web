@@ -57,38 +57,43 @@ ORDER BY
   try {
     const customStats = await getCustomStats();
 
-    const overriddenData = data.map(d => {
-      const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
+    if(date) {
+      const overriddenData = data;
+    }
+    else {
+      const overriddenData = data.map(d => {
+        const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
 
-      if (!customCountryStat) {
-        return d;
-      }
+        if (!customCountryStat) {
+          return d;
+        }
 
-      return {
-        ...d,
-        confirmed: Math.max(d.confirmed, customCountryStat.confirmed),
-        deaths: Math.max(d.deaths, customCountryStat.deaths),
-        recovered: Math.max(d.recovered, customCountryStat.recovered),
-      }
-    });
+        return {
+          ...d,
+          confirmed: Math.max(d.confirmed, customCountryStat.confirmed),
+          deaths: Math.max(d.deaths, customCountryStat.deaths),
+          recovered: Math.max(d.recovered, customCountryStat.recovered),
+        }
+      });
 
-    customStats.forEach(cs => {
-      if (!cs.countryCode || typeof cs.countryCode !== 'string') {
-        return false;
-      }
+      customStats.forEach(cs => {
+        if (!cs.countryCode || typeof cs.countryCode !== 'string') {
+          return false;
+        }
 
-      // Add custom country stats if it does not exist in current data.
-      if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
-        overriddenData.push({
-          countryCode: cs.countryCode,
-          countryName: cs.countryName,
-          confirmed: cs.confirmed || 0,
-          deaths: cs.deaths || 0,
-          recovered: cs.recovered || 0,
-          created: new Date(),
-        });
-      }
-    });
+        // Add custom country stats if it does not exist in current data.
+        if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
+          overriddenData.push({
+            countryCode: cs.countryCode,
+            countryName: cs.countryName,
+            confirmed: cs.confirmed || 0,
+            deaths: cs.deaths || 0,
+            recovered: cs.recovered || 0,
+            created: new Date(),
+          });
+        }
+      });
+    }
 
     return overriddenData
       .sort((a, b) => {
