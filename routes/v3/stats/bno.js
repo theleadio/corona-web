@@ -27,7 +27,6 @@ router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res
  * @apiGroup Stats
  * @apiVersion 3.0.0
  * @apiDescription Return a list of countries and the daily cases for each country
- * @apiParam
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
 [
@@ -146,7 +145,6 @@ router.get('/total_daily_cases/country', cacheCheck, asyncHandler(async function
  * @apiGroup Stats
  * @apiVersion 3.0.0
  * @apiDescription Return a list of countries and the total daily cases for each country
- * @apiParam
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
 [
@@ -212,8 +210,6 @@ LIMIT 1
 
   return result[0] && result[0][0] || { confirmed: '?', deaths: '?', recovered: '?', created: null };
 }
-
-
 
 async function getStatsByAggregateDataFilterByCountry(countryCode) {
   const conn = db.conn.promise();
