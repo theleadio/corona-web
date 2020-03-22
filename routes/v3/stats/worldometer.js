@@ -6,7 +6,7 @@ const cache = require('../../../system/redis-cache');
 const { cacheCheck } = require('../../../services/cacheMiddleware');
 
  /**
- * @api {get} /v3/stats/worldometer Country-specific stats
+ * @api {get} /v3/stats/worldometer/country Country-specific stats
  * @apiName worldometer
  * @apiGroup Worldometer stats
  * @apiVersion 3.0.0
@@ -31,20 +31,20 @@ const { cacheCheck } = require('../../../services/cacheMiddleware');
   },
 ]
  */
-router.get('/', cacheCheck, asyncHandler(async function(req, res, next) {
-  console.log('calling v3/worldometer');
+router.get('/country', cacheCheck, asyncHandler(async function(req, res, next) {
+  // console.log('calling /v3/stats/worldometer/country');
   try {
-    const result = await getWorldometer();
+    const result = await getCountryStats();
     return res.json(result);
   }
   catch (error) {
-    console.log('[/v3/stats/worldometer] error', error);
+    console.log('[/v3/stats/worldometer/country] error', error);
     return res.json(error);
   }
 }));
 
 /**
- * @api {get} /v3/stats/worldometer/stats_overview Global stats
+ * @api {get} /v3/stats/worldometer/global Global stats
  * @apiName stats_overview
  * @apiGroup Worldometer stats
  * @apiVersion 3.0.0
@@ -62,20 +62,20 @@ router.get('/', cacheCheck, asyncHandler(async function(req, res, next) {
   "created": "2020-03-21T13:00:13.000Z"
 }
  */
-router.get('/stats_overview', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
-  console.log('calling v3/worldometer/stats_overview');
+router.get('/global', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
+  // console.log('calling /v3/stats/worldometer/global');
   try {
-    const results = await getStatsOverview();
+    const results = await getGlobalStats();
     return res.json(results);
   }
   catch (error) {
-    console.log('[/v3/stats/worldometer/stats_overview] error', error);
+    console.log('[/v3/stats/worldometer/global] error', error);
     return res.json(error);
   }
 }));
 
 
-async function getWorldometer() {
+async function getCountryStats() {
   const conn = db.conn.promise();
   let query = `SELECT ac.country_code as countryCode,
   tt.country,
@@ -105,7 +105,7 @@ async function getWorldometer() {
   return result[0];
 }
 
-async function getStatsOverview() {
+async function getGlobalStats() {
   const conn = db.conn.promise();
   let query = `
   SELECT
