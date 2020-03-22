@@ -15,6 +15,7 @@ const imageProxyRouter = require('./routes/imageProxy');
 const v2AnalyticsRouter = require('./routes/v2/analytics');
 const v2CacheRouter = require('./routes/v2/cache');
 const v2StatsRouter = require('./routes/v2/stats');
+const v3AnalyticsRouter = require('./routes/v3/analytics');
 const v3StatsRouter = require('./routes/v3/stats');
 const v3StatsBnoRouter = require('./routes/v3/stats/bno');
 const v3StatsWorldometerRouter = require('./routes/v3/stats/worldometer');
@@ -48,6 +49,7 @@ app.use('/v1/analytics', analyticsRouter);
 
 app.use('/v2/analytics', v2AnalyticsRouter);
 app.use('/v2/stats', v2StatsRouter);
+app.use('/v3/analytics', v3AnalyticsRouter);
 app.use('/v3/stats', v3StatsRouter);
 app.use('/v3/stats/bno', v3StatsBnoRouter);
 app.use('/v3/stats/worldometer', v3StatsWorldometerRouter);
