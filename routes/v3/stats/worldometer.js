@@ -6,11 +6,12 @@ const cache = require('../../../system/redis-cache');
 const { cacheCheck } = require('../../../services/cacheMiddleware');
 
  /**
- * @api {get} /v3/stats/worldometer/country Country-specific stats
+ * @api {get} /v3/stats/worldometer/country all country or country-specific stats
  * @apiName worldometer
  * @apiGroup Stats - Worldometer
  * @apiVersion 3.0.0
- * @apiDescription Returns country-specific stats based on worldometer data.
+ * @apiParam {String} [countryCode] Optional countryCode to retrieve the stats for
+ * @apiDescription Returns all country data or country-specific stats based on worldometer data.
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
 [
@@ -33,8 +34,13 @@ const { cacheCheck } = require('../../../services/cacheMiddleware');
  */
 router.get('/country', cacheCheck, asyncHandler(async function(req, res, next) {
   // console.log('calling /v3/stats/worldometer/country');
+  let countryCode = null
+  if (req.query.hasOwnProperty('countryCode')) {
+    countryCode = req.query.countryCode;
+  }
+
   try {
-    const result = await getCountryStats();
+    const result = await getCountryStats(countryCode);
     return res.json(result);
   }
   catch (error) {
@@ -75,8 +81,16 @@ router.get('/global', cacheCheck, cache.route(), asyncHandler(async function (re
 }));
 
 
-async function getCountryStats() {
+async function getCountryStats(countryCode=null) {
   const conn = db.conn.promise();
+  let countryCodeQuery = ''
+  let args = []
+
+  if (countryCode) {
+    countryCodeQuery = 'WHERE ac.country_code=?'
+    args.push(countryCode)
+  }
+
   let query = `SELECT ac.country_code as countryCode,
   tt.country,
   tt.total_cases AS totalConfirmed,
@@ -99,9 +113,11 @@ async function getCountryStats() {
       ON tt.country = groupedtt.country
        AND tt.last_updated = groupedtt.MaxDateTime
       left JOIN (Select country_name, country_code, country_alias from apps_countries) AS ac on tt.country = ac.country_alias
+      ${countryCodeQuery}
       group by tt.country
       order by tt.total_cases DESC`;
-  let result = await conn.query(query);
+
+  let result = await conn.query(query, args);
   return result[0];
 }
 
