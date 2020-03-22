@@ -11,7 +11,7 @@ const { cacheCheck } = require('../../services/cacheMiddleware');
  * @api {get} /v3/stats
  * @apiName FetchStats
  * @apiGroup Stats
- * @apiVersion 2.0.0
+ * @apiVersion 3.0.0
  * @apiDescription Returns the stats of top X countries sorted by number of confirmed cases.
  * @apiParam {String} [country] Optional Country to retrieve the stats for.
  * @apiSuccessExample Response (example):
@@ -40,7 +40,7 @@ router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res
  * @api {get} /v3/stats/latest
  * @apiName FetchLatestStats
  * @apiGroup Stats
- * @apiVersion 2.0.0
+ * @apiVersion 3.0.0
  */
 router.get('/latest', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
   try {
@@ -57,7 +57,7 @@ router.get('/latest', cacheCheck, cache.route(), asyncHandler(async function (re
  * @api {get} /v3/stats/top Top stats
  * @apiName FetchTopStats
  * @apiGroup Stats
- * @apiVersion 2.0.0
+ * @apiVersion 3.0.0
  * @apiDescription Returns the stats of top X countries sorted by number of confirmed cases.
  * @apiParam {Number} [limit=7] Number of countries' stats to retrieve.
  * @apiSuccessExample Response (example):
@@ -89,7 +89,7 @@ router.get('/top', cacheCheck, cache.route(), asyncHandler(async function(req, r
  * @api {get} /v3/stats/custom Custom
  * @apiName FetchCustomOverriddenStats
  * @apiGroup Stats
- * @apiVersion 2.0.0
+ * @apiVersion 3.0.0
  * @apiDescription Returns country stats combined with overridden stats in our google sheet.
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
@@ -116,7 +116,7 @@ router.get('/custom', cacheCheck, asyncHandler(async function(req, res, next) {
  * @api {get} /v3/stats/custom-debug Custom (for debug)
  * @apiName FetchCustomOverriddenStatsDebug
  * @apiGroup Stats
- * @apiVersion 2.0.0
+ * @apiVersion 3.0.0
  * @apiDescription This endpoint is used for debugging purpose.
  * It returns the list of overridden stats in our google sheet.
  * @apiSuccessExample Response (example):
@@ -144,7 +144,7 @@ router.get('/custom-debug', cacheCheck, asyncHandler(async function(req, res, ne
  * @api {get} /v3/stats/diff/global Diff global stats
  * @apiName FetchGlobalStatsDifferenceBetweenDays
  * @apiGroup Stats
- * @apiVersion 2.0.0
+ * @apiVersion 3.0.0
  * @apiDescription Returns difference in global stats between days.
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
@@ -179,7 +179,7 @@ router.get('/diff/global', cacheCheck, asyncHandler(async function(req, res, nex
  * @api {get} /v3/stats/diff/country Diff country stats
  * @apiName FetchCountryStatsDifferenceBetweenDays
  * @apiGroup Stats
- * @apiVersion 2.0.0
+ * @apiVersion 3.0.0
  * @apiDescription Returns difference in country stats between days.
  * @apiParam {String} [sort=confirmed] The stats number to sort by in descending order. Valid values are 'confirmed', 'recover', 'death'
  * @apiSuccessExample Response (example):
