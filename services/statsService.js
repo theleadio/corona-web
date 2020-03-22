@@ -62,7 +62,7 @@ ORDER BY
       overriddenData.push(...data);
     }
     else {
-      const overriddenData.push(...data.map(d => {
+      overriddenData.push(...data.map(d => {
         const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
 
         if (!customCountryStat) {
