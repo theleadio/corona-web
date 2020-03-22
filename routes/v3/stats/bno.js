@@ -52,7 +52,7 @@ router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res
   }
 ]
  */
-router.get('/daily_cases', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/daily_cases', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
 
   try {
     const results = await getDailyCases();
@@ -94,7 +94,7 @@ router.get('/daily_cases', cacheCheck, asyncHandler(async function(req, res, nex
   "ytd": "2020-03-12T23:50:05.000Z"
 }
  */
-router.get('/daily_cases/country', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/daily_cases/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   const { countryCode } = req.query;
   try {
     const results = await getDailyCasesByCountry(countryCode);
@@ -127,7 +127,7 @@ router.get('/daily_cases/country', cacheCheck, asyncHandler(async function(req, 
   "created": "2020-03-18T03:35:05.000Z"
 }
  */
-router.get('/total_daily_cases/country', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/total_daily_cases/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   const { countryCode } = req.query;
   try {
     const results = await getTotalDailyCasesByCountry(countryCode);
@@ -161,7 +161,7 @@ router.get('/total_daily_cases/country', cacheCheck, asyncHandler(async function
   }
 ]
  */
-router.get('/total_daily_cases', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/total_daily_cases', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
 
   try {
     const results = await getTotalDailyCases();
@@ -173,7 +173,7 @@ router.get('/total_daily_cases', cacheCheck, asyncHandler(async function(req, re
   }
 }));
 
-router.get('/diff/country', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/diff/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   const { countryCode } = req.query;
   try {
     // console.log('/v3/bno/diff/country');
