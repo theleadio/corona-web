@@ -22,38 +22,6 @@ router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res
 }));
 
  /**
- * @api {get} /v3/stats/bno/stats_overview
- * @apiName stats_overview
- * @apiGroup Get overview stats
- * @apiVersion 2.0.0
- * @apiDescription Returns stats overview on main and analytics page
- * @apiSuccessExample Response (example):
- * HTTP/1.1 200 Success
-  {
-  "totalConfirmed": 276113,
-  "totalDeaths": 11402,
-  "totalRecovered": 91952,
-  "totalNewCases": 562,
-  "totalNewDeaths": 23,
-  "totalActiveCases": 172759,
-  "totalCasesPerMillionPop": 35,
-  "created": "2020-03-21T13:00:13.000Z"
-  }
- */
-router.get('/stats_overview', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
-  console.log('calling v3/stats_overview');
-  // const { countryCode } = req.query;
-  try {
-    const results = await getStatsOverview();
-    return res.json(results);
-  }
-  catch (error) {
-    console.log('[/stats] error', error);
-    return res.json(error);
-  }
-}));
-
- /**
  * @api {get} /v3/stats/bno/daily_cases
  * @apiName daily_cases
  * @apiGroup Stats
@@ -233,9 +201,9 @@ SELECT
   CAST(SUM(deaths) AS UNSIGNED) AS deaths,
   CAST(SUM(recovered) AS UNSIGNED) AS recovered,
   MAX(posted_date) as created
-FROM 
+FROM
   arcgis
-WHERE 
+WHERE
   posted_date = (SELECT MAX(posted_date) FROM arcgis)
 LIMIT 1
 `;
@@ -322,22 +290,22 @@ async function getDailyCases() {
    cast(a.cases as signed) as dailyConfirmed,
    cast(b.cases as signed) as ytdDailyConfirmed,
    (a.cases - b.cases) as diffDailyConfirmed,
-   CASE 
+   CASE
          WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
          ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
      END AS pctDiffconfirmed,
    cast(a.deaths as signed) as dailyDeaths,
    cast(b.deaths as signed) as ytdDailyDeaths,
    (a.deaths - b.deaths) as diffDailyDeaths,
-   cast(CASE 
+   cast(CASE
          WHEN a.recovered = '-' THEN 0
          WHEN a.recovered = '' THEN 0
-         ELSE a.recovered 
+         ELSE a.recovered
      END as signed) AS todayRecovered,
-    cast(CASE 
+    cast(CASE
          WHEN b.recovered = '-' THEN 0
          WHEN b.recovered = '' THEN 0
-         ELSE b.recovered 
+         ELSE b.recovered
      END as signed) AS ytdRecovered,
    (a.recovered - b.recovered) as diffDailyRecovered,
    a.art_updated as today,
@@ -388,22 +356,22 @@ async function getDailyCasesByCountry(countryCode) {
    cast(a.cases as signed) as dailyConfirmed,
    cast(b.cases as signed) as ytdDailyConfirmed,
    (a.cases - b.cases) as diffDailyConfirmed,
-   CASE 
+   CASE
          WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
          ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
      END AS pctDiffconfirmed,
    cast(a.deaths as signed) as dailyDeaths,
    cast(b.deaths as signed) as ytdDailyDeaths,
    (a.deaths - b.deaths) as diffDailyDeaths,
-   cast(CASE 
+   cast(CASE
          WHEN a.recovered = '-' THEN 0
          WHEN a.recovered = '' THEN 0
-         ELSE a.recovered 
+         ELSE a.recovered
      END as signed) AS todayRecovered,
-    cast(CASE 
+    cast(CASE
          WHEN b.recovered = '-' THEN 0
          WHEN b.recovered = '' THEN 0
-         ELSE b.recovered 
+         ELSE b.recovered
      END as signed) AS ytdRecovered,
    (a.recovered - b.recovered) as diffDailyRecovered,
    a.art_updated as today,
@@ -436,20 +404,20 @@ async function getTotalDailyCases() {
   let query = `
   SELECT ac.country_code as countryCode,
   tt.country as countryName, cast(tt.cases as unsigned) as confirmed, cast(tt.deaths as unsigned) as deaths,
-      cast(CASE 
+      cast(CASE
         WHEN tt.recovered = '-' THEN 0
         WHEN tt.recovered = '' THEN 0
-        ELSE tt.recovered 
+        ELSE tt.recovered
       END as unsigned) AS recovered,
-      cast(CASE 
+      cast(CASE
           WHEN tt.critical = '-' THEN 0
           WHEN tt.critical = '' THEN 0
-          ELSE tt.critical 
+          ELSE tt.critical
       END as unsigned) AS critical,
-      cast(CASE 
+      cast(CASE
         WHEN tt.serious = '-' THEN 0
         WHEN tt.serious = '' THEN 0
-        ELSE tt.serious 
+        ELSE tt.serious
       END as unsigned) AS serious,
       CAST((tt.cases - tt.recovered) AS UNSIGNED) AS activeCases,
   tt.art_updated as created
@@ -476,20 +444,20 @@ async function getTotalDailyCasesByCountry(countryCode) {
   let query = `
   SELECT ac.country_code as countryCode,
 tt.country as countryName, cast(tt.cases as unsigned) as confirmed, cast(tt.deaths as unsigned) as deaths,
-    cast(CASE 
+    cast(CASE
       WHEN tt.recovered = '-' THEN 0
       WHEN tt.recovered = '' THEN 0
-      ELSE tt.recovered 
+      ELSE tt.recovered
     END as unsigned) AS recovered,
-    cast(CASE 
+    cast(CASE
         WHEN tt.critical = '-' THEN 0
         WHEN tt.critical = '' THEN 0
-        ELSE tt.critical 
+        ELSE tt.critical
     END as unsigned) AS critical,
-    cast(CASE 
+    cast(CASE
       WHEN tt.serious = '-' THEN 0
       WHEN tt.serious = '' THEN 0
-      ELSE tt.serious 
+      ELSE tt.serious
     END as unsigned) AS serious,
     CAST((tt.cases - tt.recovered) AS UNSIGNED) AS activeCases,
 tt.art_updated as created
@@ -537,22 +505,22 @@ async function getCountryStatsDiff(countryCode) {
   cast(a.cases as signed) as todayConfirmed,
   cast(b.cases as signed) ytdConfirmed,
   cast((a.cases - b.cases) as signed) as diffConfirmed,
-  CASE 
+  CASE
      WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
      ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
    END AS pctDiffconfirmed,
    cast(a.deaths as signed) as todayDeaths,
     cast(b.deaths as signed) ytdDeaths,
   (a.deaths - b.deaths) as diffDeaths,
-  cast(CASE 
+  cast(CASE
      WHEN a.recovered = '-' THEN 0
      WHEN a.recovered = '' THEN 0
-     ELSE a.recovered 
+     ELSE a.recovered
    END as signed) AS todayRecovered,
-   cast(CASE 
+   cast(CASE
      WHEN b.recovered = '-' THEN 0
      WHEN b.recovered = '' THEN 0
-     ELSE b.recovered 
+     ELSE b.recovered
    END as signed) AS ytdRecovered,
   (a.recovered - b.recovered) as diffRecovered,
   a.deaths / (a.cases + b.cases) * 100 as tdyFR,
@@ -581,27 +549,6 @@ async function getCountryStatsDiff(countryCode) {
 `;
   const args = [countryCode];
   let result = await conn.query(query, args);
-  //const result = await conn.query(query);
-  return result[0][0];
-}
-
-async function getStatsOverview() {
-  const conn = db.conn.promise();
-  let query = `
-  SELECT 
-total_cases AS totalConfirmed,
-total_deaths as totalDeaths,
-total_recovered as totalRecovered,
-new_cases AS totalNewCases,
-new_deaths AS totalNewDeaths,
-active_cases AS totalActiveCases,
-CAST(total_cases_per_million_pop AS UNSIGNED) AS totalCasesPerMillionPop,
-MAX(last_updated) as created
-FROM worldometers_total_sum
-LIMIT 1
-`;
-
-  let result = await conn.query(query);
   //const result = await conn.query(query);
   return result[0][0];
 }
