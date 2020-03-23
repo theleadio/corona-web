@@ -3,6 +3,7 @@ const asyncHandler = require('express-async-handler')
 const moment = require('moment')
 const db = require('../../system/database')
 const cache = require('../../system/redis-cache')
+const { getCustomStats } = require('../../services/customStats');
 const router = express.Router()
 const { cacheCheck } = require('../../services/cacheMiddleware');
 
@@ -11,7 +12,7 @@ const { cacheCheck } = require('../../services/cacheMiddleware');
  * @apiName fetchTopCountryWithDailyNewCases
  * @apiGroup Analytics
  * @apiVersion 3.0.0
- * 
+ *
  * @apiParam {Number} [limit=10] limit the number of results
  */
 router.get('/daily', cache.route(), asyncHandler(async function(req, res, next) {
@@ -41,7 +42,7 @@ router.get('/daily', cache.route(), asyncHandler(async function(req, res, next) 
  * @apiName FetchAffectedCountries
  * @apiGroup Analytics
  * @apiVersion 3.0.0
- * 
+ *
  * @apiParam {Number} [limit=200] limit the number of results
  */
 router.get('/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
@@ -142,7 +143,7 @@ async function fetchAffectedCountries(limit = 999, date = null) {
  */
 async function getStatsWithCountryDetail(limit = 999, date = null) {
     limit = parseInt(limit);
-  
+
     const conn = db.conn.promise();
     const args = [];
     
@@ -183,7 +184,71 @@ async function getStatsWithCountryDetail(limit = 999, date = null) {
     ORDER BY tt.total_cases DESC
     LIMIT ?;`;
     const result = await conn.query(query, args)
-    return result[0]
+    const data = result[0]
+    const updatedData = updateCountryDetailStatsWithCustomStats(data, limit, true)
+    return updatedData
+}
+
+// Get custom stats from GoogleSheetApi
+// Update countryStats values if it's greater
+async function updateCountryDetailStatsWithCustomStats(data, limit=999, getAllFlag) {
+  try {
+    const customStats = await getCustomStats();
+
+    const overriddenData = data.map(d => {
+      const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
+
+      if (!customCountryStat) {
+        return d;
+      }
+
+      return {
+        ...d,
+        totalConfirmed: Math.max(d.totalConfirmed, customCountryStat.confirmed),
+        totalDeaths: Math.max(d.totalDeaths, customCountryStat.deaths),
+        totalRecovered: Math.max(d.totalRecovered, customCountryStat.recovered),
+      }
+    });
+
+    // Add custom country stats if it does not exist in current data.
+    // only use this when we're getting all data
+    if (getAllFlag) {
+      customStats.forEach(cs => {
+        if (!cs.countryCode || typeof cs.countryCode !== 'string') {
+          return false;
+        }
+
+        if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
+          overriddenData.push({
+            countryCode: cs.countryCode,
+            countryName: cs.countryName,
+            totalConfirmed: cs.confirmed || 0,
+            totalDeaths: cs.deaths || 0,
+            totalRecovered: cs.recovered || 0,
+            lat: cs.lat || 0,
+            lng: cs.lng || 0,
+            lastUpdated: new Date(),
+          });
+        }
+      });
+    }
+
+    return overriddenData
+      .sort((a, b) => {
+        // Sort by recovered desc if confirmed is same
+        if (b.totalConfirmed === a.totalConfirmed) {
+          return b.totalRecovered - a.totalRecovered;
+        }
+
+        // Sort by confirmed desc
+        return b.totalConfirmed - a.totalConfirmed;
+      })
+      // Take first {limit} results.
+      .slice(0, limit);
+  } catch (e) {
+    console.log("[getCustomStatsWithCountryDetail] error:", e);
+    return data;
+  }
 }
 
 module.exports = router
