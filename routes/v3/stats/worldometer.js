@@ -196,7 +196,7 @@ async function getCountryStats(countryCode=null, limit=999) {
     SELECT country,
     max(last_updated) AS MaxDateTime
     FROM worldometers tt
-    where country not in ("Sint Maarten","Congo", "South Korea")
+    where country not in ("Sint Maarten","Congo", "South Korea", "Czechia Republic", "Czechia")
     GROUP BY country
   )
   groupedtt ON tt.country = groupedtt.country
