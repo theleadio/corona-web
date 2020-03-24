@@ -141,6 +141,28 @@ router.get('/custom-debug', cacheCheck, cache.route(), asyncHandler(async functi
 }));
 
 /**
+ * @api {get} /v3/stats/total_trending_cases
+ * @apiName GetTotalTrendingCases
+ * @apiGroup Stats
+ * @apiVersion 3.0.0
+ * @apiDescription Returns total trending cases
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "totalConfirmed": 378560,
+    "totalDeaths": 16495,
+    "totalRecovered": 101608,
+    "lastUpdated": "2020-03-24T00:10:06.000Z"
+  },
+]
+ */
+router.get('/total_trending_cases', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
+  const result = await getTotalTrendingCases();
+  return res.json(result);
+}));
+
+/**
  * @api {get} /v3/stats/diff/global Diff global stats
  * @apiName FetchGlobalStatsDifferenceBetweenDays
  * @apiGroup Stats
@@ -292,6 +314,20 @@ ORDER BY b.cases DESC;`;
     recovered: Math.max(data.recovered, customCountryStat.recovered),
     created: data.created > customCountryStat.created ? data.created : customCountryStat.created,
   }
+}
+
+async function getTotalTrendingCases() {
+  const conn = db.conn.promise();
+  let query = `
+  SELECT total_cases AS totalConfirmed, total_deaths as totalDeaths, total_recovered as totalRecovered, last_updated as lastUpdated
+  FROM worldometers_total_sum_temp
+  GROUP BY date(last_updated)
+  ORDER BY last_updated DESC;
+`;
+
+  let result = await conn.query(query);
+
+  return result[0];
 }
 
 async function getLatestArcgisStats() {
