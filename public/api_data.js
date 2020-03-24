@@ -820,6 +820,26 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/v3/stats/total_trending_cases",
+    "title": "",
+    "name": "GetTotalTrendingCases",
+    "group": "Stats",
+    "version": "3.0.0",
+    "description": "<p>Returns total trending cases</p>",
+    "success": {
+      "examples": [
+        {
+          "title": "Response (example):",
+          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"totalConfirmed\": 378560,\n    \"totalDeaths\": 16495,\n    \"totalRecovered\": 101608,\n    \"lastUpdated\": \"2020-03-24T00:10:06.000Z\"\n  },\n]",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "routes/v3/stats.js",
+    "groupTitle": "Stats"
+  },
+  {
+    "type": "get",
     "url": "/v3/stats/bno/daily_cases",
     "title": "Daily cases",
     "name": "daily_cases",

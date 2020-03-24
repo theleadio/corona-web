@@ -237,3 +237,22 @@ describe ("Get stats overview", function(){
             })
     })
 })
+
+describe ("Get total trending cases", function(){
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v3/stats/total_trending_cases")
+            .end((err, result)=>{
+                var num_results = result.body.length;
+                console.log('got '+ num_results + ' results');
+                if (num_results > 0){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }
+                else{
+                    assert.fail("There are 0 results");
+                }
+                done();
+            })
+    })
+})
