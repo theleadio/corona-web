@@ -153,13 +153,14 @@ describe ("Get total daily cases using bno globally", function(){
                 if (num > 0){
                     result.should.have.status(200)
                     console.log('Test pass');
+                    done();
                 }
                 else{
                     assert.fail("There are 0 results");
                 }
 
                 //console.log("Successfully fetch info", result.body)
-                done();
+                
             })
     })
 })
@@ -202,7 +203,7 @@ describe ("Get daily cases using bno globally", function(){
 describe ("Get worldometer stats", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
-            .get("/v3/stats/worldometer")
+            .get("/v3/stats/worldometer/country")
             .end((err, result)=>{
                 var num_countries = result.body.length;
                 console.log('got '+ num_countries + ' results');
@@ -221,7 +222,7 @@ describe ("Get worldometer stats", function(){
 describe ("Get stats overview", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
-            .get("/v3/stats/worldometer/stats_overview")
+            .get("/v3/stats/worldometer/global")
             .end((err, result)=>{
                 var total_confirmed = result.body.totalConfirmed;
                 console.log('got '+ total_confirmed + ' total_confirmed');
