@@ -207,6 +207,8 @@ async function updateCountryDetailStatsWithCustomStats(data, limit=999, getAllFl
           overriddenData.push({
             countryCode: cs.countryCode,
             country: cs.countryName,
+            lat: cs.lat || 0,
+            lng: cs.lng || 0,
             totalConfirmed: cs.confirmed || 0,
             totalDeaths: cs.deaths || 0,
             totalRecovered: cs.recovered || 0,
