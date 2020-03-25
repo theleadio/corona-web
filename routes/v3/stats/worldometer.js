@@ -94,18 +94,20 @@ router.get('/global', cacheCheck, cache.route(), asyncHandler(async function (re
   {
     "countryCode": "CN",
     "country": "China",
-    "totalConfirmed": 81008,
-    "totalDeaths": 3255,
-    "totalRecovered": 71740,
-    "dailyConfirmed": 41,
-    "dailyDeaths": 7,
-    "activeCases": 6013,
-    "totalCritical": 1927,
+    "lat": 35.86166,
+    "lng": 104.195397,
+    "totalConfirmed": 81171,
+    "totalDeaths": 3277,
+    "totalRecovered": 73159,
+    "dailyConfirmed": 0,
+    "dailyDeaths": 0,
+    "activeCases": 4735,
+    "totalCritical": 1573,
     "totalConfirmedPerMillionPopulation": 56,
-    "FR": "4.0181",
-    "PR": "88.5592",
-    "lastUpdated": "2020-03-21T04:00:12.000Z"
-  },
+    "FR": "4.0372",
+    "PR": "90.1295",
+    "lastUpdated": "2020-03-25T08:50:30.000Z"
+  }
 ]
  */
 router.get('/top', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
@@ -181,22 +183,24 @@ async function getCountryStats(countryCode=null, limit=999) {
   let args = []
   let getAllFlag = true
 
+  const blacklistCountryQuery = `where country not in ("Sint Maarten","Congo", "South Korea", "Czechia Republic", "Czechia")`
+
   if (countryCode) {
     countryCodeQuery = 'WHERE ac.country_code=?'
     args.push(countryCode)
     getAllFlag = false
-  } 
+  }
   args.push(parseInt(limit))
 
   let query = `
-  SELECT ac.country_code AS countryCode, tt.country, tt.total_cases AS totalConfirmed, tt.total_deaths AS totalDeaths, tt.total_recovered AS totalRecovered, tt.new_cases AS dailyConfirmed, tt.new_deaths AS dailyDeaths, tt.active_cases AS activeCases, tt.serious_critical_cases AS totalCritical, CAST(tt.total_cases_per_million_pop AS UNSIGNED) AS totalConfirmedPerMillionPopulation, (tt.total_deaths / tt.total_cases * 100) AS FR, (tt.total_recovered / tt.total_cases * 100) AS PR, tt.last_updated AS lastUpdated
+  SELECT ac.country_code AS countryCode, tt.country, ac.latitude + 0.0 AS lat, ac.longitude + 0.0 AS lng, tt.total_cases AS totalConfirmed, tt.total_deaths AS totalDeaths, tt.total_recovered AS totalRecovered, tt.new_cases AS dailyConfirmed, tt.new_deaths AS dailyDeaths, tt.active_cases AS activeCases, tt.serious_critical_cases AS totalCritical, CAST(tt.total_cases_per_million_pop AS UNSIGNED) AS totalConfirmedPerMillionPopulation, (tt.total_deaths / tt.total_cases * 100) AS FR, (tt.total_recovered / tt.total_cases * 100) AS PR, tt.last_updated AS lastUpdated
   FROM worldometers tt
   INNER JOIN
   (
     SELECT country,
     max(last_updated) AS MaxDateTime
     FROM worldometers tt
-    where country not in ("Sint Maarten","Congo", "South Korea", "Czechia Republic", "Czechia")
+    ${blacklistCountryQuery}
     GROUP BY country
   )
   groupedtt ON tt.country = groupedtt.country
@@ -205,7 +209,9 @@ async function getCountryStats(countryCode=null, limit=999) {
   (
     SELECT country_name,
     country_code,
-    country_alias
+    country_alias,
+    latitude,
+    longitude
     FROM apps_countries
   )
   AS ac ON tt.country = ac.country_alias
@@ -233,7 +239,7 @@ async function updateCountryDetailStatsWithCustomStats(data, limit=999, getAllFl
       if (!customCountryStat) {
         return d;
       }
-      
+
       return {
         ...d,
         totalConfirmed: Math.max(d.totalConfirmed, customCountryStat.confirmed),
@@ -249,28 +255,32 @@ async function updateCountryDetailStatsWithCustomStats(data, limit=999, getAllFl
         if (!cs.countryCode || typeof cs.countryCode !== 'string') {
           return false;
         }
-        
+
         /* Format of expected data
           {
             "countryCode": "CN",
             "country": "China",
-            "totalConfirmed": 81054,
-            "totalDeaths": 3261,
-            "totalRecovered": 72440,
+            "lat": 35.86166,
+            "lng": 104.195397,
+            "totalConfirmed": 81171,
+            "totalDeaths": 3277,
+            "totalRecovered": 73159,
             "dailyConfirmed": 0,
             "dailyDeaths": 0,
-            "activeCases": 5353,
-            "totalCritical": 1845,
+            "activeCases": 4735,
+            "totalCritical": 1573,
             "totalConfirmedPerMillionPopulation": 56,
-            "FR": "4.0232",
-            "PR": "89.3725",
-            "lastUpdated": "2020-03-22T22:10:05.000Z"
-          },
+            "FR": "4.0372",
+            "PR": "90.1295",
+            "lastUpdated": "2020-03-25T08:50:30.000Z"
+          }
         */
         if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
           overriddenData.push({
             countryCode: cs.countryCode,
             country: cs.countryName,
+            lat: cs.lat || 0,
+            lng: cs.lng || 0,
             totalConfirmed: cs.confirmed || 0,
             totalDeaths: cs.deaths || 0,
             totalRecovered: cs.recovered || 0,
@@ -286,7 +296,7 @@ async function updateCountryDetailStatsWithCustomStats(data, limit=999, getAllFl
         }
       });
     }
-    
+
     return overriddenData
       .sort((a, b) => {
         // Sort by recovered desc if confirmed is same
