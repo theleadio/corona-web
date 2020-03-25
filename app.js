@@ -33,7 +33,7 @@ const rateLimitTimeMinutes = process.env.RATE_LIMIT_TIME_MINUTES;
 const rateLimitRequests = process.env.RATE_LIMIT_REQUESTS;
 const whitelist = process.env.IP_WHITELIST ? process.env.IP_WHITELIST.split(',') : [];
 
-if(rateLimitTimeMinutes && rateLimitRequests) {
+if (rateLimitTimeMinutes && rateLimitRequests) {
   app.use(rateLimit({
     windowMs: parseInt(rateLimitTimeMinutes) * 60 * 1000,
     max: parseInt(rateLimitRequests),
@@ -42,6 +42,10 @@ if(rateLimitTimeMinutes && rateLimitRequests) {
       return !req.ip || req.ip === '::1' || whitelist.indexOf(req.ip) > -1;
     }
   }));
+
+  // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
+  // see https://expressjs.com/en/guide/behind-proxies.html
+  app.set('trust proxy', 1);
 }
 
 // view engine setup
