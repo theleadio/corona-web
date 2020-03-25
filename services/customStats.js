@@ -42,7 +42,9 @@ async function getCustomStats() {
         expires: 60 * 60, // 1 hour
         type: 'json',
       }, function (error, added) {
-        console.log("[getCustomStats] error, added:", error, added);
+        if (error) {
+          console.log("[getCustomStats] error when writing cache:", error);
+        }
       });
 
       //console.log("[getCustomStats] data:", data);

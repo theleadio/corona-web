@@ -8,14 +8,14 @@ const router = express.Router()
 const { cacheCheck } = require('../../services/cacheMiddleware');
 
 /**
- * @api {get} /v3/analytics/daily By new daily cases and deaths
- * @apiName fetchTopCountryWithDailyNewCases
+ * @api {get} /v3/analytics/dailyNewStats By new daily cases and deaths
+ * @apiName fetchTopCountryWithDailyNewStatsSortByNewCases
  * @apiGroup Analytics
  * @apiVersion 3.0.0
  *
  * @apiParam {Number} [limit=10] limit the number of results
  */
-router.get('/daily', cache.route(), asyncHandler(async function(req, res, next) {
+router.get('/dailyNewStats', cache.route(), asyncHandler(async function(req, res, next) {
   let limit = 10
 
   if (req.query.hasOwnProperty('limit')) {
@@ -27,45 +27,52 @@ router.get('/daily', cache.route(), asyncHandler(async function(req, res, next) 
   }
 
   try {
-    const results = await fetchTopCountryWithDailyNewCases(limit)
-
+    const results = await fetchTopCountryWithDailyNewStatsSortByNewCases(limit)
     return res.json(results)
   } catch (error) {
-    console.log('[/analytics/daily] error', error)
-
+    console.log('[/analytics/dailyNewStats] error', error)
     return res.json(error)
   }
 }))
 
 /**
- * @api {get} /v3/analytics/country By country
- * @apiName FetchAffectedCountries
+ * @api {get} /v3/analytics/trend/country get data of a country between start and end dates
+ * @apiName getTrendByCountry
  * @apiGroup Analytics
- * @apiVersion 3.0.0
  *
- * @apiParam {Number} [limit=200] limit the number of results
+ * @apiParam {String} [countryCode] Required Country code(s)
+ * @apiParam {Date} [startDate] Required Start date
+ * @apiParam {Date} [endDate] Required end date
  */
-router.get('/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
-  let limit = 200
+router.get('/trend/country', cache.route(), asyncHandler(async function(req, res, next) {
+  const country_codes = req.query.countryCode
+  const start_date = req.query.startDate
+  const end_date = req.query.endDate
 
-  if (req.query.hasOwnProperty('limit')) {
-    if (parseInt(req.query.limit)) {
-      limit = parseInt(req.query.limit)
-    } else {
-      return res.json('Invalid data type. Limit should be an integer.')
-    }
+  // enforce date format
+  if (
+    moment(start_date, 'YYYY-MM-DD').format('YYYY-MM-DD') != start_date ||
+    moment(end_date, 'YYYY-MM-DD').format('YYYY-MM-DD') != end_date
+  ) {
+    res.status(400).json('Invalid date format. Date format should be YYYY-MM-DD')
+  }
+
+  // make sure end_date isn't less than start_date
+  if (moment(end_date).isBefore(start_date)) {
+    res.status(400).json('Invalid date')
   }
 
   try {
-    const results = await fetchAffectedCountries(limit)
+    const results = await fetchTrendByCountryAndDate(country_codes, start_date, end_date)
     return res.json(results)
   } catch (error) {
-    console.log('[/analytics/country] error', error)
+    console.log('[/analytics/trend/country] error', error)
+
     return res.json(error)
   }
 }))
 
-async function fetchTopCountryWithDailyNewCases(limit=10) {
+async function fetchTopCountryWithDailyNewStatsSortByNewCases(limit=10) {
   const conn = db.conn.promise()
   let query = ''
   const args = []
@@ -76,9 +83,9 @@ async function fetchTopCountryWithDailyNewCases(limit=10) {
   INNER JOIN
   (
     SELECT country,
-    max(last_updated) AS MaxDateTime	
-    FROM worldometers tt	
-    WHERE country NOT in ("Sint Maarten", "Congo")	
+    max(last_updated) AS MaxDateTime
+    FROM worldometers tt
+    WHERE country NOT in ("Sint Maarten","Congo", "South Korea", "Czechia Republic", "Czech Republic", "Others")
     GROUP BY country
   )
   groupedtt ON tt.country = groupedtt.country
@@ -89,7 +96,7 @@ async function fetchTopCountryWithDailyNewCases(limit=10) {
     country_code,
     country_alias,
     latitude,
-    longitude	
+    longitude
     FROM apps_countries
   )
   AS ac ON tt.country = ac.country_alias
@@ -102,133 +109,51 @@ async function fetchTopCountryWithDailyNewCases(limit=10) {
   return result[0]
 }
 
-async function fetchAffectedCountries(limit = 999) {
-  const results = await getStatsWithCountryDetail(limit);
-  return results.map(s => {
-    return {
-      countryCode: s.countryCode,
-      countryName: s.countryName,
-      lat: s.lat,
-      lng: s.lng,
-      confirmed: s.totalConfirmed,
-      deaths: s.totalDeaths,
-      recovered: s.totalRecovered,
-      dateAsOf: s.lastUpdated,
-    }
-  });
-}
+async function fetchTrendByCountryAndDate(country_codes, start_date, end_date) {
+  const conn = db.conn.promise()
+  let args = []
+  let query = ''
+  let countryCodeQuery = ""
+  let countryCodeQueryParam = []
 
-/**
- * Returns array of object with following keys:
- * - countryCode
- * - countryName
- * - lat
- * - lng
- * - totalConfirmed,
- * - totalDeaths,
- * - totalRecovered
- * - lastUpdated
- * @param limit
- * @returns {Promise<*>}
- */
-async function getStatsWithCountryDetail(limit = 999) {
-    limit = parseInt(limit);
-
-    const conn = db.conn.promise();
-    const args = [limit];
-
-    const query = `
-    SELECT ac.country_code AS countryCode, ac.latitude + 0.0 AS lat, ac.longitude + 0.0 AS lng, tt.country AS countryName, tt.total_cases AS totalConfirmed, tt.total_deaths AS totalDeaths, tt.total_recovered AS totalRecovered, tt.last_updated AS lastUpdated
-    FROM worldometers tt
-    INNER JOIN
-    (
-      SELECT country,
-      max(last_updated) AS MaxDateTime	
-      FROM worldometers tt	
-      WHERE country NOT in ("Sint Maarten", "Congo")	
-      GROUP BY country
-    )
-    groupedtt ON tt.country = groupedtt.country
-    AND tt.last_updated = groupedtt.MaxDateTime
-    LEFT JOIN
-    (
-      SELECT country_name,
-      country_code,
-      country_alias,
-      latitude,
-      longitude	
-      FROM apps_countries
-    )
-    AS ac ON tt.country = ac.country_alias
-    GROUP BY tt.country
-    ORDER BY tt.total_cases DESC
-    LIMIT ?;`;
-    const result = await conn.query(query, args)
-    const data = result[0]
-    const updatedData = updateCountryDetailStatsWithCustomStats(data, limit, true)
-    return updatedData
-}
-
-// Get custom stats from GoogleSheetApi
-// Update countryStats values if it's greater
-async function updateCountryDetailStatsWithCustomStats(data, limit=999, getAllFlag) {
-  try {
-    const customStats = await getCustomStats();
-
-    const overriddenData = data.map(d => {
-      const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
-
-      if (!customCountryStat) {
-        return d;
-      }
-
-      return {
-        ...d,
-        totalConfirmed: Math.max(d.totalConfirmed, customCountryStat.confirmed),
-        totalDeaths: Math.max(d.totalDeaths, customCountryStat.deaths),
-        totalRecovered: Math.max(d.totalRecovered, customCountryStat.recovered),
-      }
+  if (country_codes) {
+    country_codes.split(',').forEach(element => {
+      countryCodeQueryParam.push(`?`)
+      args.push(element)
     });
-
-    // Add custom country stats if it does not exist in current data.
-    // only use this when we're getting all data
-    if (getAllFlag) {
-      customStats.forEach(cs => {
-        if (!cs.countryCode || typeof cs.countryCode !== 'string') {
-          return false;
-        }
-
-        if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
-          overriddenData.push({
-            countryCode: cs.countryCode,
-            countryName: cs.countryName,
-            totalConfirmed: cs.confirmed || 0,
-            totalDeaths: cs.deaths || 0,
-            totalRecovered: cs.recovered || 0,
-            lat: cs.lat || 0,
-            lng: cs.lng || 0,
-            lastUpdated: new Date(),
-          });
-        }
-      });
-    }
-
-    return overriddenData
-      .sort((a, b) => {
-        // Sort by recovered desc if confirmed is same
-        if (b.totalConfirmed === a.totalConfirmed) {
-          return b.totalRecovered - a.totalRecovered;
-        }
-
-        // Sort by confirmed desc
-        return b.totalConfirmed - a.totalConfirmed;
-      })
-      // Take first {limit} results.
-      .slice(0, limit);
-  } catch (e) {
-    console.log("[getCustomStatsWithCountryDetail] error:", e);
-    return data;
+    countryCodeQuery = `WHERE ac.country_code in (` + countryCodeQueryParam.join(',') + `)`
   }
+
+  if (start_date && end_date) {
+    args.push(start_date, end_date)
+  }
+
+  query = `SELECT ac.country_code, tt.country, MAX(tt.total_cases) AS total_confirmed, tt.total_deaths, tt.total_recovered, tt.last_updated
+FROM worldometers tt
+INNER JOIN
+(
+SELECT country,
+last_updated
+FROM worldometers tt
+where country not in ("Sint Maarten","Congo", "South Korea", "Czechia Republic", "Czech Republic", "Others")
+GROUP BY country
+)
+groupedtt ON tt.country = groupedtt.country
+LEFT JOIN
+(
+SELECT country_name,
+country_code,
+country_alias
+FROM apps_countries
+)
+AS ac ON tt.country = ac.country_alias
+${countryCodeQuery}
+AND tt.last_updated >=?
+AND tt.last_updated <=?
+GROUP BY date(tt.last_updated), tt.country
+ORDER BY tt.last_updated ASC;`
+  let result = await conn.query(query, args)
+  return result[0]
 }
 
 module.exports = router

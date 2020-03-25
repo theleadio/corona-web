@@ -3,7 +3,8 @@ const router = express.Router();
 const asyncHandler = require("express-async-handler");
 const db = require('../../../system/database');
 const cache = require('../../../system/redis-cache');
-const { getCustomStats, fetchDataFromGoogleSheet } = require('../../../services/customStats');
+const { getCountryStats } = require('../../../services/statsService');
+const { fetchDataFromGoogleSheet } = require('../../../services/customStats');
 const { cacheCheck } = require('../../../services/cacheMiddleware');
 
  /**
@@ -51,8 +52,8 @@ router.get('/country', cacheCheck, cache.route(), asyncHandler(async function(re
 }));
 
 /**
- * @api {get} /v3/stats/worldometer/global Global stats
- * @apiName stats_overview
+ * @api {get} /v3/stats/worldometer/global Global Stats Overview
+ * @apiName globalStatsOverview
  * @apiGroup Stats - Worldometer
  * @apiVersion 3.0.0
  * @apiDescription Returns global stats based on worldometer data, used in home and analytics page
@@ -82,7 +83,7 @@ router.get('/global', cacheCheck, cache.route(), asyncHandler(async function (re
 }));
 
 /**
- * @api {get} /v3/stats/worldometer/top Top N countries
+ * @api {get} /v3/stats/worldometer/topCountry Top N countries
  * @apiName worldometer
  * @apiGroup Stats - Worldometer
  * @apiVersion 3.0.0
@@ -94,22 +95,24 @@ router.get('/global', cacheCheck, cache.route(), asyncHandler(async function (re
   {
     "countryCode": "CN",
     "country": "China",
-    "totalConfirmed": 81008,
-    "totalDeaths": 3255,
-    "totalRecovered": 71740,
-    "dailyConfirmed": 41,
-    "dailyDeaths": 7,
-    "activeCases": 6013,
-    "totalCritical": 1927,
+    "lat": 35.86166,
+    "lng": 104.195397,
+    "totalConfirmed": 81171,
+    "totalDeaths": 3277,
+    "totalRecovered": 73159,
+    "dailyConfirmed": 0,
+    "dailyDeaths": 0,
+    "activeCases": 4735,
+    "totalCritical": 1573,
     "totalConfirmedPerMillionPopulation": 56,
-    "FR": "4.0181",
-    "PR": "88.5592",
-    "lastUpdated": "2020-03-21T04:00:12.000Z"
-  },
+    "FR": "4.0372",
+    "PR": "90.1295",
+    "lastUpdated": "2020-03-25T08:50:30.000Z"
+  }
 ]
  */
-router.get('/top', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
-  // console.log('calling /v3/stats/worldometer/top');
+router.get('/topCountry', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
+  // console.log('calling /v3/stats/worldometer/topCountry');
   let limit = 999
 
   if (req.query.hasOwnProperty('limit')) {
@@ -121,7 +124,35 @@ router.get('/top', cacheCheck, cache.route(), asyncHandler(async function(req, r
     return res.json(result);
   }
   catch (error) {
-    console.log('[/v3/stats/worldometer/top] error', error);
+    console.log('[/v3/stats/worldometer/topCountry] error', error);
+    return res.json(error);
+  }
+}));
+
+/**
+ * @api {get} /v3/stats/worldometer/totalTrendingCases
+ * @apiName GetTotalTrendingCases
+ * @apiGroup Stats
+ * @apiVersion 3.0.0
+ * @apiDescription Returns total trending cases
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "totalConfirmed": 378560,
+    "totalDeaths": 16495,
+    "totalRecovered": 101608,
+    "lastUpdated": "2020-03-24T00:10:06.000Z"
+  },
+]
+ */
+router.get('/totalTrendingCases', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
+  try {
+  const result = await getTotalTrendingCases();
+    return res.json(result);
+  }
+  catch (error) {
+    console.log('[/v3/stats/worldometer/totalTrendingCases] error', error);
     return res.json(error);
   }
 }));
@@ -174,135 +205,17 @@ async function getGlobalStats() {
   return result[0][0];
 }
 
-async function getCountryStats(countryCode=null, limit=999) {
-
+async function getTotalTrendingCases() {
   const conn = db.conn.promise();
-  let countryCodeQuery = ''
-  let args = []
-  let getAllFlag = true
-
-  if (countryCode) {
-    countryCodeQuery = 'WHERE ac.country_code=?'
-    args.push(countryCode)
-    getAllFlag = false
-  } 
-  args.push(parseInt(limit))
-
   let query = `
-  SELECT ac.country_code AS countryCode, tt.country, tt.total_cases AS totalConfirmed, tt.total_deaths AS totalDeaths, tt.total_recovered AS totalRecovered, tt.new_cases AS dailyConfirmed, tt.new_deaths AS dailyDeaths, tt.active_cases AS activeCases, tt.serious_critical_cases AS totalCritical, CAST(tt.total_cases_per_million_pop AS UNSIGNED) AS totalConfirmedPerMillionPopulation, (tt.total_deaths / tt.total_cases * 100) AS FR, (tt.total_recovered / tt.total_cases * 100) AS PR, tt.last_updated AS lastUpdated
-  FROM worldometers tt
-  INNER JOIN
-  (
-    SELECT country,
-    max(last_updated) AS MaxDateTime
-    FROM worldometers tt
-    WHERE country NOT in ("Sint Maarten", "Congo")
-    GROUP BY country
-  )
-  groupedtt ON tt.country = groupedtt.country
-  AND tt.last_updated = groupedtt.MaxDateTime
-  LEFT JOIN
-  (
-    SELECT country_name,
-    country_code,
-    country_alias
-    FROM apps_countries
-  )
-  AS ac ON tt.country = ac.country_alias
-  ${countryCodeQuery}
-  GROUP BY tt.country
-  ORDER BY tt.total_cases DESC
-  LIMIT ?`;
+  SELECT total_cases AS totalConfirmed, total_deaths as totalDeaths, total_recovered as totalRecovered, last_updated as lastUpdated
+  FROM worldometers_total_sum_temp
+  GROUP BY date(last_updated)
+  ORDER BY last_updated DESC;
+`;
 
-
-  let result = await conn.query(query, args);
-  const data = result[0]
-  const updatedData = updateCountryDetailStatsWithCustomStats(data, limit, getAllFlag)
-  return updatedData
-}
-
-// Get custom stats from GoogleSheetApi
-// Update countryStats values if it's greater
-async function updateCountryDetailStatsWithCustomStats(data, limit=999, getAllFlag) {
-  try {
-    const customStats = await getCustomStats();
-
-    const overriddenData = data.map(d => {
-      const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
-
-      if (!customCountryStat) {
-        return d;
-      }
-      
-      return {
-        ...d,
-        totalConfirmed: Math.max(d.totalConfirmed, customCountryStat.confirmed),
-        totalDeaths: Math.max(d.totalDeaths, customCountryStat.deaths),
-        totalRecovered: Math.max(d.totalRecovered, customCountryStat.recovered),
-      }
-    });
-
-    // Add custom country stats if it does not exist in current data.
-    // only use this when we're getting all data
-    if (getAllFlag) {
-      customStats.forEach(cs => {
-        if (!cs.countryCode || typeof cs.countryCode !== 'string') {
-          return false;
-        }
-        
-        /* Format of expected data
-          {
-            "countryCode": "CN",
-            "country": "China",
-            "totalConfirmed": 81054,
-            "totalDeaths": 3261,
-            "totalRecovered": 72440,
-            "dailyConfirmed": 0,
-            "dailyDeaths": 0,
-            "activeCases": 5353,
-            "totalCritical": 1845,
-            "totalConfirmedPerMillionPopulation": 56,
-            "FR": "4.0232",
-            "PR": "89.3725",
-            "lastUpdated": "2020-03-22T22:10:05.000Z"
-          },
-        */
-        if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
-          overriddenData.push({
-            countryCode: cs.countryCode,
-            country: cs.countryName,
-            totalConfirmed: cs.confirmed || 0,
-            totalDeaths: cs.deaths || 0,
-            totalRecovered: cs.recovered || 0,
-            dailyConfirmed: cs.dailyConfirmed || 0,
-            dailyDeaths: cs.dailyDeaths || 0,
-            activeCases: cs.activeCases || 0,
-            totalCritical: cs.totalCritical || 0,
-            totalConfirmedPerMillionPopulation: cs.totalConfirmedPerMillionPopulation || 0,
-            FR: cs.FR || "0",
-            PR: cs.PR || "0",
-            lastUpdated: new Date(),
-          });
-        }
-      });
-    }
-    
-    return overriddenData
-      .sort((a, b) => {
-        // Sort by recovered desc if confirmed is same
-        if (b.totalConfirmed === a.totalConfirmed) {
-          return b.totalRecovered - a.totalRecovered;
-        }
-
-        // Sort by confirmed desc
-        return b.totalConfirmed - a.totalConfirmed;
-      })
-      // Take first {limit} results.
-      .slice(0, limit);
-  } catch (e) {
-    console.log("[getCustomStatsWithCountryDetail] error:", e);
-    return data;
-  }
+  let result = await conn.query(query);
+  return result[0];
 }
 
 module.exports = router;

@@ -199,6 +199,67 @@
   },
   {
     "type": "get",
+    "url": "/v3/analytics/dailyNewStats",
+    "title": "By new daily cases and deaths",
+    "name": "fetchTopCountryWithDailyNewStatsSortByNewCases",
+    "group": "Analytics",
+    "version": "3.0.0",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "limit",
+            "defaultValue": "10",
+            "description": "<p>limit the number of results</p>"
+          }
+        ]
+      }
+    },
+    "filename": "routes/v3/analytics.js",
+    "groupTitle": "Analytics"
+  },
+  {
+    "type": "get",
+    "url": "/v3/analytics/trend/country",
+    "title": "get data of a country between start and end dates",
+    "name": "getTrendByCountry",
+    "group": "Analytics",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "countryCode",
+            "description": "<p>Required Country code(s)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Date",
+            "optional": true,
+            "field": "startDate",
+            "description": "<p>Required Start date</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Date",
+            "optional": true,
+            "field": "endDate",
+            "description": "<p>Required end date</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/v3/analytics.js",
+    "groupTitle": "Analytics"
+  },
+  {
+    "type": "get",
     "url": "/v2/cache/clear",
     "title": "Clear cache",
     "name": "ClearCache",
@@ -471,6 +532,26 @@
       ]
     },
     "filename": "routes/v2/stats.js",
+    "groupTitle": "Stats"
+  },
+  {
+    "type": "get",
+    "url": "/v3/stats/worldometer/custom-debug",
+    "title": "Custom (for debug)",
+    "name": "FetchCustomOverriddenStatsDebug",
+    "group": "Stats",
+    "version": "3.0.0",
+    "description": "<p>This endpoint is used for debugging purpose. It returns the list of overridden stats in our google sheet.</p>",
+    "success": {
+      "examples": [
+        {
+          "title": "Response (example):",
+          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"id\": 2,\n    \"countryCode\": \"SG\",\n    \"countryName\": \"Singapore\",\n    \"confirmed\": 89,\n    \"recovered\": 51,\n    \"deaths\": 0,\n    \"created\": \"2020-02-23 (UTC 1355)\",\n    \"createdBy\": \"\",\n    \"sourceUrl\": \"https://www.cna.com.tw/news/aopl/202002230219.aspx\"\n  }\n]",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "routes/v3/stats/worldometer.js",
     "groupTitle": "Stats"
   },
   {
@@ -752,6 +833,26 @@
   },
   {
     "type": "get",
+    "url": "/v3/stats/worldometer/totalTrendingCases",
+    "title": "",
+    "name": "GetTotalTrendingCases",
+    "group": "Stats",
+    "version": "3.0.0",
+    "description": "<p>Returns total trending cases</p>",
+    "success": {
+      "examples": [
+        {
+          "title": "Response (example):",
+          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"totalConfirmed\": 378560,\n    \"totalDeaths\": 16495,\n    \"totalRecovered\": 101608,\n    \"lastUpdated\": \"2020-03-24T00:10:06.000Z\"\n  },\n]",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "routes/v3/stats/worldometer.js",
+    "groupTitle": "Stats"
+  },
+  {
+    "type": "get",
     "url": "/v3/stats/bno/daily_cases",
     "title": "Daily cases",
     "name": "daily_cases",
@@ -859,8 +960,8 @@
   {
     "type": "get",
     "url": "/v3/stats/worldometer/global",
-    "title": "Global stats",
-    "name": "stats_overview",
+    "title": "Global Stats Overview",
+    "name": "globalStatsOverview",
     "group": "Stats_-_Worldometer",
     "version": "3.0.0",
     "description": "<p>Returns global stats based on worldometer data, used in home and analytics page</p>",
@@ -879,11 +980,57 @@
   {
     "type": "get",
     "url": "/v3/stats/worldometer/country",
-    "title": "Country-specific stats",
+    "title": "all country or country-specific stats",
     "name": "worldometer",
     "group": "Stats_-_Worldometer",
     "version": "3.0.0",
-    "description": "<p>Returns country-specific stats based on worldometer data.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "countryCode",
+            "description": "<p>Optional countryCode to retrieve the stats for</p>"
+          }
+        ]
+      }
+    },
+    "description": "<p>Returns all country data or country-specific stats based on worldometer data.</p>",
+    "success": {
+      "examples": [
+        {
+          "title": "Response (example):",
+          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"countryCode\": \"CN\",\n    \"country\": \"China\",\n    \"totalConfirmed\": 81008,\n    \"totalDeaths\": 3255,\n    \"totalRecovered\": 71740,\n    \"dailyConfirmed\": 41,\n    \"dailyDeaths\": 7,\n    \"activeCases\": 6013,\n    \"totalCritical\": 1927,\n    \"totalConfirmedPerMillionPopulation\": 56,\n    \"FR\": \"4.0181\",\n    \"PR\": \"88.5592\",\n    \"lastUpdated\": \"2020-03-21T04:00:12.000Z\"\n  },\n]",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "routes/v3/stats/worldometer.js",
+    "groupTitle": "Stats_-_Worldometer"
+  },
+  {
+    "type": "get",
+    "url": "/v3/stats/worldometer/topCountry",
+    "title": "Top N countries",
+    "name": "worldometer",
+    "group": "Stats_-_Worldometer",
+    "version": "3.0.0",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Integer",
+            "optional": true,
+            "field": "limit",
+            "description": "<p>Limit to top N countries to return</p>"
+          }
+        ]
+      }
+    },
+    "description": "<p>Returns N country data or country-specific stats based on worldometer data.</p>",
     "success": {
       "examples": [
         {

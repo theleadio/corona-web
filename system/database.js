@@ -1,24 +1,45 @@
 require('dotenv').config()
-let mysql = require('mysql2');
+const mysql = require('mysql2');
 
-let pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_TABLE,
+const readPool = mysql.createPool({
+    host: process.env.DB_HOST_READ,
+    user: process.env.DB_USER_READ,
+    password: process.env.DB_PASSWORD_READ,
+    database: process.env.DB_TABLE_READ,
 
     // https://github.com/sidorares/node-mysql2/issues/642#issuecomment-347500996
     timezone: '+00:00', // Interpret all received timestamps as UTC. Otherwise local timezone is assumed.
 });
 
-pool.on('connection', conn => {
+readPool.on('connection', conn => {
     conn.query("SET time_zone='+00:00';", error => {
-        if (error){
+        if (error) {
+            console.log('Error connecting to read database:', error);
+            throw error;
+        }
+    });
+});
+
+const writePool = mysql.createPool({
+    host: process.env.DB_HOST_WRITE,
+    user: process.env.DB_USER_WRITE,
+    password: process.env.DB_PASSWORD_WRITE,
+    database: process.env.DB_TABLE_WRITE,
+
+    // https://github.com/sidorares/node-mysql2/issues/642#issuecomment-347500996
+    timezone: '+00:00', // Interpret all received timestamps as UTC. Otherwise local timezone is assumed.
+});
+
+writePool.on('connection', conn => {
+    conn.query("SET time_zone='+00:00';", error => {
+        if (error) {
+            console.log('Error connecting to write database:', error);
             throw error;
         }
     });
 });
 
 module.exports = {
-    conn: pool
+    conn: readPool,
+    connWrite: writePool,
 }
