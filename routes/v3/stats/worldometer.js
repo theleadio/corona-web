@@ -260,23 +260,27 @@ async function updateCountryDetailStatsWithCustomStats(data, limit=999, getAllFl
           {
             "countryCode": "CN",
             "country": "China",
-            "totalConfirmed": 81054,
-            "totalDeaths": 3261,
-            "totalRecovered": 72440,
+            "lat": 35.86166,
+            "lng": 104.195397,
+            "totalConfirmed": 81171,
+            "totalDeaths": 3277,
+            "totalRecovered": 73159,
             "dailyConfirmed": 0,
             "dailyDeaths": 0,
-            "activeCases": 5353,
-            "totalCritical": 1845,
+            "activeCases": 4735,
+            "totalCritical": 1573,
             "totalConfirmedPerMillionPopulation": 56,
-            "FR": "4.0232",
-            "PR": "89.3725",
-            "lastUpdated": "2020-03-22T22:10:05.000Z"
-          },
+            "FR": "4.0372",
+            "PR": "90.1295",
+            "lastUpdated": "2020-03-25T08:50:30.000Z"
+          }
         */
         if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
           overriddenData.push({
             countryCode: cs.countryCode,
             country: cs.countryName,
+            lat: cs.lat || 0,
+            lng: cs.lng || 0,
             totalConfirmed: cs.confirmed || 0,
             totalDeaths: cs.deaths || 0,
             totalRecovered: cs.recovered || 0,
