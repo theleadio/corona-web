@@ -1,30 +1,6 @@
 [
   {
     "type": "get",
-    "url": "/v3/analytics/country",
-    "title": "By country",
-    "name": "FetchAffectedCountries",
-    "group": "Analytics",
-    "version": "3.0.0",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": true,
-            "field": "limit",
-            "defaultValue": "200",
-            "description": "<p>limit the number of results</p>"
-          }
-        ]
-      }
-    },
-    "filename": "routes/v3/analytics.js",
-    "groupTitle": "Analytics"
-  },
-  {
-    "type": "get",
     "url": "/v2/analytics/country",
     "title": "By country",
     "name": "FetchAffectedCountries",
@@ -223,9 +199,9 @@
   },
   {
     "type": "get",
-    "url": "/v3/analytics/daily",
+    "url": "/v3/analytics/dailyNewStats",
     "title": "By new daily cases and deaths",
-    "name": "fetchTopCountryWithDailyNewCases",
+    "name": "fetchTopCountryWithDailyNewStatsSortByNewCases",
     "group": "Analytics",
     "version": "3.0.0",
     "parameter": {
@@ -242,6 +218,43 @@
         ]
       }
     },
+    "filename": "routes/v3/analytics.js",
+    "groupTitle": "Analytics"
+  },
+  {
+    "type": "get",
+    "url": "/v3/analytics/trend/country",
+    "title": "get data of a country between start and end dates",
+    "name": "getTrendByCountry",
+    "group": "Analytics",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "countryCode",
+            "description": "<p>Required Country code(s)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Date",
+            "optional": true,
+            "field": "startDate",
+            "description": "<p>Required Start date</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Date",
+            "optional": true,
+            "field": "endDate",
+            "description": "<p>Required end date</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
     "filename": "routes/v3/analytics.js",
     "groupTitle": "Analytics"
   },
@@ -820,7 +833,7 @@
   },
   {
     "type": "get",
-    "url": "/v3/stats/total_trending_cases",
+    "url": "/v3/stats/worldometer/totalTrendingCases",
     "title": "",
     "name": "GetTotalTrendingCases",
     "group": "Stats",
@@ -835,7 +848,7 @@
         }
       ]
     },
-    "filename": "routes/v3/stats.js",
+    "filename": "routes/v3/stats/worldometer.js",
     "groupTitle": "Stats"
   },
   {
@@ -947,8 +960,8 @@
   {
     "type": "get",
     "url": "/v3/stats/worldometer/global",
-    "title": "Global stats",
-    "name": "stats_overview",
+    "title": "Global Stats Overview",
+    "name": "globalStatsOverview",
     "group": "Stats_-_Worldometer",
     "version": "3.0.0",
     "description": "<p>Returns global stats based on worldometer data, used in home and analytics page</p>",
@@ -999,7 +1012,7 @@
   },
   {
     "type": "get",
-    "url": "/v3/stats/worldometer/top",
+    "url": "/v3/stats/worldometer/topCountry",
     "title": "Top N countries",
     "name": "worldometer",
     "group": "Stats_-_Worldometer",
