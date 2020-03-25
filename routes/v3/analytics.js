@@ -128,7 +128,13 @@ async function fetchTrendByCountryAndDate(country_codes, start_date, end_date) {
     args.push(start_date, end_date)
   }
 
-  query = `SELECT ac.country_code, tt.country, MAX(tt.total_cases) AS total_confirmed, tt.total_deaths, tt.total_recovered, tt.last_updated
+  query = `
+SELECT ac.country_code,
+tt.country,
+MAX(tt.total_cases) AS total_confirmed,
+MAX(tt.total_deaths) AS total_deaths,
+MAX(tt.total_recovered) AS total_recovered,
+tt.last_updated
 FROM worldometers tt
 INNER JOIN
 (
