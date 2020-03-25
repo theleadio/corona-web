@@ -34,8 +34,8 @@ const whitelist = process.env.IP_WHITELIST ? process.env.IP_WHITELIST.split(',')
 
 if(rateLimitTimeMinutes && rateLimitRequests) {
   app.use(rateLimit({
-    windowMs: rateLimitTimeMinutes * 60 * 1000,
-    max: rateLimitRequests,
+    windowMs: parseInt(rateLimitTimeMinutes) * 60 * 1000,
+    max: parseInt(rateLimitRequests),
     skip: function(req) {
       //skipping whitelisted and internal IP's
       return !req.ip || req.ip === '::1' || whitelist.indexOf(req.ip) > -1;
