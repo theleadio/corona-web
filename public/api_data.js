@@ -1022,7 +1022,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Response (example):",
-          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"countryCode\": \"CN\",\n    \"country\": \"China\",\n    \"totalConfirmed\": 81008,\n    \"totalDeaths\": 3255,\n    \"totalRecovered\": 71740,\n    \"dailyConfirmed\": 41,\n    \"dailyDeaths\": 7,\n    \"activeCases\": 6013,\n    \"totalCritical\": 1927,\n    \"totalConfirmedPerMillionPopulation\": 56,\n    \"FR\": \"4.0181\",\n    \"PR\": \"88.5592\",\n    \"lastUpdated\": \"2020-03-21T04:00:12.000Z\"\n  },\n]",
+          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"countryCode\": \"CN\",\n    \"country\": \"China\",\n    \"lat\": 35.86166,\n    \"lng\": 104.195397,\n    \"totalConfirmed\": 81171,\n    \"totalDeaths\": 3277,\n    \"totalRecovered\": 73159,\n    \"dailyConfirmed\": 0,\n    \"dailyDeaths\": 0,\n    \"activeCases\": 4735,\n    \"totalCritical\": 1573,\n    \"totalConfirmedPerMillionPopulation\": 56,\n    \"FR\": \"4.0372\",\n    \"PR\": \"90.1295\",\n    \"lastUpdated\": \"2020-03-25T08:50:30.000Z\"\n  }\n]",
           "type": "json"
         }
       ]
