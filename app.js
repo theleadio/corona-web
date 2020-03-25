@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const rateLimit = require('express-rate-limit');
 
 const analyticsRouter = require('./routes/analytics');
 const healthcareInstitutionRouter = require('./routes/healthcareInstitution');
@@ -20,11 +21,27 @@ const v3StatsRouter = require('./routes/v3/stats');
 const v3StatsBnoRouter = require('./routes/v3/stats/bno');
 const v3StatsWorldometerRouter = require('./routes/v3/stats/worldometer');
 
-const cors = require('cors')
+const cors = require('cors');
 
 const app = express();
 
 app.use(cors());
+
+//rate limiting
+const rateLimitTimeMinutes = process.env.RATE_LIMIT_TIME_MINUTES;
+const rateLimitRequests = process.env.RATE_LIMIT_REQUESTS;
+const whitelist = process.env.IP_WHITELIST ? process.env.IP_WHITELIST.split(',') : [];
+
+if(rateLimitTimeMinutes && rateLimitRequests) {
+  app.use(rateLimit({
+    windowMs: parseInt(rateLimitTimeMinutes) * 60 * 1000,
+    max: parseInt(rateLimitRequests),
+    skip: function(req) {
+      //skipping whitelisted and internal IP's
+      return !req.ip || req.ip === '::1' || whitelist.indexOf(req.ip) > -1;
+    }
+  }));
+}
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
