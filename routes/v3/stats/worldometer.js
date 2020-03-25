@@ -134,6 +134,7 @@ router.get('/topCountry', cacheCheck, cache.route(), asyncHandler(async function
  * @apiName GetTotalTrendingCases
  * @apiGroup Stats
  * @apiVersion 3.0.0
+ * @apiParam {Integer} [limit] Limit to top N trending stats
  * @apiDescription Returns total trending cases
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
@@ -147,8 +148,14 @@ router.get('/topCountry', cacheCheck, cache.route(), asyncHandler(async function
 ]
  */
 router.get('/totalTrendingCases', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
+  let limit = 999
+
+  if (req.query.hasOwnProperty('limit')) {
+    limit = req.query.limit;
+  }
+
   try {
-  const result = await getTotalTrendingCases();
+    const result = await getTotalTrendingCases(limit);
     return res.json(result);
   }
   catch (error) {
@@ -205,16 +212,19 @@ async function getGlobalStats() {
   return result[0][0];
 }
 
-async function getTotalTrendingCases() {
+async function getTotalTrendingCases(limit=999) {
   const conn = db.conn.promise();
+  let args = [parseInt(limit)]
+
   let query = `
-  SELECT total_cases AS totalConfirmed, total_deaths as totalDeaths, total_recovered as totalRecovered, last_updated as lastUpdated
-  FROM worldometers_total_sum_temp
+  SELECT MAX(total_cases) AS totalConfirmed, total_deaths as totalDeaths, total_recovered as totalRecovered, last_updated as lastUpdated
+  FROM worldometers_total_sum
   GROUP BY date(last_updated)
-  ORDER BY last_updated DESC;
+  ORDER BY last_updated DESC
+  LIMIT ?
 `;
 
-  let result = await conn.query(query);
+  let result = await conn.query(query, args);
   return result[0];
 }
 
