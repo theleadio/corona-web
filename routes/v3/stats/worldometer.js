@@ -183,7 +183,7 @@ async function getCountryStats(countryCode=null, limit=999) {
   let args = []
   let getAllFlag = true
 
-  const blacklistCountryQuery = `where country not in ("Sint Maarten","Congo", "South Korea", "Czechia Republic", "Czechia")`
+  const blacklistCountryQuery = `where country not in ("Sint Maarten","Congo", "South Korea", "Czechia Republic", "Czech Republic", "Others")`
 
   if (countryCode) {
     countryCodeQuery = 'WHERE ac.country_code=?'
