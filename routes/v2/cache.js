@@ -17,11 +17,20 @@ const cache = require('../../system/redis-cache');
 }
  */
 router.get('/clear', asyncHandler(async function (req, res, next) {
+  const adminSecretKey = process.env.ADMIN_SECRET_KEY;
+  if (!adminSecretKey) {
+    return res.status(500).json({ success: false, message: "For admin, please configure secret key at the backend in order to use this endpoint." });
+  }
+
+  const { secretKey, key = '*' } = req.query;
+
+  if (!secretKey || secretKey !== adminSecretKey) {
+    return res.status(401).json('No permission.');
+  }
+
   if (!cache.connected) {
     return res.json({ connected: false });
   }
-
-  const { key = '*' } = req.query;
 
   cache.del(key, function(err, number) {
     if (err) {
