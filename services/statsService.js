@@ -267,7 +267,7 @@ async function updateCountryDetailStatsWithCustomStats(data, limit=999, getAllFl
           return false;
         }
 
-        if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
+        if (!overriddenData.find(d => d.countryCode && d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
           overriddenData.push({
             countryCode: cs.countryCode,
             country: cs.countryName,
