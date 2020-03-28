@@ -57,7 +57,7 @@ ORDER BY
   try {
     const customStats = await getCustomStats();
 
-    const overriddenData = [];
+    let overriddenData = [];
     if(date) {
       overriddenData = data;
     }
