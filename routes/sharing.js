@@ -9,7 +9,7 @@ router.get('/globalStatsToday', cache.route(), asyncHandler(async function (req,
     //get screenshot binary
     const image = await getScreenshot(
       process.env.SITE_URL + '/share/global-stats-today',
-      { width: 480, height: 350 }
+      { width: 480, height: 750 }
     );
 
     //return screenshot
@@ -29,7 +29,7 @@ router.get('/countryStatsToday', cache.route(), asyncHandler(async function (req
     //get screenshot binary
     const image = await getScreenshot(
       process.env.SITE_URL + '/share/country-stats-today/' + countryCode,
-      { width: 480, height: 350 }
+      { width: 480, height: 750 }
     );
 
     //return screenshot
@@ -49,7 +49,7 @@ router.get('/countryStatsRecent', cache.route(), asyncHandler(async function (re
     //get screenshot binary
     const image = await getScreenshot(
       process.env.SITE_URL + '/share/country-stats-recent/' + countryCode,
-      { width: 480, height: 350 }
+      { width: 480, height: 750 }
     );
 
     //return screenshot
@@ -63,13 +63,14 @@ router.get('/countryStatsRecent', cache.route(), asyncHandler(async function (re
 }));
 
 async function getScreenshot(url, viewport) {
+  console.log('getScreenshot: ' + url);
   //load puppeteer
   const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   const page = await browser.newPage();
 
   //try to load the page
   await page.setViewport(viewport);
-  await page.goto(url, { waitUntil: 'networkidle0' }); //waits until network calls are done, +500ms
+  await page.goto(url, { waitUntil: 'networkidle2' }); //waits until network calls are done, +500ms
   const image = await page.screenshot({ type: 'jpeg' });
 
   await page.close();
