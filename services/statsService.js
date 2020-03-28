@@ -128,6 +128,10 @@ ORDER BY
  * @returns {Promise<*>}
  */
 async function getCountryStats(countryCode=null, limit=999) {
+  if (countryCode) {
+    const data = await getCountryStatsByCountryCode(countryCode);
+    return [data];
+  }
 
   const conn = db.conn.promise();
   let countryCodeQuery = ''
@@ -174,6 +178,66 @@ async function getCountryStats(countryCode=null, limit=999) {
   const data = result[0]
   const updatedData = updateCountryDetailStatsWithCustomStats(data, limit, getAllFlag)
   return updatedData
+}
+
+async function getCountryStatsByCountryCode(countryCode) {
+  if (!countryCode) {
+    throw new Error('countryCode is required.');
+  }
+
+  const conn = db.conn.promise();
+  const query = `
+SELECT
+  ac.country_code AS countryCode,
+  tt.country,
+  ac.latitude + 0.0 AS lat,
+  ac.longitude + 0.0 AS lng,
+  tt.total_cases AS totalConfirmed,
+  tt.total_deaths AS totalDeaths,
+  tt.total_recovered AS totalRecovered,
+  tt.new_cases AS dailyConfirmed,
+  tt.new_deaths AS dailyDeaths,
+  tt.active_cases AS activeCases,
+  tt.serious_critical_cases AS totalCritical,
+  CAST(tt.total_cases_per_million_pop AS UNSIGNED) AS totalConfirmedPerMillionPopulation,
+  (tt.total_deaths / tt.total_cases * 100) AS FR,
+  (tt.total_recovered / tt.total_cases * 100) AS PR,
+  tt.last_updated AS lastUpdated
+FROM
+  worldometers tt
+INNER JOIN
+  apps_countries ac ON ac.country_alias = tt.country AND ac.country_code = ?
+ORDER BY
+  last_updated DESC
+LIMIT 1
+`;
+
+  const args = [countryCode];
+  const result = await conn.query(query, args);
+  const data = result[0][0];
+
+  let customStats;
+  try {
+    customStats = await getCustomStats();
+  }
+  catch (ex) {
+    console.log("[getCountryStatsByCountryCode][customStats] error:", ex);
+    return data;
+  }
+
+  const countryCodeLowerCase = countryCode.toLowerCase();
+  const customCountryStat = customStats.find(c => c.countryCode && c.countryCode.toLowerCase() === countryCodeLowerCase);
+
+  if (!customCountryStat) {
+    return data;
+  }
+
+  return {
+    ...data,
+    totalConfirmed: Math.max(data.totalConfirmed, customCountryStat.confirmed),
+    totalDeaths: Math.max(data.totalDeaths, customCountryStat.deaths),
+    totalRecovered: Math.max(data.totalRecovered, customCountryStat.recovered),
+  }
 }
 
 async function updateCountryDetailStatsWithCustomStats(data, limit=999, getAllFlag=true) {
