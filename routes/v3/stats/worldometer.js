@@ -164,34 +164,6 @@ router.get('/totalTrendingCases', cacheCheck, cache.route(), asyncHandler(async 
   }
 }));
 
-/**
- * @api {get} /v3/stats/worldometer/custom-debug Custom (for debug)
- * @apiName FetchCustomOverriddenStatsDebug
- * @apiGroup Stats
- * @apiVersion 3.0.0
- * @apiDescription This endpoint is used for debugging purpose.
- * It returns the list of overridden stats in our google sheet.
- * @apiSuccessExample Response (example):
- * HTTP/1.1 200 Success
-[
-  {
-    "id": 2,
-    "countryCode": "SG",
-    "countryName": "Singapore",
-    "confirmed": 89,
-    "recovered": 51,
-    "deaths": 0,
-    "created": "2020-02-23 (UTC 1355)",
-    "createdBy": "",
-    "sourceUrl": "https://www.cna.com.tw/news/aopl/202002230219.aspx"
-  }
-]
- */
-router.get('/custom-debug', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
-  const result = await fetchDataFromGoogleSheet();
-  return res.json(result);
-}));
-
 async function getGlobalStats() {
   const conn = db.conn.promise();
   let query = `
