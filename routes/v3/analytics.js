@@ -62,15 +62,6 @@ router.get('/trend/country', cache.route(), asyncHandler(async function(req, res
     res.status(400).json('Invalid date')
   }
 
-  if (req.query.hasOwnProperty('date')) {
-    date = req.query.date
-
-    // enforce date format
-    if (moment(date, 'YYYY-MM-DD').format('YYYY-MM-DD') !== date) {
-      return res.json('Invalid date format. Date format should be YYYY-MM-DD')
-    }
-  }
-
   try {
     const results = await fetchTrendByCountryAndDate(country_codes, start_date, end_date)
     return res.json(results)
