@@ -29,7 +29,7 @@ router.get('/countryStatsToday', cache.route(), asyncHandler(async function (req
     //get screenshot binary
     const image = await getScreenshot(
       process.env.SITE_URL + '/share/country-stats-today/' + countryCode,
-      { width: 480, height: 750 }
+      { width: 480, height: 400 }
     );
 
     //return screenshot
@@ -49,7 +49,7 @@ router.get('/countryStatsRecent', cache.route(), asyncHandler(async function (re
     //get screenshot binary
     const image = await getScreenshot(
       process.env.SITE_URL + '/share/country-stats-recent/' + countryCode,
-      { width: 480, height: 750 }
+      { width: 480, height: 600 }
     );
 
     //return screenshot
