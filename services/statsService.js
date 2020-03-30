@@ -131,6 +131,7 @@ ORDER BY
  * - lastUpdated
  * @param countryCode
  * @param limit
+ * @param date
  * @returns {Promise<*>}
  */
 async function getCountryStats(countryCode=null, limit=999, date=null) {
@@ -157,7 +158,7 @@ async function getCountryStats(countryCode=null, limit=999, date=null) {
     args.push(countryCode)
     getAllFlag = false
   }
-  args.push(parseInt(limit))
+  args.push(limit)
 
   let query = `
   SELECT ac.country_code AS countryCode, tt.country, ac.latitude + 0.0 AS lat, ac.longitude + 0.0 AS lng, tt.total_cases AS totalConfirmed, tt.total_deaths AS totalDeaths, tt.total_recovered AS totalRecovered, tt.new_cases AS dailyConfirmed, tt.new_deaths AS dailyDeaths, tt.active_cases AS activeCases, tt.serious_critical_cases AS totalCritical, CAST(tt.total_cases_per_million_pop AS UNSIGNED) AS totalConfirmedPerMillionPopulation, (tt.total_deaths / tt.total_cases * 100) AS FR, (tt.total_recovered / tt.total_cases * 100) AS PR, tt.last_updated AS lastUpdated
@@ -187,7 +188,6 @@ async function getCountryStats(countryCode=null, limit=999, date=null) {
   GROUP BY tt.country
   ORDER BY tt.total_cases DESC
   LIMIT ?`;
-
 
   let result = await conn.query(query, args);
   const data = result[0]

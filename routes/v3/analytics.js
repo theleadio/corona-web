@@ -110,9 +110,12 @@ async function fetchTopCountryWithDailyNewStatsSortByNewCases(limit=10) {
 }
 
 async function fetchTrendByCountryAndDate(country_codes, start_date, end_date) {
+  if (!start_date || !end_date) {
+    throw new Error('Invalid start date or end date.');
+  }
+
   const conn = db.conn.promise()
-  let args = []
-  let query = ''
+  let args = [start_date, end_date]
   let countryCodeQuery = ""
   let countryCodeQueryParam = []
 
@@ -121,14 +124,10 @@ async function fetchTrendByCountryAndDate(country_codes, start_date, end_date) {
       countryCodeQueryParam.push(`?`)
       args.push(element)
     });
-    countryCodeQuery = `WHERE ac.country_code in (` + countryCodeQueryParam.join(',') + `)`
+    countryCodeQuery = `AND ac.country_code in (` + countryCodeQueryParam.join(',') + `)`
   }
 
-  if (start_date && end_date) {
-    args.push(start_date, end_date)
-  }
-
-  query = `
+  const query = `
 SELECT ac.country_code,
 tt.country,
 MAX(tt.total_cases) AS total_confirmed,
@@ -153,9 +152,9 @@ country_alias
 FROM apps_countries
 )
 AS ac ON tt.country = ac.country_alias
+WHERE tt.last_updated >= ?
+AND tt.last_updated <= ?
 ${countryCodeQuery}
-AND tt.last_updated >=?
-AND tt.last_updated <=?
 GROUP BY date(tt.last_updated), tt.country
 ORDER BY tt.last_updated ASC;`
   let result = await conn.query(query, args)
