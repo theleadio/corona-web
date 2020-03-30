@@ -41,8 +41,20 @@ router.get('/country', cacheCheck, cache.route(), asyncHandler(async function(re
     countryCode = req.query.countryCode;
   }
 
+  let date = null
+  if (req.query.hasOwnProperty('date')) {
+    date = req.query.date
+
+    // enforce date format
+    if (moment(date, 'YYYY-MM-DD').format('YYYY-MM-DD') !== date) {
+      return res.json('Invalid date format. Date format should be YYYY-MM-DD')
+    }
+  }
+
+  const limit = parseInt(req.query.limit) || 999;
+
   try {
-    const result = await getCountryStats(countryCode);
+    const result = await getCountryStats(countryCode, limit, date);
     return res.json(result);
   }
   catch (error) {
@@ -113,11 +125,7 @@ router.get('/global', cacheCheck, cache.route(), asyncHandler(async function (re
  */
 router.get('/topCountry', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   // console.log('calling /v3/stats/worldometer/topCountry');
-  let limit = 999
-
-  if (req.query.hasOwnProperty('limit')) {
-    limit = req.query.limit;
-  }
+  const limit = parseInt(req.query.limit) || 999;
 
   try {
     const result = await getCountryStats(null, limit);

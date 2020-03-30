@@ -57,38 +57,44 @@ ORDER BY
   try {
     const customStats = await getCustomStats();
 
-    const overriddenData = data.map(d => {
-      const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
+    let overriddenData = [];
+    if(date) {
+      overriddenData = data;
+    }
+    else {
+      overriddenData = data.map(d => {
+        const customCountryStat = customStats.find(c => c.countryCode && d.countryCode && c.countryCode.toLowerCase() === d.countryCode.toLowerCase());
 
-      if (!customCountryStat) {
-        return d;
-      }
+        if (!customCountryStat) {
+          return d;
+        }
 
-      return {
-        ...d,
-        confirmed: Math.max(d.confirmed, customCountryStat.confirmed),
-        deaths: Math.max(d.deaths, customCountryStat.deaths),
-        recovered: Math.max(d.recovered, customCountryStat.recovered),
-      }
-    });
+        return {
+          ...d,
+          confirmed: Math.max(d.confirmed, customCountryStat.confirmed),
+          deaths: Math.max(d.deaths, customCountryStat.deaths),
+          recovered: Math.max(d.recovered, customCountryStat.recovered),
+        }
+      });
 
-    customStats.forEach(cs => {
-      if (!cs.countryCode || typeof cs.countryCode !== 'string') {
-        return false;
-      }
+      customStats.forEach(cs => {
+        if (!cs.countryCode || typeof cs.countryCode !== 'string') {
+          return false;
+        }
 
-      // Add custom country stats if it does not exist in current data.
-      if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
-        overriddenData.push({
-          countryCode: cs.countryCode,
-          countryName: cs.countryName,
-          confirmed: cs.confirmed || 0,
-          deaths: cs.deaths || 0,
-          recovered: cs.recovered || 0,
-          created: new Date(),
-        });
-      }
-    });
+        // Add custom country stats if it does not exist in current data.
+        if (!overriddenData.find(d => d.countryCode.toLowerCase() === cs.countryCode.toLowerCase())) {
+          overriddenData.push({
+            countryCode: cs.countryCode,
+            countryName: cs.countryName,
+            confirmed: cs.confirmed || 0,
+            deaths: cs.deaths || 0,
+            recovered: cs.recovered || 0,
+            created: new Date(),
+          });
+        }
+      });
+    }
 
     return overriddenData
       .sort((a, b) => {
@@ -125,9 +131,10 @@ ORDER BY
  * - lastUpdated
  * @param countryCode
  * @param limit
+ * @param date
  * @returns {Promise<*>}
  */
-async function getCountryStats(countryCode=null, limit=999) {
+async function getCountryStats(countryCode=null, limit=999, date=null) {
   if (countryCode) {
     const data = await getCountryStatsByCountryCode(countryCode);
     return [data];
@@ -137,13 +144,21 @@ async function getCountryStats(countryCode=null, limit=999) {
   let countryCodeQuery = ''
   let args = []
   let getAllFlag = true
+  let dateQuery = ''
+
+  if (date) {
+    const dateFrom = moment(date).format('YYYY-MM-DD')
+    const dateTo = moment(date).add(1, 'day').format('YYYY-MM-DD')
+    dateQuery = `AND last_updated >= ? and last_updated < ?`
+    args.push(dateFrom, dateTo)
+  }
 
   if (countryCode) {
     countryCodeQuery = 'WHERE ac.country_code=?'
     args.push(countryCode)
     getAllFlag = false
   }
-  args.push(parseInt(limit))
+  args.push(limit)
 
   let query = `
   SELECT ac.country_code AS countryCode, tt.country, ac.latitude + 0.0 AS lat, ac.longitude + 0.0 AS lng, tt.total_cases AS totalConfirmed, tt.total_deaths AS totalDeaths, tt.total_recovered AS totalRecovered, tt.new_cases AS dailyConfirmed, tt.new_deaths AS dailyDeaths, tt.active_cases AS activeCases, tt.serious_critical_cases AS totalCritical, CAST(tt.total_cases_per_million_pop AS UNSIGNED) AS totalConfirmedPerMillionPopulation, (tt.total_deaths / tt.total_cases * 100) AS FR, (tt.total_recovered / tt.total_cases * 100) AS PR, tt.last_updated AS lastUpdated
@@ -154,6 +169,7 @@ async function getCountryStats(countryCode=null, limit=999) {
     max(last_updated) AS MaxDateTime
     FROM worldometers tt
     WHERE country NOT in ("Sint Maarten","Congo", "South Korea", "Czechia Republic", "Czech Republic", "Others")
+    ${dateQuery}
     GROUP BY country
   )
   groupedtt ON tt.country = groupedtt.country
@@ -172,7 +188,6 @@ async function getCountryStats(countryCode=null, limit=999) {
   GROUP BY tt.country
   ORDER BY tt.total_cases DESC
   LIMIT ?`;
-
 
   let result = await conn.query(query, args);
   const data = result[0]
