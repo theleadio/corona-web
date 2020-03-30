@@ -5,220 +5,7 @@ let server=require("../app");
 let should = chai.should();
 chai.use(chaiHttp);
 
-describe ("Get stats using bno", function(){
-	countryCode = 'sg';
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v3/stats/bno?countryCode="+countryCode)
-            .end((err, result)=>{
-                result.should.have.status(200)
-                responseCountrycode = result.body.countryCode.toLowerCase();
-                console.log("Successfully fetch and country code:", responseCountrycode);
-                if (countryCode == responseCountrycode){
-                    console.log('got the correct country code');
-                    //console.log("Successfully fetch info", result.body)
-
-                }
-                else{
-                    console.log('got the wrong country code');
-                    assert.fail(responseCountrycode, 'au', "Country code does not match");
-                }
-                //console.log("Successfully fetch info", result.body)
-                done()
-            })
-    })
-})
-
-describe ("Get stats using JHU Arcgis", function(){
-	countryCode = 'sg';
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v2/stats?countryCode="+countryCode)
-            .end((err, result)=>{
-                responseCountrycode = result.body.countryCode.toLowerCase();
-                console.log("Successfully fetch and country code:", responseCountrycode);
-                if (countryCode == responseCountrycode){
-                    console.log('got the correct country code');
-                    //console.log("Successfully fetch info", result.body)
-
-                }
-                else{
-                    console.log('got the wrong country code');
-                    assert.fail(responseCountrycode, 'au', "Country code does not match");
-                }
-                //console.log("Successfully fetch info", result.body)
-                done();
-            })
-    })
-})
-
-describe ("Get diff stats using JHU Arcgis", function(){
-
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v2/stats/diff/global")
-            .end((err, result)=>{
-                var num = result.body.length;
-                console.log('got '+ num + ' results');
-                if (num > 0){
-                    result.should.have.status(200)
-                    console.log('Test pass');
-                }
-                else{
-                    assert.fail("There are 0 results");
-                }
-
-                //console.log("Successfully fetch info", result.body)
-                done();
-            })
-    })
-})
-
-describe ("Get diff stats for country JHU Arcgis", function(){
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v2/stats/diff/country")
-            .end((err, result)=>{
-                var num = result.body.length;
-                console.log('got '+ num + ' results');
-                if (num > 0){
-                    result.should.have.status(200)
-                    console.log('Test pass');
-                }
-                else{
-                    assert.fail("There are 0 results");
-                }
-
-                //console.log("Successfully fetch info", result.body)
-                done();
-            })
-    })
-})
-
-describe ("Get diff stats using bno on per country basis", function(){
-    countryCode = 'au';
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v3/stats/bno/diff/country?countryCode="+countryCode)
-            .end((err, result)=>{
-                console.log('test pass');
-                // result.should.have.status(200)
-                // console.log(result.body);
-                // responseCountryName = result.body.country.toLowerCase();
-                // console.log("Successfully fetch and country code:", responseCountrycode);
-                // if (responseCountryName == 'australia'){
-                //     console.log('got the correct country code');
-                //     //console.log("Successfully fetch info", result.body)
-
-                // }
-                // else{
-                //     console.log('got the wrong country code');
-                //     assert.fail(responseCountrycode, 'au', "Country code does not match");
-                // }
-                done();
-            })
-    })
-})
-
-describe ("Get total daily cases using bno on per country basis", function(){
-    countryCode = 'my';
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v3/stats/bno/total_daily_cases/country?countryCode="+countryCode)
-            .end((err, result)=>{
-                result.should.have.status(200)
-                responseCountrycode = result.body.countryCode.toLowerCase();
-                console.log("Successfully fetch and country code:", responseCountrycode);
-                if (countryCode == responseCountrycode){
-                    console.log('got the correct country code');
-                    //console.log("Successfully fetch info", result.body)
-
-                }
-                else{
-                    console.log('got the wrong country code');
-                    assert.fail(responseCountrycode, 'au', "Country code does not match");
-                }
-                done();
-            })
-    })
-})
-
-describe ("Get total daily cases using bno globally", function(){
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v3/stats/bno/total_daily_cases")
-            .end((err, result)=>{
-                var num = result.body.length;
-                console.log('got '+ num + ' results');
-                if (num > 0){
-                    result.should.have.status(200)
-                    console.log('Test pass');
-                    done();
-                }
-                else{
-                    assert.fail("There are 0 results");
-                }
-
-                //console.log("Successfully fetch info", result.body)
-                
-            })
-    })
-})
-
-describe ("Get daily cases using bno on per country basis", function(){
-    countryCode = 'my';
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v3/stats/bno/daily_cases/country?countryCode="+countryCode)
-            .end((err, result)=>{
-                result.should.have.status(200);
-                console.log('done');
-                // responseCountrycode = result.body.countryCode.toLowerCase();
-                // console.log("Successfully fetch and country code:", responseCountrycode);
-                // if (countryCode == responseCountrycode){
-                //     console.log('got the correct country code');
-                //     //console.log("Successfully fetch info", result.body)
-
-                // }
-                // else{
-                //     console.log('got the wrong country code');
-                //     assert.fail(responseCountrycode, 'au', "Country code does not match");
-                // }
-                done();
-            })
-    })
-})
-
-describe ("Get daily cases using bno globally", function(){
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v3/stats/bno/daily_cases")
-            .end((err, result)=>{
-                result.should.have.status(200)
-                done();
-            })
-    })
-})
-
-describe ("Get worldometer stats", function(){
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v3/stats/worldometer/country")
-            .end((err, result)=>{
-                var num_countries = result.body.length;
-                console.log('got '+ num_countries + ' results');
-                if (num_countries > 0){
-                    result.should.have.status(200)
-                    console.log('Test pass');
-                }
-                else{
-                    assert.fail("There are 0 countries");
-                }
-                done();
-            })
-    })
-})
-
+//1
 describe ("Get worldometer global stats overview", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
@@ -238,10 +25,11 @@ describe ("Get worldometer global stats overview", function(){
     })
 })
 
-describe ("Get worldometer all country stats", function(){
+//2
+describe ("Get worldometer top country stats", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
-            .get("/v3/stats/worldometer/country")
+            .get("/v3/stats/worldometer/topCountry")
             .end((err, result)=>{
                 var country_count = result.body.length;
                 console.log('got '+ country_count + ' countries');
@@ -250,13 +38,95 @@ describe ("Get worldometer all country stats", function(){
                     console.log('Test pass');
                 }
                 else{
-                    assert.fail("There are 0 countries");
+                    assert.fail("There are " + country_count + " countries. Expecting more than 0.");
                 }
                 done();
             })
     })
 })
 
+//3
+describe ("Get worldometer top 3 country stats", function(){
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v3/stats/worldometer/topCountry?limit=3")
+            .end((err, result)=>{
+                var country_count = result.body.length;
+                console.log('got '+ country_count + ' countries');
+                if (country_count == 3){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }
+                else{
+                    assert.fail("There are " + country_count + " countries. Expecting 3.");
+                }
+                done();
+            })
+    })
+})
+
+//4
+describe ("Get worldometer total trending cases", function(){
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v3/stats/worldometer/totalTrendingCases")
+            .end((err, result)=>{
+                var num_results = result.body.length;
+                console.log('got '+ num_results + ' results');
+                if (num_results > 0){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }
+                else{
+                    assert.fail("There are 0 results");
+                }
+                done();
+            })
+    })
+})
+
+//5
+describe ("Get worldonmeter dailyNewStats (analytics)", function(){
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v3/analytics/dailyNewStats")
+            .end((err, result)=>{
+                var num_results = result.body.length;
+                console.log('got '+ num_results + ' results');
+                if (num_results > 0){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }
+                else{
+                    assert.fail("There are 0 results");
+                }
+                done();
+            })
+    })
+})
+
+//6
+describe ("Get worldonmeter dailyNewStats with limits (analytics)", function(){
+    var limit = 2;
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v3/analytics/dailyNewStats?limit="+limit)
+            .end((err, result)=>{
+                var num_results = result.body.length;
+                console.log('got '+ num_results + ' results');
+                if (num_results == limit){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }
+                else{
+                    assert.fail("There are " + num_results + " results. Expecting 2.");
+                }
+                done();
+            })
+    })
+})
+
+//7
 describe ("Get worldometer 1 country stats", function(){
     let countryCode = "MY"
     it ("Should get ", (done)=>{
@@ -277,101 +147,7 @@ describe ("Get worldometer 1 country stats", function(){
     })
 })
 
-describe ("Get worldometer top country stats", function(){
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v3/stats/worldometer/topCountry")
-            .end((err, result)=>{
-                var country_count = result.body.length;
-                console.log('got '+ country_count + ' countries');
-                if (country_count > 0){
-                    result.should.have.status(200)
-                    console.log('Test pass');
-                }
-                else{
-                    assert.fail("There are " + country_count + " countries. Expecting more than 0.");
-                }
-                done();
-            })
-    })
-})
-
-describe ("Get worldometer top 3 country stats", function(){
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v3/stats/worldometer/topCountry?limit=3")
-            .end((err, result)=>{
-                var country_count = result.body.length;
-                console.log('got '+ country_count + ' countries');
-                if (country_count == 3){
-                    result.should.have.status(200)
-                    console.log('Test pass');
-                }
-                else{
-                    assert.fail("There are " + country_count + " countries. Expecting 3.");
-                }
-                done();
-            })
-    })
-})
-
-describe ("Get worldometer total trending cases", function(){
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v3/stats/worldometer/totalTrendingCases")
-            .end((err, result)=>{
-                var num_results = result.body.length;
-                console.log('got '+ num_results + ' results');
-                if (num_results > 0){
-                    result.should.have.status(200)
-                    console.log('Test pass');
-                }
-                else{
-                    assert.fail("There are 0 results");
-                }
-                done();
-            })
-    })
-})
-
-describe ("Get worldonmeter dailyNewStats (analytics)", function(){
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v3/analytics/dailyNewStats")
-            .end((err, result)=>{
-                var num_results = result.body.length;
-                console.log('got '+ num_results + ' results');
-                if (num_results > 0){
-                    result.should.have.status(200)
-                    console.log('Test pass');
-                }
-                else{
-                    assert.fail("There are 0 results");
-                }
-                done();
-            })
-    })
-})
-
-describe ("Get worldonmeter dailyNewStats with limits (analytics)", function(){
-    it ("Should get ", (done)=>{
-        chai.request(server)
-            .get("/v3/analytics/dailyNewStats?limit=2")
-            .end((err, result)=>{
-                var num_results = result.body.length;
-                console.log('got '+ num_results + ' results');
-                if (num_results == 2){
-                    result.should.have.status(200)
-                    console.log('Test pass');
-                }
-                else{
-                    assert.fail("There are " + num_results + " results. Expecting 2.");
-                }
-                done();
-            })
-    })
-})
-
+//8
 describe ("Get worldonmeter trend data of country (analytics). No parameter", function(){
     it ("Should get ", (done)=>{
         let expected_response = "Invalid date format"
@@ -391,6 +167,7 @@ describe ("Get worldonmeter trend data of country (analytics). No parameter", fu
     })
 })
 
+//9
 describe ("Get worldonmeter trend data of a single country (analytics)", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
@@ -403,14 +180,34 @@ describe ("Get worldonmeter trend data of a single country (analytics)", functio
                     console.log('Test pass');
                 }
                 else{
-                    assert.fail("There are " + num_results + " results. Expecting 2.");
+                    assert.fail("There are " + num_results + " results. Expecting more");
                 }
                 done();
             })
     })
 })
 
+//10
+describe ("Get trending news", function(){
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/news/trending?limit=9&offset=0&countryCode=MY&country=Malaysia&language=en")
+            .end((err, result)=>{
+                var num_results = result.body.total;
+                console.log('got '+ num_results + ' data');
+                if (num_results > 0){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }
+                else{
+                    assert.fail("There are " + num_results + " results.");
+                }
+                done();
+            })
+    })
+})
 
+//11
 describe ("Get worldonmeter trend data of multiple countries (analytics)", function(){
     it ("Should get ", (done)=>{
         chai.request(server)
@@ -423,7 +220,107 @@ describe ("Get worldonmeter trend data of multiple countries (analytics)", funct
                     console.log('Test pass');
                 }
                 else{
-                    assert.fail("There are " + num_results + " results. Expecting 2.");
+                    assert.fail("There are " + num_results + " results. Expecting more");
+                }
+                done();
+            })
+    })
+})
+
+//12
+describe ("Get worldometer stats", function(){
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v3/stats/worldometer/country")
+            .end((err, result)=>{
+                var num_countries = result.body.length;
+                console.log('got '+ num_countries + ' results');
+                if (num_countries > 0){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }
+                else{
+                    assert.fail("There are 0 countries");
+                }
+                done();
+            })
+    })
+})
+
+//13
+describe ("Get analytics per country", function(){
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v2/analytics/country")
+            .end((err, result)=>{
+                var num_countries = result.body.length;
+                console.log('got '+ num_countries + ' results');
+                if (num_countries > 0){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }
+                else{
+                    assert.fail("There are 0 countries");
+                }
+                done();
+            })
+    })
+})
+
+//14
+describe ("Get healthcare institutions", function(){
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v1/healthcare-institution")
+            .end((err, result)=>{
+                var num_results = result.body.hospitalsAndHealthcareProviders.length;
+                console.log('got '+ num_results + ' results');
+                if (num_results > 0){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }
+                else{
+                    assert.fail("There are 0 results");
+                }
+                done();
+            })
+    })
+})
+
+//15
+describe ("Get news", function(){
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/news")
+            .end((err, result)=>{
+                var num_results = result.body.length;
+                console.log('got '+ num_results + ' results');
+                if (num_results > 0){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }
+                else{
+                    assert.fail("There are 0 results");
+                }
+                done();
+            })
+    })
+})
+
+//16
+describe ("Get travel alert", function(){
+    it ("Should get ", (done)=>{
+        chai.request(server)
+            .get("/v1/travel-alert")
+            .end((err, result)=>{
+                var num_results = result.body.length;
+                console.log('got '+ num_results + ' results');
+                if (num_results > 0){
+                    result.should.have.status(200)
+                    console.log('Test pass');
+                }
+                else{
+                    assert.fail("There are 0 results");
                 }
                 done();
             })
