@@ -13,6 +13,7 @@ const newsRouter = require('./routes/news');
 const statsRouter = require('./routes/stats');
 const travelAlertRouter = require('./routes/travelAlert');
 const imageProxyRouter = require('./routes/imageProxy');
+const sharingRouter = require('./routes/sharing');
 
 const v2AnalyticsRouter = require('./routes/v2/analytics');
 const v2CacheRouter = require('./routes/v2/cache');
@@ -80,6 +81,7 @@ app.use('/v3/stats/worldometer', v3StatsWorldometerRouter);
 app.use('/v2/cache', v2CacheRouter);
 
 app.use('/image-proxy', imageProxyRouter);
+app.use('/sharing', sharingRouter);
 app.use('/doc', express.static(__dirname + '/public'));
 
 // catch 404 and forward to error handler

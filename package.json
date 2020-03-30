@@ -28,6 +28,7 @@
     "moment": "^2.24.0",
     "morgan": "~1.9.1",
     "mysql2": "^2.1.0",
-    "newrelic": "^6.5.0"
+    "newrelic": "^6.5.0",
+    "puppeteer": "^2.1.1"
   }
 }
