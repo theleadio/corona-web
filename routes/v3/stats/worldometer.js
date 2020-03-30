@@ -20,18 +20,21 @@ const { cacheCheck } = require('../../../services/cacheMiddleware');
   {
     "countryCode": "CN",
     "country": "China",
-    "totalConfirmed": 81008,
-    "totalDeaths": 3255,
-    "totalRecovered": 71740,
-    "dailyConfirmed": 41,
-    "dailyDeaths": 7,
-    "activeCases": 6013,
-    "totalCritical": 1927,
-    "totalConfirmedPerMillionPopulation": 56,
-    "FR": "4.0181",
-    "PR": "88.5592",
-    "lastUpdated": "2020-03-21T04:00:12.000Z"
-  },
+    "lat": 35.86166,
+    "lng": 104.195397,
+    "totalConfirmed": 81470,
+    "totalDeaths": 3304,
+    "totalRecovered": 75700,
+    "dailyConfirmed": 31,
+    "dailyDeaths": 4,
+    "activeCases": 2466,
+    "totalCritical": 633,
+    "totalConfirmedPerMillionPopulation": 57,
+    "totalDeathsPerMillionPopulation": 2,
+    "FR": "4.0555",
+    "PR": "92.9176",
+    "lastUpdated": "2020-03-30T21:00:13.000Z"
+  }
 ]
  */
 router.get('/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
@@ -105,21 +108,22 @@ router.get('/global', cacheCheck, cache.route(), asyncHandler(async function (re
  * HTTP/1.1 200 Success
 [
   {
-    "countryCode": "CN",
-    "country": "China",
-    "lat": 35.86166,
-    "lng": 104.195397,
-    "totalConfirmed": 81171,
-    "totalDeaths": 3277,
-    "totalRecovered": 73159,
-    "dailyConfirmed": 0,
-    "dailyDeaths": 0,
-    "activeCases": 4735,
-    "totalCritical": 1573,
-    "totalConfirmedPerMillionPopulation": 56,
-    "FR": "4.0372",
-    "PR": "90.1295",
-    "lastUpdated": "2020-03-25T08:50:30.000Z"
+    "countryCode": "US",
+    "country": "USA",
+    "lat": 37.09024,
+    "lng": -95.712891,
+    "totalConfirmed": 159689,
+    "totalDeaths": 2951,
+    "totalRecovered": 5220,
+    "dailyConfirmed": 16198,
+    "dailyDeaths": 368,
+    "activeCases": 151518,
+    "totalCritical": 3402,
+    "totalConfirmedPerMillionPopulation": 482,
+    "totalDeathsPerMillionPopulation": 9,
+    "FR": "1.8480",
+    "PR": "3.2689",
+    "lastUpdated": "2020-03-30T21:00:11.000Z"
   }
 ]
  */
