@@ -536,26 +536,6 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/v3/stats/worldometer/custom-debug",
-    "title": "Custom (for debug)",
-    "name": "FetchCustomOverriddenStatsDebug",
-    "group": "Stats",
-    "version": "3.0.0",
-    "description": "<p>This endpoint is used for debugging purpose. It returns the list of overridden stats in our google sheet.</p>",
-    "success": {
-      "examples": [
-        {
-          "title": "Response (example):",
-          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"id\": 2,\n    \"countryCode\": \"SG\",\n    \"countryName\": \"Singapore\",\n    \"confirmed\": 89,\n    \"recovered\": 51,\n    \"deaths\": 0,\n    \"created\": \"2020-02-23 (UTC 1355)\",\n    \"createdBy\": \"\",\n    \"sourceUrl\": \"https://www.cna.com.tw/news/aopl/202002230219.aspx\"\n  }\n]",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "routes/v3/stats/worldometer.js",
-    "groupTitle": "Stats"
-  },
-  {
-    "type": "get",
     "url": "/v3/stats/custom-debug",
     "title": "Custom (for debug)",
     "name": "FetchCustomOverriddenStatsDebug",
@@ -838,6 +818,19 @@ define({ "api": [
     "name": "GetTotalTrendingCases",
     "group": "Stats",
     "version": "3.0.0",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Integer",
+            "optional": true,
+            "field": "limit",
+            "description": "<p>Limit to top N trending stats</p>"
+          }
+        ]
+      }
+    },
     "description": "<p>Returns total trending cases</p>",
     "success": {
       "examples": [
@@ -1035,7 +1028,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Response (example):",
-          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"countryCode\": \"CN\",\n    \"country\": \"China\",\n    \"totalConfirmed\": 81008,\n    \"totalDeaths\": 3255,\n    \"totalRecovered\": 71740,\n    \"dailyConfirmed\": 41,\n    \"dailyDeaths\": 7,\n    \"activeCases\": 6013,\n    \"totalCritical\": 1927,\n    \"totalConfirmedPerMillionPopulation\": 56,\n    \"FR\": \"4.0181\",\n    \"PR\": \"88.5592\",\n    \"lastUpdated\": \"2020-03-21T04:00:12.000Z\"\n  },\n]",
+          "content": "HTTP/1.1 200 Success\n[\n  {\n    \"countryCode\": \"CN\",\n    \"country\": \"China\",\n    \"lat\": 35.86166,\n    \"lng\": 104.195397,\n    \"totalConfirmed\": 81171,\n    \"totalDeaths\": 3277,\n    \"totalRecovered\": 73159,\n    \"dailyConfirmed\": 0,\n    \"dailyDeaths\": 0,\n    \"activeCases\": 4735,\n    \"totalCritical\": 1573,\n    \"totalConfirmedPerMillionPopulation\": 56,\n    \"FR\": \"4.0372\",\n    \"PR\": \"90.1295\",\n    \"lastUpdated\": \"2020-03-25T08:50:30.000Z\"\n  }\n]",
           "type": "json"
         }
       ]

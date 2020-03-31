@@ -135,4 +135,6 @@ public
 tmp/
 temp/
 
+# API gendocs
+public/api_project.*
 # End of https://www.gitignore.io/api/node,macos
