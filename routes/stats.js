@@ -23,52 +23,52 @@ router.get('/', cache.route(), asyncHandler(async function (req, res, next) {
   }
 }));
 
-/**
- * @api {get} /stats/latest
- * @apiName FetchLatestStats
- * @apiGroup Stats
- */
-router.get('/latest', cache.route(), asyncHandler(async function (req, res, next) {
-  try {
-    const results = await getLatestStats();
-    return res.json(results);
-  }
-  catch (error) {
-    console.log('[/stats/latest] error', error);
-    return res.json(error);
-  }
-}));
+// /**
+//  * @api {get} /stats/latest
+//  * @apiName FetchLatestStats
+//  * @apiGroup Stats
+//  */
+// router.get('/latest', cache.route(), asyncHandler(async function (req, res, next) {
+//   try {
+//     const results = await getLatestStats();
+//     return res.json(results);
+//   }
+//   catch (error) {
+//     console.log('[/stats/latest] error', error);
+//     return res.json(error);
+//   }
+// }));
 
-/**
- * Returns the stats of top X countries with the most number of confirmed cases.
- *
- * @api {get} /stats/top
- * @apiName FetchTopStats
- * @apiGroup Stats
- */
-router.get('/top', cache.route(), asyncHandler(async function(req, res, next) {
-  const { limit = 7 } = req.query;
-  try {
-    const results = await getTopStats(limit);
-    return res.json(results);
-  }
-  catch (error) {
-    console.log('[/stats/top] error', error);
-    return res.json(error);
-  }
-}));
+// // /**
+// //  * Returns the stats of top X countries with the most number of confirmed cases.
+// //  *
+// //  * @api {get} /stats/top
+// //  * @apiName FetchTopStats
+// //  * @apiGroup Stats
+// //  */
+// // router.get('/top', cache.route(), asyncHandler(async function(req, res, next) {
+// //   const { limit = 7 } = req.query;
+// //   try {
+// //     const results = await getTopStats(limit);
+// //     return res.json(results);
+// //   }
+// //   catch (error) {
+// //     console.log('[/stats/top] error', error);
+// //     return res.json(error);
+// //   }
+// // }));
 
-router.get('/qq', cache.route(), asyncHandler(async function(req, res, next) {
-  const { country } = req.query;
-  try {
-    const results = await getStatsByQq(country);
-    return res.json(results);
-  }
-  catch (error) {
-    console.log('[/stats] error', error);
-    return res.json(error);
-  }
-}));
+// router.get('/qq', cache.route(), asyncHandler(async function(req, res, next) {
+//   const { country } = req.query;
+//   try {
+//     const results = await getStatsByQq(country);
+//     return res.json(results);
+//   }
+//   catch (error) {
+//     console.log('[/stats] error', error);
+//     return res.json(error);
+//   }
+// }));
 
 async function getStatsByArcGis(country) {
   const conn = db.conn.promise();
