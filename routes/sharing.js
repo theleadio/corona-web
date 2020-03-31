@@ -70,7 +70,7 @@ async function getScreenshot(url, viewport) {
 
   //try to load the page
   await page.setViewport(viewport);
-  await page.goto(url, { waitUntil: 'networkidle2' }); //waits until network calls are done, +500ms
+  await page.goto(url, { waitUntil: 'networkidle0' }); //waits until network calls are done, +500ms
   const image = await page.screenshot({ type: 'jpeg' });
 
   await page.close();
