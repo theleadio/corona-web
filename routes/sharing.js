@@ -89,7 +89,7 @@ async function getScreenshot(url, viewport) {
   let image = null;
 
   const response = await page.goto(url, { waitUntil: 'networkidle0' }); //waits until network calls are done, +500ms
-  if (response.status < 400) {
+  if (response.status() < 400) {
     image = await page.screenshot({ type: 'jpeg' });
   }
 
