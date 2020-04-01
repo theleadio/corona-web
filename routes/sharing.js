@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const router = express.Router();
 const asyncHandler = require("express-async-handler");
 const cache = require('../system/redis-cache');
@@ -11,6 +12,10 @@ router.get('/globalStatsToday', cache.route(), asyncHandler(async function (req,
       process.env.SITE_URL + '/share/global-stats-today',
       { width: 480, height: 750 }
     );
+
+    if (!image) {
+      return res.sendFile(path.resolve('assets', 'og-corona.png'));
+    }
 
     //return screenshot
     res.contentType('image/jpeg');
@@ -32,6 +37,12 @@ router.get('/countryStatsToday', cache.route(), asyncHandler(async function (req
       { width: 480, height: 400 }
     );
 
+    console.log("image:", image);
+
+    if (!image) {
+      return res.sendFile(path.resolve('assets', 'og-corona.png'));
+    }
+
     //return screenshot
     res.contentType('image/jpeg');
     res.send(image);
@@ -52,6 +63,10 @@ router.get('/countryStatsRecent', cache.route(), asyncHandler(async function (re
       { width: 480, height: 600 }
     );
 
+    if (!image) {
+      return res.sendFile(path.resolve('assets', 'og-corona.png'));
+    }
+
     //return screenshot
     res.contentType('image/jpeg');
     res.send(image);
@@ -70,8 +85,13 @@ async function getScreenshot(url, viewport) {
 
   //try to load the page
   await page.setViewport(viewport);
-  await page.goto(url, { waitUntil: 'networkidle0' }); //waits until network calls are done, +500ms
-  const image = await page.screenshot({ type: 'jpeg' });
+
+  let image = null;
+
+  const response = await page.goto(url, { waitUntil: 'networkidle0' }); //waits until network calls are done, +500ms
+  if (response.status < 400) {
+    image = await page.screenshot({ type: 'jpeg' });
+  }
 
   await page.close();
   await browser.close();
