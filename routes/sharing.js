@@ -10,7 +10,7 @@ router.get('/globalStatsToday', cache.route(), asyncHandler(async function (req,
     //get screenshot binary
     const image = await getScreenshot(
       process.env.SITE_URL + '/share/global-stats-today',
-      { width: 480, height: 750 }
+      { width: 1337, height: 700 }
     );
 
     if (!image) {
@@ -34,7 +34,7 @@ router.get('/countryStatsToday', cache.route(), asyncHandler(async function (req
     //get screenshot binary
     const image = await getScreenshot(
       process.env.SITE_URL + '/share/country-stats-today/' + countryCode,
-      { width: 480, height: 400 }
+      { width: 720, height: 375 }
     );
 
     console.log("image:", image);
@@ -60,7 +60,7 @@ router.get('/countryStatsRecent', cache.route(), asyncHandler(async function (re
     //get screenshot binary
     const image = await getScreenshot(
       process.env.SITE_URL + '/share/country-stats-recent/' + countryCode,
-      { width: 480, height: 600 }
+      { width: 984, height: 515 }
     );
 
     if (!image) {
