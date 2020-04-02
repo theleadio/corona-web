@@ -114,20 +114,31 @@ router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
  * @apiGroup Analytics
  * 
  * @apiParam {Integer} [limit] Optional limit the number of results
+ * @apiParam {Date} [date] Optional. Get results for that date
  */
 router.get('/country', cache.route(), asyncHandler(async function(req, res, next) {
   let limit = 200
+  let date = null
 
   if (req.query.hasOwnProperty('limit')) {
     if (parseInt(req.query.limit)) {
       limit = parseInt(req.query.limit)
     } else {
-      res.json('Invalid data type. Limit should be an integer.')
+      return res.json('Invalid data type. Limit should be an integer.')
+    }
+  }
+
+  if (req.query.hasOwnProperty('date')) {
+    date = req.query.date
+
+    // enforce date format
+    if (moment(date, 'YYYY-MM-DD').format('YYYY-MM-DD') !== date) {
+      return res.json('Invalid date format. Date format should be YYYY-MM-DD')
     }
   }
 
   try {
-    const results = await fetchAffectedCountries(limit)
+    const results = await fetchAffectedCountries(limit, date)
 
     return res.json(results)
   } catch (error) {
@@ -204,18 +215,25 @@ async function fetchMostAffectedByArea(limit) {
   return result[0]
 }
 
-async function fetchAffectedCountries(limit) {
+async function fetchAffectedCountries(limit, date = null) {
   const conn = db.conn.promise()
-  let query = ''
   const args = []
 
-  query = `
+  let dateQuery = '(SELECT MAX(posted_date) FROM arcgis)'
+  if (date) {
+    const dateFrom = moment(date).format('YYYY-MM-DD')
+    const dateTo = moment(date).add(1, 'day').format('YYYY-MM-DD')
+    dateQuery = `(SELECT MAX(posted_date) FROM arcgis WHERE posted_date >= ? and posted_date < ?)`
+    args.push(dateFrom, dateTo)
+  }
+
+  const query = `
     SELECT IFNULL(country, 'N/A') as country, lat, lng,
     SUM(confirmed) as total_confirmed,
     SUM(deaths) as total_dead, SUM(recovered) as total_recovered,
     CAST(posted_date as DATETIME) as date_as_of
     FROM arcgis
-    WHERE posted_date IN (SELECT MAX(posted_date) from arcgis)
+    WHERE posted_date IN ${dateQuery}
     GROUP BY country
     ORDER BY total_confirmed DESC
     LIMIT ?`

@@ -107,7 +107,7 @@ router.get('/top', cacheCheck, cache.route(), asyncHandler(async function(req, r
   }
 ]
  */
-router.get('/custom', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/custom', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   const result = await getCustomStats();
   return res.json(result);
 }));
@@ -135,7 +135,7 @@ router.get('/custom', cacheCheck, asyncHandler(async function(req, res, next) {
   }
 ]
  */
-router.get('/custom-debug', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/custom-debug', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   const result = await fetchDataFromGoogleSheet();
   return res.json(result);
 }));
@@ -164,7 +164,7 @@ router.get('/custom-debug', cacheCheck, asyncHandler(async function(req, res, ne
   }
 ]
  */
-router.get('/diff/global', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/diff/global', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   try {
     const result = await getGlobalStatsDiff();
     return res.json(result);
@@ -201,7 +201,7 @@ router.get('/diff/global', cacheCheck, asyncHandler(async function(req, res, nex
   }
 ]
  */
-router.get('/diff/country', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/diff/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   try {
     const { sort = 'confirmed' } = req.query;
     const result = await getCountryStatsDiff(sort);

@@ -14,7 +14,7 @@ async function getCustomStats() {
   return new Promise((resolve, reject) => {
     cache.get(cacheKey, async function (error, entries) {
       if (error) {
-        console.log("[getCustomStats] error:", error);
+        console.log("[getCustomStats] error when retrieving from cache:", error);
         return resolve([]);
       }
 
@@ -25,24 +25,26 @@ async function getCustomStats() {
           return resolve(parsedData);
         }
         catch (ex) {
+          console.log("[getCustomStats] failed to parse cache entry");
           // Continue
         }
       }
 
-      let data = [];
-      try {
-        data = await fetchDataFromGoogleSheet();
-      }
-      catch (ex) {
-        console.error('[getCustomStats] Error:', ex);
-        return resolve(data);
-      }
+      const data = await fetchDataFromGoogleSheet();
+      const expires = data && !data.length
+        // Cache for 5 minutes.
+        // Empty data indicates something goes wrong. cache it anyway for a shorter time
+        // to reduce repeated requests during high load.
+        ? 5 * 60
+        : 120 * 60; // 2 hours
 
       cache.add(cacheKey, JSON.stringify(data), {
-        expires: 60 * 60, // 1 hour
+        expires,
         type: 'json',
       }, function (error, added) {
-        console.log("[getCustomStats] error, added:", error, added);
+        if (error) {
+          console.log("[getCustomStats] error when writing to cache:", error);
+        }
       });
 
       //console.log("[getCustomStats] data:", data);
@@ -52,8 +54,14 @@ async function getCustomStats() {
 }
 
 async function fetchDataFromGoogleSheet() {
-  const { data } = await axios.get('https://v2-api.sheety.co/3d29e508008ed3f47cc52f6aaf321f51/coronaSources/latestStats');
-  return data && data.latestStats;
+  try {
+    const { data } = await axios.get('https://v2-api.sheety.co/3d29e508008ed3f47cc52f6aaf321f51/coronaSources/latestStats');
+    return data && data.latestStats;
+  }
+  catch (ex) {
+    console.log('Error when getting data from sheety', ex && ex.response && ex.response.statusCode);
+    return [];
+  }
 }
 
 module.exports = {

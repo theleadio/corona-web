@@ -16,50 +16,17 @@ router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res
     return res.json(results);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/v3/stats] error', error);
     return res.json(error);
   }
 }));
 
  /**
- * @api {get} /v3/stats/bno/stats_overview
- * @apiName stats_overview
- * @apiGroup Get overview stats
- * @apiVersion 2.0.0
- * @apiDescription Returns stats overview on main and analytics page
- * @apiSuccessExample Response (example):
- * HTTP/1.1 200 Success
-  {
-  "totalConfirmed": 276113,
-  "totalDeaths": 11402,
-  "totalRecovered": 91952,
-  "totalNewCases": 562,
-  "totalNewDeaths": 23,
-  "totalActiveCases": 172759,
-  "totalCasesPerMillionPop": 35,
-  "created": "2020-03-21T13:00:13.000Z"
-  }
- */
-router.get('/stats_overview', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
-  console.log('calling v3/stats_overview');
-  // const { countryCode } = req.query;
-  try {
-    const results = await getStatsOverview();
-    return res.json(results);
-  }
-  catch (error) {
-    console.log('[/stats] error', error);
-    return res.json(error);
-  }
-}));
-
- /**
- * @api {get} /v3/stats/bno/daily_cases
+ * @api {get} /v3/stats/bno/daily_cases Daily cases
  * @apiName daily_cases
- * @apiGroup Stats
+ * @apiGroup Stats - BNO
  * @apiVersion 3.0.0
- * @apiDescription Return a list of countries and the daily cases for each country
- * @apiParam
+ * @apiDescription Return list of daily cases for each country
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
 [
@@ -85,25 +52,25 @@ router.get('/stats_overview', cacheCheck, cache.route(), asyncHandler(async func
   }
 ]
  */
-router.get('/daily_cases', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/daily_cases', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
 
   try {
     const results = await getDailyCases();
     return res.json(results);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/v3/stats/bno/daily_cases] error', error);
     return res.json(error);
   }
 }));
 
 /**
- * @api {get} /v3/stats/bno/daily_cases/country?countryCode=sg
+ * @api {get} /v3/stats/bno/daily_cases/country Daily cases by country
  * @apiName daily_cases/country
- * @apiGroup Stats
+ * @apiGroup Stats - BNO
  * @apiVersion 3.0.0
- * @apiDescription Return a country and the daily cases for the country
- * @apiParam {String} [countryCode=sg]
+ * @apiDescription Return the daily cases for specific country
+ * @apiParam {String} countryCode The country to retrieve the stats for
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
 {
@@ -127,25 +94,25 @@ router.get('/daily_cases', cacheCheck, asyncHandler(async function(req, res, nex
   "ytd": "2020-03-12T23:50:05.000Z"
 }
  */
-router.get('/daily_cases/country', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/daily_cases/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   const { countryCode } = req.query;
   try {
     const results = await getDailyCasesByCountry(countryCode);
     return res.json(results);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/v3/stats/bno/daily_cases/country] error', error);
     return res.json(error);
   }
 }));
 
 /**
- * @api {get} /v3/stats/bno/total_daily_cases/country?countryCode=sg
+ * @api {get} /v3/stats/bno/total_daily_cases/country Total daily cases by country
  * @apiName total_daily_cases/country
- * @apiGroup Stats
+ * @apiGroup Stats - BNO
  * @apiVersion 3.0.0
- * @apiDescription Return a country and the total daily cases for the country
- * @apiParam {String} [countryCode=my]
+ * @apiDescription Return the total daily cases for specific country
+ * @apiParam {String} countryCode The country to retrieve the stats for
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
 {
@@ -160,25 +127,24 @@ router.get('/daily_cases/country', cacheCheck, asyncHandler(async function(req, 
   "created": "2020-03-18T03:35:05.000Z"
 }
  */
-router.get('/total_daily_cases/country', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/total_daily_cases/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   const { countryCode } = req.query;
   try {
     const results = await getTotalDailyCasesByCountry(countryCode);
     return res.json(results);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/v3/stats/bno/total_daily_cases/country] error', error);
     return res.json(error);
   }
 }));
 
 /**
- * @api {get} /v3/stats/bno/total_daily_cases
+ * @api {get} /v3/stats/bno/total_daily_cases Total daily cases
  * @apiName total_daily_cases
- * @apiGroup Stats
+ * @apiGroup Stats - BNO
  * @apiVersion 3.0.0
- * @apiDescription Return a list of countries and the total daily cases for each country
- * @apiParam
+ * @apiDescription Return list of total daily cases for each country
  * @apiSuccessExample Response (example):
  * HTTP/1.1 200 Success
 [
@@ -195,27 +161,27 @@ router.get('/total_daily_cases/country', cacheCheck, asyncHandler(async function
   }
 ]
  */
-router.get('/total_daily_cases', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/total_daily_cases', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
 
   try {
     const results = await getTotalDailyCases();
     return res.json(results);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/v3/stats/bno/total_daily_cases] error', error);
     return res.json(error);
   }
 }));
 
-router.get('/diff/country', cacheCheck, asyncHandler(async function(req, res, next) {
+router.get('/diff/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   const { countryCode } = req.query;
   try {
-    console.log('diff/country');
+    // console.log('/v3/bno/diff/country');
     const results = await getCountryStatsDiff(countryCode);
     return res.json(results);
   }
   catch (error) {
-    console.log('[/stats] error', error);
+    console.log('[/v3/bno/diff/country] error', error);
     return res.json(error);
   }
 }));
@@ -233,9 +199,9 @@ SELECT
   CAST(SUM(deaths) AS UNSIGNED) AS deaths,
   CAST(SUM(recovered) AS UNSIGNED) AS recovered,
   MAX(posted_date) as created
-FROM 
+FROM
   arcgis
-WHERE 
+WHERE
   posted_date = (SELECT MAX(posted_date) FROM arcgis)
 LIMIT 1
 `;
@@ -244,8 +210,6 @@ LIMIT 1
 
   return result[0] && result[0][0] || { confirmed: '?', deaths: '?', recovered: '?', created: null };
 }
-
-
 
 async function getStatsByAggregateDataFilterByCountry(countryCode) {
   const conn = db.conn.promise();
@@ -322,22 +286,22 @@ async function getDailyCases() {
    cast(a.cases as signed) as dailyConfirmed,
    cast(b.cases as signed) as ytdDailyConfirmed,
    (a.cases - b.cases) as diffDailyConfirmed,
-   CASE 
+   CASE
          WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
          ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
      END AS pctDiffconfirmed,
    cast(a.deaths as signed) as dailyDeaths,
    cast(b.deaths as signed) as ytdDailyDeaths,
    (a.deaths - b.deaths) as diffDailyDeaths,
-   cast(CASE 
+   cast(CASE
          WHEN a.recovered = '-' THEN 0
          WHEN a.recovered = '' THEN 0
-         ELSE a.recovered 
+         ELSE a.recovered
      END as signed) AS todayRecovered,
-    cast(CASE 
+    cast(CASE
          WHEN b.recovered = '-' THEN 0
          WHEN b.recovered = '' THEN 0
-         ELSE b.recovered 
+         ELSE b.recovered
      END as signed) AS ytdRecovered,
    (a.recovered - b.recovered) as diffDailyRecovered,
    a.art_updated as today,
@@ -388,22 +352,22 @@ async function getDailyCasesByCountry(countryCode) {
    cast(a.cases as signed) as dailyConfirmed,
    cast(b.cases as signed) as ytdDailyConfirmed,
    (a.cases - b.cases) as diffDailyConfirmed,
-   CASE 
+   CASE
          WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
          ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
      END AS pctDiffconfirmed,
    cast(a.deaths as signed) as dailyDeaths,
    cast(b.deaths as signed) as ytdDailyDeaths,
    (a.deaths - b.deaths) as diffDailyDeaths,
-   cast(CASE 
+   cast(CASE
          WHEN a.recovered = '-' THEN 0
          WHEN a.recovered = '' THEN 0
-         ELSE a.recovered 
+         ELSE a.recovered
      END as signed) AS todayRecovered,
-    cast(CASE 
+    cast(CASE
          WHEN b.recovered = '-' THEN 0
          WHEN b.recovered = '' THEN 0
-         ELSE b.recovered 
+         ELSE b.recovered
      END as signed) AS ytdRecovered,
    (a.recovered - b.recovered) as diffDailyRecovered,
    a.art_updated as today,
@@ -436,20 +400,20 @@ async function getTotalDailyCases() {
   let query = `
   SELECT ac.country_code as countryCode,
   tt.country as countryName, cast(tt.cases as unsigned) as confirmed, cast(tt.deaths as unsigned) as deaths,
-      cast(CASE 
+      cast(CASE
         WHEN tt.recovered = '-' THEN 0
         WHEN tt.recovered = '' THEN 0
-        ELSE tt.recovered 
+        ELSE tt.recovered
       END as unsigned) AS recovered,
-      cast(CASE 
+      cast(CASE
           WHEN tt.critical = '-' THEN 0
           WHEN tt.critical = '' THEN 0
-          ELSE tt.critical 
+          ELSE tt.critical
       END as unsigned) AS critical,
-      cast(CASE 
+      cast(CASE
         WHEN tt.serious = '-' THEN 0
         WHEN tt.serious = '' THEN 0
-        ELSE tt.serious 
+        ELSE tt.serious
       END as unsigned) AS serious,
       CAST((tt.cases - tt.recovered) AS UNSIGNED) AS activeCases,
   tt.art_updated as created
@@ -476,20 +440,20 @@ async function getTotalDailyCasesByCountry(countryCode) {
   let query = `
   SELECT ac.country_code as countryCode,
 tt.country as countryName, cast(tt.cases as unsigned) as confirmed, cast(tt.deaths as unsigned) as deaths,
-    cast(CASE 
+    cast(CASE
       WHEN tt.recovered = '-' THEN 0
       WHEN tt.recovered = '' THEN 0
-      ELSE tt.recovered 
+      ELSE tt.recovered
     END as unsigned) AS recovered,
-    cast(CASE 
+    cast(CASE
         WHEN tt.critical = '-' THEN 0
         WHEN tt.critical = '' THEN 0
-        ELSE tt.critical 
+        ELSE tt.critical
     END as unsigned) AS critical,
-    cast(CASE 
+    cast(CASE
       WHEN tt.serious = '-' THEN 0
       WHEN tt.serious = '' THEN 0
-      ELSE tt.serious 
+      ELSE tt.serious
     END as unsigned) AS serious,
     CAST((tt.cases - tt.recovered) AS UNSIGNED) AS activeCases,
 tt.art_updated as created
@@ -537,22 +501,22 @@ async function getCountryStatsDiff(countryCode) {
   cast(a.cases as signed) as todayConfirmed,
   cast(b.cases as signed) ytdConfirmed,
   cast((a.cases - b.cases) as signed) as diffConfirmed,
-  CASE 
+  CASE
      WHEN (a.cases - b.cases) / (a.cases + b.cases) * 100 is NULL THEN 0
      ELSE (a.cases - b.cases) / (a.cases + b.cases) * 100
    END AS pctDiffconfirmed,
    cast(a.deaths as signed) as todayDeaths,
     cast(b.deaths as signed) ytdDeaths,
   (a.deaths - b.deaths) as diffDeaths,
-  cast(CASE 
+  cast(CASE
      WHEN a.recovered = '-' THEN 0
      WHEN a.recovered = '' THEN 0
-     ELSE a.recovered 
+     ELSE a.recovered
    END as signed) AS todayRecovered,
-   cast(CASE 
+   cast(CASE
      WHEN b.recovered = '-' THEN 0
      WHEN b.recovered = '' THEN 0
-     ELSE b.recovered 
+     ELSE b.recovered
    END as signed) AS ytdRecovered,
   (a.recovered - b.recovered) as diffRecovered,
   a.deaths / (a.cases + b.cases) * 100 as tdyFR,
@@ -581,27 +545,6 @@ async function getCountryStatsDiff(countryCode) {
 `;
   const args = [countryCode];
   let result = await conn.query(query, args);
-  //const result = await conn.query(query);
-  return result[0][0];
-}
-
-async function getStatsOverview() {
-  const conn = db.conn.promise();
-  let query = `
-  SELECT 
-total_cases AS totalConfirmed,
-total_deaths as totalDeaths,
-total_recovered as totalRecovered,
-new_cases AS totalNewCases,
-new_deaths AS totalNewDeaths,
-active_cases AS totalActiveCases,
-CAST(total_cases_per_million_pop AS UNSIGNED) AS totalCasesPerMillionPop,
-MAX(last_updated) as created
-FROM worldometers_total_sum
-LIMIT 1
-`;
-
-  let result = await conn.query(query);
   //const result = await conn.query(query);
   return result[0][0];
 }
