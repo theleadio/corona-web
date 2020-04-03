@@ -208,6 +208,10 @@ async function getCountryStats(countryCode=null, limit=999, date=null) {
 
   let result = await conn.query(query, args);
   const data = result[0]
+  if (date) {
+    return data;
+  }
+
   const updatedData = updateCountryDetailStatsWithCustomStats(data, limit, getAllFlag)
   return updatedData
 }
