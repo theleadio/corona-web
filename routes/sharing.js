@@ -5,7 +5,14 @@ const asyncHandler = require("express-async-handler");
 const cache = require('../system/redis-cache');
 const puppeteer = require('puppeteer');
 
-router.get('/globalStatsToday', cache.route(), asyncHandler(async function (req, res, next) {
+const cacheExpiry = 2592000000; // 30 days in milliseconds
+router.get('/globalStatsToday', cache.route({
+  expire: {
+    '2xx': cacheExpiry,
+    '3xx': cacheExpiry,
+    'xxx': 1000,
+  },
+}), asyncHandler(async function (req, res, next) {
   try {
     //get screenshot binary
     const image = await getScreenshot(
@@ -27,7 +34,13 @@ router.get('/globalStatsToday', cache.route(), asyncHandler(async function (req,
   }
 }));
 
-router.get('/countryStatsToday', cache.route(), asyncHandler(async function (req, res, next) {
+router.get('/countryStatsToday', cache.route({
+  expire: {
+    '2xx': cacheExpiry,
+    '3xx': cacheExpiry,
+    'xxx': 1000,
+  },
+}), asyncHandler(async function (req, res, next) {
   try {
     const { countryCode } = req.query;
 
@@ -53,7 +66,13 @@ router.get('/countryStatsToday', cache.route(), asyncHandler(async function (req
   }
 }));
 
-router.get('/countryStatsRecent', cache.route(), asyncHandler(async function (req, res, next) {
+router.get('/countryStatsRecent', cache.route({
+  expire: {
+    '2xx': cacheExpiry,
+    '3xx': cacheExpiry,
+    'xxx': 1000,
+  },
+}), asyncHandler(async function (req, res, next) {
   try {
     const { countryCode } = req.query;
 
