@@ -39,6 +39,10 @@ if (rateLimitTimeMinutes && rateLimitRequests) {
     windowMs: parseInt(rateLimitTimeMinutes) * 60 * 1000,
     max: parseInt(rateLimitRequests),
     skip: function(req) {
+      console.log('testing IP: ' + req.ip + ', ' + req.headers['x-real-ip']);
+      console.log('all headers:');
+      console.log(JSON.stringify(req.headers));
+
       //skipping whitelisted and internal IP's
       return !req.ip || req.ip === '::1' || whitelist.indexOf(req.ip) > -1;
     }
