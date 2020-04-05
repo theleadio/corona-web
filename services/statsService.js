@@ -133,9 +133,11 @@ ORDER BY
  * @param countryCode
  * @param limit
  * @param date
+ * @param orderBy
+ * @param isDescending
  * @returns {Promise<*>}
  */
-async function getCountryStats(countryCode=null, limit=999, date=null) {
+async function getCountryStats(countryCode=null, limit=999, date=null, orderBy='', isDescending=true) {
   if (countryCode) {
     const data = await getCountryStatsByCountryCode(countryCode);
     return [data];
@@ -146,6 +148,7 @@ async function getCountryStats(countryCode=null, limit=999, date=null) {
   let args = []
   let getAllFlag = true
   let dateQuery = ''
+  let orderByQuery = 'ORDER BY ? ?';
 
   if (date) {
     const dateFrom = moment(date).format('YYYY-MM-DD')
@@ -159,6 +162,26 @@ async function getCountryStats(countryCode=null, limit=999, date=null) {
     args.push(countryCode)
     getAllFlag = false
   }
+
+  if (orderBy && orderBy.trim() !== '') {
+    const orderByMap = {
+      'confirmed': 'tt.total_cases',
+      'recovered': 'tt.total_recovered',
+      'deaths': 'tt.total_deaths'
+    };
+
+    if (orderByMap[orderBy.toLowerCase()]) {
+      const sortOrder = (isDescending) ? "DESC" : "ASC";
+      args.push(orderByMap[orderBy.toLowerCase()], sortOrder);
+    }
+    else {
+      args.push(orderByMap['confirmed'], "DESC");
+    }
+  }
+  else {
+    args.push(orderByMap['confirmed'], "DESC");
+  }
+
   args.push(limit)
 
   let query = `
@@ -203,7 +226,7 @@ async function getCountryStats(countryCode=null, limit=999, date=null) {
   AS ac ON tt.country = ac.country_alias
   ${countryCodeQuery}
   GROUP BY tt.country
-  ORDER BY tt.total_cases DESC
+  ${orderByQuery}
   LIMIT ?`;
 
   let result = await conn.query(query, args);

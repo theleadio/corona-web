@@ -131,9 +131,11 @@ router.get('/global', cacheCheck, cache.route(), asyncHandler(async function (re
 router.get('/topCountry', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   // console.log('calling /v3/stats/worldometer/topCountry');
   const limit = parseInt(req.query.limit) || 999;
+  const orderBy = req.query.orderBy || '';
+  const isDescending = req.query.isDescending ? (req.query.isDescending === "true") : true;
 
   try {
-    const result = await getCountryStats(null, limit);
+    const result = await getCountryStats(null, limit, orderBy, isDescending);
     return res.json(result);
   }
   catch (error) {
