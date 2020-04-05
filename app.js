@@ -39,12 +39,15 @@ if (rateLimitTimeMinutes && rateLimitRequests) {
     windowMs: parseInt(rateLimitTimeMinutes) * 60 * 1000,
     max: parseInt(rateLimitRequests),
     skip: function(req) {
-      console.log('testing IP: ' + req.ip + ', ' + req.headers['x-real-ip']);
-      console.log('all headers:');
-      console.log(JSON.stringify(req.headers));
+      //should be happening automatically w/ trust proxy setting below - keeping for reference only
+      //let ip = (req.headers['x-real-ip'] || req.connection.remoteAddress) || req.ip;
 
       //skipping whitelisted and internal IP's
-      return !req.ip || req.ip === '::1' || whitelist.indexOf(req.ip) > -1;
+      let ip = req.ip;
+      return !ip || ip === '::1' || whitelist.indexOf(ip) > -1;
+    },
+    onLimitReached: function(req) {
+      console.log('limit reached: ' + req.ip + ', all headers: ' + JSON.stringify(req.headers));
     }
   }));
 
