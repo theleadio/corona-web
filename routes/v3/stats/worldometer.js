@@ -55,10 +55,11 @@ router.get('/country', cacheCheck, cache.route(), asyncHandler(async function(re
     }
   }
 
+  const sort = req.query.sort;
   const limit = parseInt(req.query.limit) || 999;
 
   try {
-    const result = await getCountryStats(countryCode, limit, date);
+    const result = await getCountryStats(sort, limit, countryCode, date);
     return res.json(result);
   }
   catch (error) {
@@ -130,12 +131,11 @@ router.get('/global', cacheCheck, cache.route(), asyncHandler(async function (re
  */
 router.get('/topCountry', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
   // console.log('calling /v3/stats/worldometer/topCountry');
+  const sort = req.query.sort;
   const limit = parseInt(req.query.limit) || 999;
-  const orderBy = req.query.orderBy || '';
-  const isDescending = req.query.isDescending ? (req.query.isDescending === "true") : true;
 
   try {
-    const result = await getCountryStats(null, limit, orderBy, isDescending);
+    const result = await getCountryStats(sort, limit);
     return res.json(result);
   }
   catch (error) {

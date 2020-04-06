@@ -130,14 +130,13 @@ ORDER BY
  * - FR
  * - PR
  * - lastUpdated
- * @param countryCode
+ * @param sort
  * @param limit
+ * @param countryCode
  * @param date
- * @param orderBy
- * @param isDescending
  * @returns {Promise<*>}
  */
-async function getCountryStats(countryCode=null, limit=999, date=null, orderBy='', isDescending=true) {
+async function getCountryStats(sort = '-confirmed', limit=999, countryCode = null, date = null) {
   if (countryCode) {
     const data = await getCountryStatsByCountryCode(countryCode);
     return [data];
@@ -148,7 +147,7 @@ async function getCountryStats(countryCode=null, limit=999, date=null, orderBy='
   let args = []
   let getAllFlag = true
   let dateQuery = ''
-  let orderByQuery = 'ORDER BY ? ?';
+  let orderByClause = '';
 
   if (date) {
     const dateFrom = moment(date).format('YYYY-MM-DD')
@@ -163,23 +162,37 @@ async function getCountryStats(countryCode=null, limit=999, date=null, orderBy='
     getAllFlag = false
   }
 
-  if (orderBy && orderBy.trim() !== '') {
+  if (sort) {
+    let order = sort[0];
+    let field = sort.substr(1);
+    let direction = 'ASC';
+
+    if (order === '+') {
+      direction = 'ASC'
+    }
+    else if (order === '-') {
+      direction = 'DESC';
+    }
+    else {
+      direction = 'ASC'
+      field = sort;
+    }
+
+    field = field.toLowerCase();
+
     const orderByMap = {
       'confirmed': 'tt.total_cases',
       'recovered': 'tt.total_recovered',
       'deaths': 'tt.total_deaths'
     };
 
-    if (orderByMap[orderBy.toLowerCase()]) {
-      const sortOrder = (isDescending) ? "DESC" : "ASC";
-      args.push(orderByMap[orderBy.toLowerCase()], sortOrder);
+    const orderByValue = orderByMap[field];
+
+    if (!orderByValue) {
+      throw new Error('Invalid sort: ' + sort);
     }
-    else {
-      args.push(orderByMap['confirmed'], "DESC");
-    }
-  }
-  else {
-    args.push(orderByMap['confirmed'], "DESC");
+
+    orderByClause = ` ORDER BY ${conn.escapeId(orderByValue)} ${direction}`;
   }
 
   args.push(limit)
@@ -226,12 +239,13 @@ async function getCountryStats(countryCode=null, limit=999, date=null, orderBy='
   AS ac ON tt.country = ac.country_alias
   ${countryCodeQuery}
   GROUP BY tt.country
-  ${orderByQuery}
+  ${orderByClause}
   LIMIT ?`;
 
   let result = await conn.query(query, args);
   const data = result[0]
-  const updatedData = updateCountryDetailStatsWithCustomStats(data, limit, getAllFlag)
+
+  const updatedData = updateCountryDetailStatsWithCustomStats(data, limit, getAllFlag, sort)
   return updatedData
 }
 
@@ -296,7 +310,7 @@ LIMIT 1
   }
 }
 
-async function updateCountryDetailStatsWithCustomStats(data, limit=999, getAllFlag=true) {
+async function updateCountryDetailStatsWithCustomStats(data, limit=999, getAllFlag=true, sort = '-confirmed') {
   try {
     const customStats = await getCustomStats();
 
@@ -347,21 +361,128 @@ async function updateCountryDetailStatsWithCustomStats(data, limit=999, getAllFl
     }
 
     return overriddenData
-      .sort((a, b) => {
-        // Sort by recovered desc if confirmed is same
-        if (b.totalConfirmed === a.totalConfirmed) {
-          return b.totalRecovered - a.totalRecovered;
-        }
-
-        // Sort by confirmed desc
-        return b.totalConfirmed - a.totalConfirmed;
-      })
+      .sort(getSorter(sort))
       // Take first {limit} results.
       .slice(0, limit);
   } catch (e) {
     console.log("[updateCountryDetailStatsWithCustomStats] error:", e);
     return data;
   }
+}
+
+function getSorter(sort = '-confirmed') {
+  const defaultSorter = (a, b) => {
+    // Sort by recovered desc if confirmed is same
+    if (b.totalConfirmed === a.totalConfirmed) {
+      return b.totalRecovered - a.totalRecovered;
+    }
+
+    // Sort by confirmed desc
+    return b.totalConfirmed - a.totalConfirmed;
+  };
+
+  let order = sort[0];
+  let field = sort.substr(1);
+  let isDescending = false;
+
+  if (order === '+') {
+    isDescending = false;
+  }
+  else if (order === '-') {
+    isDescending = true;
+  }
+  else {
+    isDescending = false;
+    field = sort;
+  }
+
+  field = field.toLowerCase();
+
+  if (!['confirmed', 'recovered', 'deaths'].includes(field)) {
+    return defaultSorter;
+  }
+
+  const multiplier = isDescending ? 1 : -1;
+
+  if (field === 'confirmed') {
+    return (a, b) => {
+      if (b.totalConfirmed > a.totalConfirmed) {
+        return multiplier * 1;
+      }
+
+      if (b.totalConfirmed < a.totalConfirmed) {
+        return multiplier * -1;
+      }
+
+      if (b.totalRecovered > a.totalRecovered) {
+        return multiplier * 1;
+      }
+
+      if (b.totalRecovered < a.totalRecovered) {
+        return multiplier * -1;
+      }
+
+      if (a.totalDeaths > b.totalDeaths) {
+        return multiplier * 1;
+      }
+
+      return multiplier * -1;
+    }
+  }
+
+  if (field === 'recovered') {
+    return (a, b) => {
+      if (b.totalRecovered > a.totalRecovered) {
+        return multiplier * 1;
+      }
+
+      if (b.totalRecovered < a.totalRecovered) {
+        return multiplier * -1;
+      }
+
+      if (b.totalConfirmed > a.totalConfirmed) {
+        return multiplier * 1;
+      }
+
+      if (b.totalConfirmed < a.totalConfirmed) {
+        return multiplier * -1;
+      }
+
+      if (a.totalDeaths > b.totalDeaths) {
+        return multiplier * 1;
+      }
+
+      return multiplier * -1;
+    }
+  }
+
+  if (field === 'deaths') {
+    return (a, b) => {
+      if (b.totalDeaths > a.totalDeaths) {
+        return multiplier * 1;
+      }
+
+      if (b.totalDeaths < a.totalDeaths) {
+        return multiplier * -1;
+      }
+
+      if (b.totalConfirmed > a.totalConfirmed) {
+        return multiplier * 1;
+      }
+
+      if (b.totalConfirmed < a.totalConfirmed) {
+        return multiplier * -1;
+      }
+
+      if (b.totalRecovered > a.totalRecovered) {
+        return multiplier * 1;
+      }
+
+      return multiplier * -1;
+    }
+  }
+
+  return defaultSorter;
 }
 
 module.exports = {
