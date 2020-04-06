@@ -245,6 +245,10 @@ async function getCountryStats(sort = '-confirmed', limit=999, countryCode = nul
   let result = await conn.query(query, args);
   const data = result[0]
 
+  if (date) {
+    return data;
+  }
+
   const updatedData = updateCountryDetailStatsWithCustomStats(data, limit, getAllFlag, sort)
   return updatedData
 }
