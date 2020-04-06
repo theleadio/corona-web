@@ -426,7 +426,7 @@ function getSorter(sort = '-confirmed') {
         return multiplier * -1;
       }
 
-      if (a.totalDeaths > b.totalDeaths) {
+      if (b.totalDeaths > a.totalDeaths) {
         return multiplier * 1;
       }
 
@@ -452,7 +452,7 @@ function getSorter(sort = '-confirmed') {
         return multiplier * -1;
       }
 
-      if (a.totalDeaths > b.totalDeaths) {
+      if (b.totalDeaths > a.totalDeaths) {
         return multiplier * 1;
       }
 
