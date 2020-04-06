@@ -44,7 +44,7 @@ describe("Get worldometer top country stats", function() {
         result.should.have.status(200)
 
         const countryCount = result.body.length;
-        assert(countryCount === 3, `Expect to have ${limit} counties but got ${countryCount}.`);
+        assert(countryCount === limit, `Expect to have ${limit} counties but got ${countryCount}.`);
         done();
       });
   });
