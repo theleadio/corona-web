@@ -65,6 +65,121 @@ describe ("Get worldometer top 3 country stats", function(){
     })
 })
 
+describe ("Get worldometer top country sort", function() {
+  it ("Should default sort by confirmed descending ", (done)=>{
+    chai.request(server)
+      .get("/v3/stats/worldometer/topCountry")
+      .end((err, result)=>{
+        result.should.have.status(200);
+
+        const countries = result.body;
+        const firstCountry = countries[0];
+        const lastCountry = countries[countries.length - 1];
+
+        const isConfirmedDescending = firstCountry.totalConfirmed >= lastCountry.totalConfirmed;
+        assert(isConfirmedDescending);
+        done();
+      })
+  })
+
+  it ("Should sort by confirmed ascending", (done) => {
+    chai.request(server)
+      .get("/v3/stats/worldometer/topCountry?sort=confirmed")
+      .end((err, result)=>{
+        result.should.have.status(200);
+
+        const countries = result.body;
+        const firstCountry = countries[0];
+        const lastCountry = countries[countries.length - 1];
+
+        const isConfirmedAscending = firstCountry.totalConfirmed <= lastCountry.totalConfirmed;
+        assert(isConfirmedAscending);
+        done();
+      })
+  })
+
+  it ("Should sort by confirmed descending", (done) => {
+    chai.request(server)
+      .get("/v3/stats/worldometer/topCountry?sort=-confirmed")
+      .end((err, result)=>{
+        result.should.have.status(200);
+
+        const countries = result.body;
+        const firstCountry = countries[0];
+        const lastCountry = countries[countries.length - 1];
+
+        const isConfirmedDescending = firstCountry.totalConfirmed >= lastCountry.totalConfirmed;
+        assert(isConfirmedDescending);
+        done();
+      })
+  })
+
+  it ("Should sort by recovered ascending", (done) => {
+    chai.request(server)
+      .get("/v3/stats/worldometer/topCountry?sort=recovered")
+      .end((err, result)=>{
+        result.should.have.status(200);
+
+        const countries = result.body;
+        const firstCountry = countries[0];
+        const lastCountry = countries[countries.length - 1];
+
+        const isConfirmedAscending = firstCountry.totalRecovered <= lastCountry.totalRecovered;
+        assert(isConfirmedAscending);
+        done();
+      })
+  })
+
+  it ("Should sort by recovered descending", (done)=>{
+    chai.request(server)
+      .get("/v3/stats/worldometer/topCountry?sort=-recovered")
+      .end((err, result)=>{
+        result.should.have.status(200);
+
+        const countries = result.body;
+        const firstCountry = countries[0];
+        const lastCountry = countries[countries.length - 1];
+
+        const isConfirmedDescending = firstCountry.totalRecovered >= lastCountry.totalRecovered;
+        assert(isConfirmedDescending);
+        done();
+      })
+  })
+
+  it ("Should sort by deaths ascending", (done) => {
+    chai.request(server)
+      .get("/v3/stats/worldometer/topCountry?sort=deaths")
+      .end((err, result)=>{
+        result.should.have.status(200);
+
+        const countries = result.body;
+        const firstCountry = countries[0];
+        const lastCountry = countries[countries.length - 1];
+
+        const isConfirmedAscending = firstCountry.totalDeaths <= lastCountry.totalDeaths;
+        assert(isConfirmedAscending);
+        done();
+      })
+  })
+
+  it ("Should sort by deaths descending", (done) => {
+    chai.request(server)
+      .get("/v3/stats/worldometer/topCountry?sort=-deaths")
+      .end((err, result)=>{
+        result.should.have.status(200);
+
+        const countries = result.body;
+        const firstCountry = countries[0];
+        const lastCountry = countries[countries.length - 1];
+
+        const isConfirmedDescending = firstCountry.totalDeaths >= lastCountry.totalDeaths;
+        assert(isConfirmedDescending);
+        done();
+      })
+  })
+})
+
+
 //4
 describe ("Get worldometer total trending cases", function(){
     it ("Should get ", (done)=>{
