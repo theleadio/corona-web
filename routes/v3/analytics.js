@@ -49,9 +49,6 @@ router.get('/trend/country', cache.route(), asyncHandler(async function(req, res
   const start_date = req.query.startDate
   const end_date = req.query.endDate
 
-  console.log(req.query);
-  console.log('params startDate:'+start_date);
-  console.log('params endDate:'+end_date);
   // enforce date format
   if (
     moment(start_date, 'YYYY-MM-DD').format('YYYY-MM-DD') != start_date ||
