@@ -23,11 +23,13 @@ router.get('/', cache.route(), asyncHandler(async function (req, res, next) {
   }
 }));
 
-// /**
-//  * @api {get} /stats/latest
-//  * @apiName FetchLatestStats
-//  * @apiGroup Stats
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /stats/latest
+ * @apiName FetchLatestStats
+ * @apiGroup Stats
+ */
 // router.get('/latest', cache.route(), asyncHandler(async function (req, res, next) {
 //   try {
 //     const results = await getLatestStats();
@@ -39,13 +41,15 @@ router.get('/', cache.route(), asyncHandler(async function (req, res, next) {
 //   }
 // }));
 
-// // /**
-// //  * Returns the stats of top X countries with the most number of confirmed cases.
-// //  *
-// //  * @api {get} /stats/top
-// //  * @apiName FetchTopStats
-// //  * @apiGroup Stats
-// //  */
+/**
+ * Returns the stats of top X countries with the most number of confirmed cases.
+ *
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /stats/top
+ * @apiName FetchTopStats
+ * @apiGroup Stats
+ */
 // // router.get('/top', cache.route(), asyncHandler(async function(req, res, next) {
 // //   const { limit = 7 } = req.query;
 // //   try {

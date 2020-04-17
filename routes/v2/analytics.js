@@ -7,15 +7,17 @@ const router = express.Router()
 const { getStatsWithCountryDetail } = require('../../services/statsService')
 const { cacheCheck } = require('../../services/cacheMiddleware');
 
-// /**
-//  * @api {get} /v2/analytics/trend By date
-//  * @apiName FetchAnalyticsTrendByDate
-//  * @apiGroup Analytics
-//  * @apiVersion 2.0.0
-//  *
-//  * @apiParam {String} start_date Start date in YYYY-MM-DD format
-//  * @apiParam {String} end_date End date in YYYY-MM-DD format
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /v2/analytics/trend By date
+ * @apiName FetchAnalyticsTrendByDate
+ * @apiGroup Analytics
+ * @apiVersion 2.0.0
+ *
+ * @apiParam {String} start_date Start date in YYYY-MM-DD format
+ * @apiParam {String} end_date End date in YYYY-MM-DD format
+ */
 // router.get('/trend', cache.route(), asyncHandler(async function(req, res, next) {
 //   const start_date = req.query.start_date
 //   const end_date = req.query.end_date
@@ -44,14 +46,16 @@ const { cacheCheck } = require('../../services/cacheMiddleware');
 //   }
 // }))
 
-// /**
-//  * @api {get} /v2/analytics/area By area
-//  * @apiName FetchMostAffectedByArea
-//  * @apiGroup Analytics
-//  * @apiVersion 2.0.0
-//  * 
-//  * @apiParam {Number} [limit=10] limit the number of results
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /v2/analytics/area By area
+ * @apiName FetchMostAffectedByArea
+ * @apiGroup Analytics
+ * @apiVersion 2.0.0
+ *
+ * @apiParam {Number} [limit=10] limit the number of results
+ */
 // router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
 //   let limit = 10
 

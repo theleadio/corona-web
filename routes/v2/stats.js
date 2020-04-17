@@ -7,22 +7,24 @@ const { getCustomStats, fetchDataFromGoogleSheet } = require('../../services/cus
 const { getStatsWithCountryDetail } = require('../../services/statsService');
 const { cacheCheck } = require('../../services/cacheMiddleware');
 
-// /**
-//  * @api {get} /v2/stats
-//  * @apiName FetchStats
-//  * @apiGroup Stats
-//  * @apiVersion 2.0.0
-//  * @apiDescription Returns the stats of top X countries sorted by number of confirmed cases.
-//  * @apiParam {String} [country] Optional Country to retrieve the stats for.
-//  * @apiSuccessExample Response (example):
-//  * HTTP/1.1 200 Success
-// {
-//   "confirmed": 96785,
-//   "deaths": 3303,
-//   "recovered": 53610,
-//   "created": "2020-03-05T14:35:03.000Z"
-// }
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /v2/stats
+ * @apiName FetchStats
+ * @apiGroup Stats
+ * @apiVersion 2.0.0
+ * @apiDescription Returns the stats of top X countries sorted by number of confirmed cases.
+ * @apiParam {String} [country] Optional Country to retrieve the stats for.
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+{
+  "confirmed": 96785,
+  "deaths": 3303,
+  "recovered": 53610,
+  "created": "2020-03-05T14:35:03.000Z"
+}
+ */
 // router.get('/', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
 //   console.log('calling v2/stats');
 //   const { countryCode } = req.query;
@@ -36,12 +38,14 @@ const { cacheCheck } = require('../../services/cacheMiddleware');
 //   }
 // }));
 
-// /**
-//  * @api {get} /v2/stats/latest
-//  * @apiName FetchLatestStats
-//  * @apiGroup Stats
-//  * @apiVersion 2.0.0
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /v2/stats/latest
+ * @apiName FetchLatestStats
+ * @apiGroup Stats
+ * @apiVersion 2.0.0
+ */
 // router.get('/latest', cacheCheck, cache.route(), asyncHandler(async function (req, res, next) {
 //   try {
 //     const results = await getLatestArcgisStats();
@@ -53,26 +57,28 @@ const { cacheCheck } = require('../../services/cacheMiddleware');
 //   }
 // }));
 
-// /**
-//  * @api {get} /v2/stats/top Top stats
-//  * @apiName FetchTopStats
-//  * @apiGroup Stats
-//  * @apiVersion 2.0.0
-//  * @apiDescription Returns the stats of top X countries sorted by number of confirmed cases.
-//  * @apiParam {Number} [limit=7] Number of countries' stats to retrieve.
-//  * @apiSuccessExample Response (example):
-//  * HTTP/1.1 200 Success
-// [
-//   {
-//     "countryCode": "CN",
-//     "countryName": "China",
-//     "confirmed": 80411,
-//     "deaths": 3013,
-//     "recovered": 52201,
-//     "created": "2020-03-05T14:50:02.000Z"
-//   }
-// ]
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /v2/stats/top Top stats
+ * @apiName FetchTopStats
+ * @apiGroup Stats
+ * @apiVersion 2.0.0
+ * @apiDescription Returns the stats of top X countries sorted by number of confirmed cases.
+ * @apiParam {Number} [limit=7] Number of countries' stats to retrieve.
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "countryCode": "CN",
+    "countryName": "China",
+    "confirmed": 80411,
+    "deaths": 3013,
+    "recovered": 52201,
+    "created": "2020-03-05T14:50:02.000Z"
+  }
+]
+ */
 // router.get('/top', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
 //   const { limit = 7 } = req.query;
 //   try {
@@ -85,85 +91,91 @@ const { cacheCheck } = require('../../services/cacheMiddleware');
 //   }
 // }));
 
-// /**
-//  * @api {get} /v2/stats/custom Custom
-//  * @apiName FetchCustomOverriddenStats
-//  * @apiGroup Stats
-//  * @apiVersion 2.0.0
-//  * @apiDescription Returns country stats combined with overridden stats in our google sheet.
-//  * @apiSuccessExample Response (example):
-//  * HTTP/1.1 200 Success
-// [
-//   {
-//     "id": 2,
-//     "countryCode": "SG",
-//     "countryName": "Singapore",
-//     "confirmed": 89,
-//     "recovered": 51,
-//     "deaths": 0,
-//     "created": "2020-02-23 (UTC 1355)",
-//     "createdBy": "",
-//     "sourceUrl": "https://www.cna.com.tw/news/aopl/202002230219.aspx"
-//   }
-// ]
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /v2/stats/custom Custom
+ * @apiName FetchCustomOverriddenStats
+ * @apiGroup Stats
+ * @apiVersion 2.0.0
+ * @apiDescription Returns country stats combined with overridden stats in our google sheet.
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "id": 2,
+    "countryCode": "SG",
+    "countryName": "Singapore",
+    "confirmed": 89,
+    "recovered": 51,
+    "deaths": 0,
+    "created": "2020-02-23 (UTC 1355)",
+    "createdBy": "",
+    "sourceUrl": "https://www.cna.com.tw/news/aopl/202002230219.aspx"
+  }
+]
+ */
 // router.get('/custom', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
 //   const result = await getCustomStats();
 //   return res.json(result);
 // }));
 
-// /**
-//  * @api {get} /v2/stats/custom-debug Custom (for debug)
-//  * @apiName FetchCustomOverriddenStatsDebug
-//  * @apiGroup Stats
-//  * @apiVersion 2.0.0
-//  * @apiDescription This endpoint is used for debugging purpose.
-//  * It returns the list of overridden stats in our google sheet.
-//  * @apiSuccessExample Response (example):
-//  * HTTP/1.1 200 Success
-// [
-//   {
-//     "id": 2,
-//     "countryCode": "SG",
-//     "countryName": "Singapore",
-//     "confirmed": 89,
-//     "recovered": 51,
-//     "deaths": 0,
-//     "created": "2020-02-23 (UTC 1355)",
-//     "createdBy": "",
-//     "sourceUrl": "https://www.cna.com.tw/news/aopl/202002230219.aspx"
-//   }
-// ]
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /v2/stats/custom-debug Custom (for debug)
+ * @apiName FetchCustomOverriddenStatsDebug
+ * @apiGroup Stats
+ * @apiVersion 2.0.0
+ * @apiDescription This endpoint is used for debugging purpose.
+ * It returns the list of overridden stats in our google sheet.
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "id": 2,
+    "countryCode": "SG",
+    "countryName": "Singapore",
+    "confirmed": 89,
+    "recovered": 51,
+    "deaths": 0,
+    "created": "2020-02-23 (UTC 1355)",
+    "createdBy": "",
+    "sourceUrl": "https://www.cna.com.tw/news/aopl/202002230219.aspx"
+  }
+]
+ */
 // router.get('/custom-debug', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
 //   const result = await fetchDataFromGoogleSheet();
 //   return res.json(result);
 // }));
 
-// /**
-//  * @api {get} /v2/stats/diff/global Diff global stats
-//  * @apiName FetchGlobalStatsDifferenceBetweenDays
-//  * @apiGroup Stats
-//  * @apiVersion 2.0.0
-//  * @apiDescription Returns difference in global stats between days.
-//  * @apiSuccessExample Response (example):
-//  * HTTP/1.1 200 Success
-// [
-//   {
-//     "todayConfirmed": 111243,
-//     "ytdConfirmed": 107642,
-//     "diffConfirmed": 3601,
-//     "todayDeath": 3890,
-//     "ytdDeath": 3655,
-//     "diffDeath": 235,
-//     "todayRecover": 62370,
-//     "ytdRecover": 60655,
-//     "diffRecover": 1715,
-//     "today": "2020-03-09T00:00:00.000Z",
-//     "ytd": "2020-03-08T00:00:00.000Z"
-//   }
-// ]
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /v2/stats/diff/global Diff global stats
+ * @apiName FetchGlobalStatsDifferenceBetweenDays
+ * @apiGroup Stats
+ * @apiVersion 2.0.0
+ * @apiDescription Returns difference in global stats between days.
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "todayConfirmed": 111243,
+    "ytdConfirmed": 107642,
+    "diffConfirmed": 3601,
+    "todayDeath": 3890,
+    "ytdDeath": 3655,
+    "diffDeath": 235,
+    "todayRecover": 62370,
+    "ytdRecover": 60655,
+    "diffRecover": 1715,
+    "today": "2020-03-09T00:00:00.000Z",
+    "ytd": "2020-03-08T00:00:00.000Z"
+  }
+]
+ */
 // router.get('/diff/global', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
 //   try {
 //     const result = await getGlobalStatsDiff();
@@ -175,32 +187,34 @@ const { cacheCheck } = require('../../services/cacheMiddleware');
 //   }
 // }));
 
-// /**
-//  * @api {get} /v2/stats/diff/country Diff country stats
-//  * @apiName FetchCountryStatsDifferenceBetweenDays
-//  * @apiGroup Stats
-//  * @apiVersion 2.0.0
-//  * @apiDescription Returns difference in country stats between days.
-//  * @apiParam {String} [sort=confirmed] The stats number to sort by in descending order. Valid values are 'confirmed', 'recover', 'death'
-//  * @apiSuccessExample Response (example):
-//  * HTTP/1.1 200 Success
-// [
-//   {
-//     "countryName": "Italy",
-//     "todayConfirmed": 7375,
-//     "ytdConfirmed": 5883,
-//     "diffConfirmed": 1492,
-//     "todayDeath": 366,
-//     "ytdDeath": 233,
-//     "diffDeath": 133,
-//     "todayRecover": 622,
-//     "ytdRecover": 589,
-//     "diffRecover": 33,
-//     "today": "2020-03-09T00:00:00.000Z",
-//     "ytd": "2020-03-08T00:00:00.000Z"
-//   }
-// ]
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /v2/stats/diff/country Diff country stats
+ * @apiName FetchCountryStatsDifferenceBetweenDays
+ * @apiGroup Stats
+ * @apiVersion 2.0.0
+ * @apiDescription Returns difference in country stats between days.
+ * @apiParam {String} [sort=confirmed] The stats number to sort by in descending order. Valid values are 'confirmed', 'recover', 'death'
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "countryName": "Italy",
+    "todayConfirmed": 7375,
+    "ytdConfirmed": 5883,
+    "diffConfirmed": 1492,
+    "todayDeath": 366,
+    "ytdDeath": 233,
+    "diffDeath": 133,
+    "todayRecover": 622,
+    "ytdRecover": 589,
+    "diffRecover": 33,
+    "today": "2020-03-09T00:00:00.000Z",
+    "ytd": "2020-03-08T00:00:00.000Z"
+  }
+]
+ */
 // router.get('/diff/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
 //   try {
 //     const { sort = 'confirmed' } = req.query;

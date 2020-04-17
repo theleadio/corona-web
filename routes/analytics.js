@@ -5,14 +5,16 @@ const db = require('../system/database')
 const cache = require('../system/redis-cache')
 const router = express.Router()
 
-// /**
-//  * @api {get} /analytics/trend
-//  * @apiName FetchAnalyticsTrendByDate
-//  * @apiGroup Analytics
-//  * 
-//  * @apiParam {Date} [start_date] Required Start date
-//  * @apiParam {Date} [end_date] Required end date
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /analytics/trend
+ * @apiName FetchAnalyticsTrendByDate
+ * @apiGroup Analytics
+ *
+ * @apiParam {Date} [start_date] Required Start date
+ * @apiParam {Date} [end_date] Required end date
+ */
 // router.get('/trend', cache.route(), asyncHandler(async function(req, res, next) {
 //   const start_date = req.query.start_date
 //   const end_date = req.query.end_date
@@ -41,15 +43,17 @@ const router = express.Router()
 //   }
 // }))
 
-// /**
-//  * @api {get} /analytics/trend/country
-//  * @apiName FetchAnalyticsTrendByCountryAndDate
-//  * @apiGroup Analytics
-//  *
-//  * @apiParam {String} [country_code] Required Country code
-//  * @apiParam {Date} [start_date] Required Start date
-//  * @apiParam {Date} [end_date] Required end date
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /analytics/trend/country
+ * @apiName FetchAnalyticsTrendByCountryAndDate
+ * @apiGroup Analytics
+ *
+ * @apiParam {String} [country_code] Required Country code
+ * @apiParam {Date} [start_date] Required Start date
+ * @apiParam {Date} [end_date] Required end date
+ */
 // router.get('/trend/country', cache.route(), asyncHandler(async function(req, res, next) {
 //   const country_code = req.query.country_code
 //   const start_date = req.query.start_date
@@ -79,13 +83,15 @@ const router = express.Router()
 //   }
 // }))
 
-// /**
-//  * @api {get} /analytics/area
-//  * @apiName FetchMostAffectedbyArea
-//  * @apiGroup Analytics
-//  * 
-//  * @apiParam {Integer} [limit] Optional limit the number of results
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /analytics/area
+ * @apiName FetchMostAffectedbyArea
+ * @apiGroup Analytics
+ *
+ * @apiParam {Integer} [limit] Optional limit the number of results
+ */
 // router.get('/area', cache.route(), asyncHandler(async function(req, res, next) {
 //   let limit = 10
 
@@ -108,14 +114,16 @@ const router = express.Router()
 //   }
 // }))
 
-// /**
-//  * @api {get} /analytics/country
-//  * @apiName FetchAffectedCountries
-//  * @apiGroup Analytics
-//  * 
-//  * @apiParam {Integer} [limit] Optional limit the number of results
-//  * @apiParam {Date} [date] Optional. Get results for that date
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /analytics/country
+ * @apiName FetchAffectedCountries
+ * @apiGroup Analytics
+ *
+ * @apiParam {Integer} [limit] Optional limit the number of results
+ * @apiParam {Date} [date] Optional. Get results for that date
+ */
 // router.get('/country', cache.route(), asyncHandler(async function(req, res, next) {
 //   let limit = 200
 //   let date = null

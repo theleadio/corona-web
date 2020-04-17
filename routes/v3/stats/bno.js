@@ -21,37 +21,39 @@ const { cacheCheck } = require('../../../services/cacheMiddleware');
 //   }
 // }));
 
-//  /**
-//  * @api {get} /v3/stats/bno/daily_cases Daily cases
-//  * @apiName daily_cases
-//  * @apiGroup Stats - BNO
-//  * @apiVersion 3.0.0
-//  * @apiDescription Return list of daily cases for each country
-//  * @apiSuccessExample Response (example):
-//  * HTTP/1.1 200 Success
-// [
-//   {
-//     "countryCode": "AD",
-//     "country": "Andorra",
-//     "dailyConfirmed": 14,
-//     "ytdDailyConfirmed": 14,
-//     "diffDailyConfirmed": 0,
-//     "pctDiffconfirmed": 0,
-//     "dailyDeaths": 0,
-//     "ytdDailyDeaths": 0,
-//     "diffDailyDeaths": 0,
-//     "todayRecovered": 0,
-//     "ytdRecovered": 0,
-//     "diffDailyRecovered": 0,
-//     "tdyFR": 0,
-//     "ytdFR": 0,
-//     "tdyPR": 0,
-//     "ytdPR": 0,
-//     "today": "2020-03-17T23:50:05.000Z",
-//     "ytd": "2020-03-16T23:50:05.000Z"
-//   }
-// ]
-//  */
+ /**
+  * @apiDeprecated
+  * @apiPrivate
+  * @api {get} /v3/stats/bno/daily_cases Daily cases
+  * @apiName daily_cases
+  * @apiGroup Stats - BNO
+  * @apiVersion 3.0.0
+  * @apiDescription Return list of daily cases for each country
+  * @apiSuccessExample Response (example):
+  * HTTP/1.1 200 Success
+[
+  {
+    "countryCode": "AD",
+    "country": "Andorra",
+    "dailyConfirmed": 14,
+    "ytdDailyConfirmed": 14,
+    "diffDailyConfirmed": 0,
+    "pctDiffconfirmed": 0,
+    "dailyDeaths": 0,
+    "ytdDailyDeaths": 0,
+    "diffDailyDeaths": 0,
+    "todayRecovered": 0,
+    "ytdRecovered": 0,
+    "diffDailyRecovered": 0,
+    "tdyFR": 0,
+    "ytdFR": 0,
+    "tdyPR": 0,
+    "ytdPR": 0,
+    "today": "2020-03-17T23:50:05.000Z",
+    "ytd": "2020-03-16T23:50:05.000Z"
+  }
+]
+ */
 // router.get('/daily_cases', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
 
 //   try {
@@ -64,36 +66,38 @@ const { cacheCheck } = require('../../../services/cacheMiddleware');
 //   }
 // }));
 
-// /**
-//  * @api {get} /v3/stats/bno/daily_cases/country Daily cases by country
-//  * @apiName daily_cases/country
-//  * @apiGroup Stats - BNO
-//  * @apiVersion 3.0.0
-//  * @apiDescription Return the daily cases for specific country
-//  * @apiParam {String} countryCode The country to retrieve the stats for
-//  * @apiSuccessExample Response (example):
-//  * HTTP/1.1 200 Success
-// {
-//   "countryCode": "SG",
-//   "country": "Singapore",
-//   "dailyConfirmed": 200,
-//   "ytdDailyConfirmed": 178,
-//   "diffDailyConfirmed": 22,
-//   "pctDiffconfirmed": 5.82010582010582,
-//   "dailyDeaths": 0,
-//   "ytdDailyDeaths": 0,
-//   "diffDailyDeaths": 0,
-//   "todayRecovered": 97,
-//   "ytdRecovered": 96,
-//   "diffDailyRecovered": 1,
-//   "tdyFR": 0,
-//   "ytdFR": 0,
-//   "tdyPR": 25.66137566137566,
-//   "ytdPR": 53.93258426966292,
-//   "today": "2020-03-13T23:50:05.000Z",
-//   "ytd": "2020-03-12T23:50:05.000Z"
-// }
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /v3/stats/bno/daily_cases/country Daily cases by country
+ * @apiName daily_cases/country
+ * @apiGroup Stats - BNO
+ * @apiVersion 3.0.0
+ * @apiDescription Return the daily cases for specific country
+ * @apiParam {String} countryCode The country to retrieve the stats for
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+{
+  "countryCode": "SG",
+  "country": "Singapore",
+  "dailyConfirmed": 200,
+  "ytdDailyConfirmed": 178,
+  "diffDailyConfirmed": 22,
+  "pctDiffconfirmed": 5.82010582010582,
+  "dailyDeaths": 0,
+  "ytdDailyDeaths": 0,
+  "diffDailyDeaths": 0,
+  "todayRecovered": 97,
+  "ytdRecovered": 96,
+  "diffDailyRecovered": 1,
+  "tdyFR": 0,
+  "ytdFR": 0,
+  "tdyPR": 25.66137566137566,
+  "ytdPR": 53.93258426966292,
+  "today": "2020-03-13T23:50:05.000Z",
+  "ytd": "2020-03-12T23:50:05.000Z"
+}
+ */
 // router.get('/daily_cases/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
 //   const { countryCode } = req.query;
 //   try {
@@ -106,27 +110,29 @@ const { cacheCheck } = require('../../../services/cacheMiddleware');
 //   }
 // }));
 
-// /**
-//  * @api {get} /v3/stats/bno/total_daily_cases/country Total daily cases by country
-//  * @apiName total_daily_cases/country
-//  * @apiGroup Stats - BNO
-//  * @apiVersion 3.0.0
-//  * @apiDescription Return the total daily cases for specific country
-//  * @apiParam {String} countryCode The country to retrieve the stats for
-//  * @apiSuccessExample Response (example):
-//  * HTTP/1.1 200 Success
-// {
-//   "countryCode": "MY",
-//   "countryName": "Malaysia",
-//   "confirmed": 673,
-//   "deaths": 2,
-//   "recovered": 49,
-//   "critical": 0,
-//   "serious": 12,
-//   "activeCases": 624,
-//   "created": "2020-03-18T03:35:05.000Z"
-// }
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /v3/stats/bno/total_daily_cases/country Total daily cases by country
+ * @apiName total_daily_cases/country
+ * @apiGroup Stats - BNO
+ * @apiVersion 3.0.0
+ * @apiDescription Return the total daily cases for specific country
+ * @apiParam {String} countryCode The country to retrieve the stats for
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+{
+  "countryCode": "MY",
+  "countryName": "Malaysia",
+  "confirmed": 673,
+  "deaths": 2,
+  "recovered": 49,
+  "critical": 0,
+  "serious": 12,
+  "activeCases": 624,
+  "created": "2020-03-18T03:35:05.000Z"
+}
+ */
 // router.get('/total_daily_cases/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
 //   const { countryCode } = req.query;
 //   try {
@@ -139,28 +145,30 @@ const { cacheCheck } = require('../../../services/cacheMiddleware');
 //   }
 // }));
 
-// /**
-//  * @api {get} /v3/stats/bno/total_daily_cases Total daily cases
-//  * @apiName total_daily_cases
-//  * @apiGroup Stats - BNO
-//  * @apiVersion 3.0.0
-//  * @apiDescription Return list of total daily cases for each country
-//  * @apiSuccessExample Response (example):
-//  * HTTP/1.1 200 Success
-// [
-//   {
-//     "countryCode": "TR",
-//     "countryName": "Turkey",
-//     "confirmed": 98,
-//     "deaths": 1,
-//     "recovered": 0,
-//     "critical": 0,
-//     "serious": 0,
-//     "activeCases": 98,
-//     "created": "2020-03-18T03:35:05.000Z"
-//   }
-// ]
-//  */
+/**
+ * @apiDeprecated
+ * @apiPrivate
+ * @api {get} /v3/stats/bno/total_daily_cases Total daily cases
+ * @apiName total_daily_cases
+ * @apiGroup Stats - BNO
+ * @apiVersion 3.0.0
+ * @apiDescription Return list of total daily cases for each country
+ * @apiSuccessExample Response (example):
+ * HTTP/1.1 200 Success
+[
+  {
+    "countryCode": "TR",
+    "countryName": "Turkey",
+    "confirmed": 98,
+    "deaths": 1,
+    "recovered": 0,
+    "critical": 0,
+    "serious": 0,
+    "activeCases": 98,
+    "created": "2020-03-18T03:35:05.000Z"
+  }
+]
+ */
 // router.get('/total_daily_cases', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
 
 //   try {
