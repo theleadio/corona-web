@@ -76,7 +76,7 @@ router.get('/trend/country', cache.route(), asyncHandler(async function(req, res
 
 /**
  * @api {get} /v3/analytics/newcases/country get data of a country between start and end dates
- * @apiName getTrendByCountry
+ * @apiName getNewCasesByCountry
  * @apiGroup Analytics
  *
  * @apiParam {String} [countryCode] Required Country code(s)
@@ -201,6 +201,7 @@ ORDER BY tt.last_updated ASC;`
   let result = await conn.query(query, args)
   return result[0]
 }
+
 
 
 async function fetchNewCasesByCountryAndDate(country_codes, start_date, end_date) {
