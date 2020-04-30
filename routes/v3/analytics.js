@@ -203,6 +203,7 @@ ORDER BY tt.last_updated ASC;`
 }
 
 
+
 async function fetchNewCasesByCountryAndDate(country_codes, start_date, end_date) {
   if (!start_date || !end_date) {
     throw new Error('Invalid start date or end date.');
