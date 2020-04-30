@@ -76,7 +76,7 @@ router.get('/trend/country', cache.route(), asyncHandler(async function(req, res
 
 /**
  * @api {get} /v3/analytics/newcases/country get data of a country between start and end dates
- * @apiName getTrendByCountry
+ * @apiName getNewCasesByCountry
  * @apiGroup Analytics
  *
  * @apiParam {String} [countryCode] Required Country code(s)
