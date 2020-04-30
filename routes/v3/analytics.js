@@ -75,7 +75,7 @@ router.get('/trend/country', cache.route(), asyncHandler(async function(req, res
 }))
 
 /**
- * @api {get} /v3/analytics/newcases/country get data of a country between start and end dates
+ * @api {get} /v3/analytics/newcases/country get daily new incidences of a country between start and end dates
  * @apiName getNewCasesByCountry
  * @apiGroup Analytics
  *
@@ -224,16 +224,16 @@ async function fetchNewCasesByCountryAndDate(country_codes, start_date, end_date
 
   const query = `
   SELECT country
-  , IFNULL(total_confirmed - LAG(total_confirmed) over w, 0) as new_infections
-  , IFNULL(total_deaths - LAG(total_deaths) over w, 0) as new_deaths
-  , IFNULL(total_recovered - LAG(total_recovered) over w, 0) as new_recovered
   , last_updated
+  , new_confirmed as new_infections
+  , new_deaths
+  , GREATEST(IFNULL(total_recovered - LAG(total_recovered) over w, 0),0) as new_recovered
   FROM
   (
   SELECT 
   tt.country
-  , MAX(tt.total_cases) AS total_confirmed
-  , MAX(tt.total_deaths) AS total_deaths
+  , MAX(tt.new_cases) AS new_confirmed
+  , MAX(tt.new_deaths) AS new_deaths
   , MAX(tt.total_recovered) AS total_recovered
   , MAX(date(tt.last_updated)) AS last_updated
   FROM worldometers tt

@@ -49,6 +49,43 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/v3/analytics/newcases/country",
+    "title": "get daily new incidences of a country between start and end dates",
+    "name": "getNewCasesByCountry",
+    "group": "Analytics",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "countryCode",
+            "description": "<p>Required Country code(s)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Date",
+            "optional": true,
+            "field": "startDate",
+            "description": "<p>Required Start date</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Date",
+            "optional": true,
+            "field": "endDate",
+            "description": "<p>Required end date</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/v3/analytics.js",
+    "groupTitle": "Analytics"
+  },
+  {
+    "type": "get",
     "url": "/v3/analytics/trend/country",
     "title": "get data of a country between start and end dates",
     "name": "getTrendByCountry",
