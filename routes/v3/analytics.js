@@ -157,15 +157,11 @@ async function fetchTrendByCountryAndDate(country_codes, start_date, end_date) {
 
   const conn = db.conn.promise()
   let args = [start_date, end_date]
-  let countryCodeQuery = ""
-  let countryCodeQueryParam = []
 
-  if (country_codes) {
-    country_codes.split(',').forEach(element => {
-      countryCodeQueryParam.push(`?`)
-      args.push(element)
-    });
-    countryCodeQuery = `AND ac.country_code in (` + countryCodeQueryParam.join(',') + `)`
+  if (!country_codes) {
+    throw new Error('v3/analytics/fetchTrendByCountryAndDate - req.query.countryCode is invalid or null');
+  } else {
+    args.push(country_codes);
   }
 
   const query = `
@@ -195,7 +191,7 @@ FROM apps_countries
 AS ac ON tt.country = ac.country_alias
 WHERE tt.last_updated >= ?
 AND tt.last_updated <= ?
-${countryCodeQuery}
+AND ac.country_code in (?)
 GROUP BY date(tt.last_updated), tt.country
 ORDER BY tt.last_updated ASC;`
   let result = await conn.query(query, args)
@@ -211,15 +207,11 @@ async function fetchNewCasesByCountryAndDate(country_codes, start_date, end_date
 
   const conn = db.conn.promise()
   let args = [start_date, end_date]
-  let countryCodeQuery = ""
-  let countryCodeQueryParam = []
 
-  if (country_codes) {
-    country_codes.split(',').forEach(element => {
-      countryCodeQueryParam.push(`?`)
-      args.push(element)
-    });
-    countryCodeQuery = `AND ac.country_code in (` + countryCodeQueryParam.join(',') + `)`
+  if (!country_codes) {
+    throw new Error('v3/analytics/fetchNewCasesByCountryAndDate - req.query.countryCode is invalid or null');
+  } else {
+    args.push(country_codes);
   }
 
   const query = `
@@ -256,7 +248,7 @@ async function fetchNewCasesByCountryAndDate(country_codes, start_date, end_date
   AS ac ON tt.country = ac.country_alias
   WHERE tt.last_updated >= ?
   AND tt.last_updated <= ?
-  ${countryCodeQuery}
+  AND ac.country_code in (?)
   GROUP BY date(tt.last_updated), tt.country
   ORDER BY tt.last_updated ASC
   ) country_trend
