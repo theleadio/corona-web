@@ -123,7 +123,7 @@ async function fetchTopCountryWithDailyNewStatsSortByNewCases(limit = 10) {
   INNER JOIN
   (
     SELECT country,
-    max(last_updated) AS MaxDateTime
+    MAX(last_updated) AS MaxDateTime
     FROM worldometers tt
     WHERE country NOT in ("Sint Maarten","Congo", "South Korea", "Czechia Republic", "Czech Republic", "Others")
     GROUP BY country
@@ -141,7 +141,7 @@ async function fetchTopCountryWithDailyNewStatsSortByNewCases(limit = 10) {
   )
   AS ac ON tt.country = ac.country_alias
   GROUP BY tt.country
-  ORDER BY tt.new_cases DESC
+  ORDER BY MAX(tt.new_cases) DESC
   LIMIT ?`
 
   const args = [limit]
