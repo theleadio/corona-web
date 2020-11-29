@@ -52,12 +52,12 @@ router.get('/trend/country', cache.route(), asyncHandler(async function(req, res
     moment(startDate, 'YYYY-MM-DD').format('YYYY-MM-DD') !== startDate ||
     moment(endDate, 'YYYY-MM-DD').format('YYYY-MM-DD') !== endDate
   ) {
-    res.status(400).json('Invalid date format. Date format of startDate and endDate should be YYYY-MM-DD');
+    return res.status(400).json('Invalid date format. Date format of startDate and endDate should be YYYY-MM-DD');
   }
 
   // Make sure endDate is after startDate
   if (moment(endDate).isBefore(startDate)) {
-    res.status(400).json('Invalid date');
+    return res.status(400).json('Invalid date');
   }
 
   try {
