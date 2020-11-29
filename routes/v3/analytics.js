@@ -16,6 +16,10 @@ const { cacheCheck } = require('../../services/cacheMiddleware');
  * @apiParam {Number} [limit=10] limit the number of results
  */
 router.get('/dailyNewStats', cache.route(), asyncHandler(async function(req, res, next) {
+  return res.status(301).json({
+    message: 'This endpoint is deprecated. Please use /v5/analytics/dailyNewStats instead.'
+  });
+
   let limit = 10
 
   if (req.query.hasOwnProperty('limit')) {
@@ -45,6 +49,10 @@ router.get('/dailyNewStats', cache.route(), asyncHandler(async function(req, res
  * @apiParam {Date} [endDate] Required end date
  */
 router.get('/trend/country', cache.route(), asyncHandler(async function(req, res, next) {
+  return res.status(301).json({
+    message: 'This endpoint is deprecated. Please use /v5/analytics/trend/country instead.'
+  });
+
   const country_codes = req.query.countryCode
   const start_date = req.query.startDate
   const end_date = req.query.endDate
@@ -84,6 +92,10 @@ router.get('/trend/country', cache.route(), asyncHandler(async function(req, res
  * @apiParam {Date} [endDate] Required end date
  */
 router.get('/newcases/country', cache.route(), asyncHandler(async function(req, res, next) {
+  return res.status(301).json({
+    message: 'This endpoint is deprecated. Please use /v5/analytics/newcases/country instead.'
+  });
+
   const country_codes = req.query.countryCode
   const start_date = req.query.startDate
   const end_date = req.query.endDate
@@ -197,8 +209,6 @@ ORDER BY tt.last_updated ASC;`
   let result = await conn.query(query, args)
   return result[0]
 }
-
-
 
 async function fetchNewCasesByCountryAndDate(country_codes, start_date, end_date) {
   if (!start_date || !end_date) {

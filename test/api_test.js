@@ -178,33 +178,33 @@ describe("Get worldometer total trending cases", function() {
 });
 
 //4
-describe("Get worldometer dailyNewStats (analytics)", function() {
-  it("Should retrieve dailyNewStats", (done) => {
-    chai.request(server)
-      .get("/v3/analytics/dailyNewStats")
-      .end((err, result) => {
-        result.should.have.status(200)
-
-        const numResults = result.body.length;
-        assert(numResults > 0, `Expect to have more than 0 results but got ${numResults}.`)
-        done();
-      });
-  });
-
-  it("Should retrieve trending cases by limit", (done) => {
-    const limit = 2;
-
-    chai.request(server)
-      .get(`/v3/analytics/dailyNewStats?limit=${limit}`)
-      .end((err, result) => {
-        result.should.have.status(200)
-
-        const numResults = result.body.length;
-        assert(numResults === limit, `Expect to have ${limit} results but got ${numResults}.`);
-        done();
-      });
-  });
-});
+// describe("Get worldometer dailyNewStats (analytics)", function() {
+//   it("Should retrieve dailyNewStats", (done) => {
+//     chai.request(server)
+//       .get("/v3/analytics/dailyNewStats")
+//       .end((err, result) => {
+//         result.should.have.status(200)
+//
+//         const numResults = result.body.length;
+//         assert(numResults > 0, `Expect to have more than 0 results but got ${numResults}.`)
+//         done();
+//       });
+//   });
+//
+//   it("Should retrieve trending cases by limit", (done) => {
+//     const limit = 2;
+//
+//     chai.request(server)
+//       .get(`/v3/analytics/dailyNewStats?limit=${limit}`)
+//       .end((err, result) => {
+//         result.should.have.status(200)
+//
+//         const numResults = result.body.length;
+//         assert(numResults === limit, `Expect to have ${limit} results but got ${numResults}.`);
+//         done();
+//       });
+//   });
+// });
 
 //5
 describe("Get worldometer 1 country stats", function() {
@@ -229,7 +229,7 @@ describe("Get worldometer trend data of country", function() {
     const expectedResponse = "Invalid date format"
 
     chai.request(server)
-      .get("/v3/analytics/trend/country")
+      .get("/v5/analytics/trend/country")
       .end((err, result) => {
         result.should.have.status(400);
 
@@ -241,7 +241,7 @@ describe("Get worldometer trend data of country", function() {
 
   it("Should get data of a single country (analytics)", (done) => {
     chai.request(server)
-      .get("/v3/analytics/trend/country?countryCode=MY&startDate=2020-03-20&endDate=2020-03-24")
+      .get("/v5/analytics/trend/country?countryCode=MY&startDate=2020-03-20&endDate=2020-03-24")
       .end((err, result) => {
         result.should.have.status(200);
 
@@ -271,7 +271,7 @@ describe("Get worldometer stats", function() {
 describe("Get analytics per country", function() {
   it("Should get ", (done) => {
     chai.request(server)
-      .get("/v2/analytics/country")
+      .get("/v5/analytics/country")
       .end((err, result) => {
         result.should.have.status(200);
 
@@ -316,7 +316,7 @@ describe("Get trending news", function() {
 describe("Get worldonmeter trend data of multiple countries (analytics)", function() {
   it("Should get ", (done) => {
     chai.request(server)
-      .get("/v3/analytics/trend/country?countryCode=MY,CN&startDate=2020-03-20&endDate=2020-03-24")
+      .get("/v5/analytics/trend/country?countryCode=MY,CN&startDate=2020-03-20&endDate=2020-03-24")
       .end((err, result) => {
         result.should.have.status(200)
 

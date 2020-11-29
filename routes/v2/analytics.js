@@ -87,6 +87,10 @@ const { cacheCheck } = require('../../services/cacheMiddleware');
  * @apiParam {Number} [limit=200] limit the number of results
  */
 router.get('/country', cacheCheck, cache.route(), asyncHandler(async function(req, res, next) {
+  return res.status(301).json({
+    message: 'This endpoint is deprecated. Please use /v5/analytics/country instead.'
+  });
+
   let limit = 200
   let date = null
 
