@@ -267,20 +267,20 @@ describe("Get worldometer stats", function() {
   });
 });
 
-//8
-describe("Get analytics per country", function() {
-  it("Should get ", (done) => {
-    chai.request(server)
-      .get("/v5/analytics/country")
-      .end((err, result) => {
-        result.should.have.status(200);
-
-        const numCountries = result.body.length;
-        assert(numCountries > 0, `Expect to have more than 0 countries but got ${numCountries}.`);
-        done();
-      });
-  });
-});
+//8 Deprecated
+// describe("Get analytics per country", function() {
+//   it("Should get ", (done) => {
+//     chai.request(server)
+//       .get("/v5/analytics/country")
+//       .end((err, result) => {
+//         result.should.have.status(200);
+//
+//         const numCountries = result.body.length;
+//         assert(numCountries > 0, `Expect to have more than 0 countries but got ${numCountries}.`);
+//         done();
+//       });
+//   });
+// });
 
 //9
 describe("Get news", function() {
@@ -312,20 +312,20 @@ describe("Get trending news", function() {
   })
 })
 
-//11
-describe("Get worldometer trend data of multiple countries (analytics)", function() {
-  it("Should get ", (done) => {
-    chai.request(server)
-      .get("/v5/analytics/trend/country?countryCode=MY,CN&startDate=2020-03-20&endDate=2020-03-24")
-      .end((err, result) => {
-        result.should.have.status(200)
-
-        const numResults = result.body.length;
-        assert(numResults > 0, `Expect to have more than 0 results but got ${numResults}.`);
-        done();
-      });
-  });
-});
+//11: Multiple countries are Not supported
+// describe("Get worldometer trend data of multiple countries (analytics)", function() {
+//   it("Should get ", (done) => {
+//     chai.request(server)
+//       .get("/v5/analytics/trend/country?countryCode=MY,CN&startDate=2020-03-20&endDate=2020-03-24")
+//       .end((err, result) => {
+//         result.should.have.status(200)
+//
+//         const numResults = result.body.length;
+//         assert(numResults > 0, `Expect to have more than 0 results but got ${numResults}.`);
+//         done();
+//       });
+//   });
+// });
 
 //12
 describe("Get healthcare institutions", function() {
