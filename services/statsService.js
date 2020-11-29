@@ -33,8 +33,8 @@ async function getStatsWithCountryDetail(limit = 999, date = null) {
 SELECT
   AC.country_code AS countryCode,
   IFNULL(AC.country_name, A.country) AS countryName,
-  AC.latitude + 0.0 AS lat,
-  AC.longitude + 0.0 AS lng,
+  MAX(AC.latitude + 0.0) AS lat,
+  MAX(AC.longitude + 0.0) AS lng,
   CAST(SUM(A.confirmed) AS UNSIGNED) as confirmed,
   CAST(SUM(A.deaths) AS UNSIGNED) as deaths,
   CAST(SUM(A.recovered) AS UNSIGNED) as recovered,
@@ -192,29 +192,31 @@ async function getCountryStats(sort = '-confirmed', limit=999, countryCode = nul
       throw new Error('Invalid sort: ' + sort);
     }
 
-    orderByClause = ` ORDER BY ${conn.escapeId(orderByValue)} ${direction}`;
+    orderByClause = ` ORDER BY MAX(${conn.escapeId(orderByValue)}) ${direction}`;
   }
 
   args.push(limit)
 
+  // @TODO: refactor the sql query.
   let query = `
   SELECT
-  ac.country_code AS countryCode,
+  MAX(ac.country_code) AS countryCode,
   tt.country,
-  ac.latitude + 0.0 AS lat,
-  ac.longitude + 0.0 AS lng,
-  tt.total_cases AS totalConfirmed,
-  tt.total_deaths AS totalDeaths,
-  tt.total_recovered AS totalRecovered,
-  tt.new_cases AS dailyConfirmed,
-  tt.new_deaths AS dailyDeaths,
-  tt.active_cases AS activeCases,
-  tt.serious_critical_cases AS totalCritical,
-  CAST(tt.total_cases_per_million_pop AS UNSIGNED) AS totalConfirmedPerMillionPopulation,
-  CAST(tt.total_deaths_per_million_pop AS UNSIGNED) AS totalDeathsPerMillionPopulation,
-  (tt.total_deaths / tt.total_cases * 100) AS FR,
-  (tt.total_recovered / tt.total_cases * 100) AS PR,
-  tt.last_updated AS lastUpdated
+  tt.country AS countryName,
+  MAX(ac.latitude + 0.0) AS lat,
+  MAX(ac.longitude + 0.0) AS lng,
+  MAX(tt.total_cases) AS totalConfirmed,
+  MAX(tt.total_deaths) AS totalDeaths,
+  MAX(tt.total_recovered) AS totalRecovered,
+  MAX(tt.new_cases) AS dailyConfirmed,
+  MAX(tt.new_deaths) AS dailyDeaths,
+  MAX(tt.active_cases) AS activeCases,
+  MAX(tt.serious_critical_cases) AS totalCritical,
+  MAX(CAST(tt.total_cases_per_million_pop AS UNSIGNED)) AS totalConfirmedPerMillionPopulation,
+  MAX(CAST(tt.total_deaths_per_million_pop AS UNSIGNED)) AS totalDeathsPerMillionPopulation,
+  MAX((tt.total_deaths / tt.total_cases * 100)) AS FR,
+  MAX((tt.total_recovered / tt.total_cases * 100)) AS PR,
+  MAX(tt.last_updated) AS lastUpdated
   FROM worldometers tt
   INNER JOIN
   (
