@@ -150,18 +150,20 @@ async function fetchTopCountryWithDailyNewStatsSortByNewCases(limit = 10) {
 }
 
 async function fetchTrendByCountryAndDate(countryCode, startDate, endDate) {
-  if (!startDate || !endDate) {
-    throw new Error('Invalid start date or end date.');
+  if (!startDate) {
+    throw new Error('Expect to have start date but got null.')
+  }
+
+  if (!endDate) {
+    throw new Error('Expect to have end date but got null.')
+  }
+
+  if (!countryCode) {
+    throw new Error('Expect to have countryCode but got null.')
   }
 
   const conn = db.conn.promise()
-  let args = [startDate, endDate]
-
-  if (!countryCode) {
-    throw new Error('v5/analytics/fetchTrendByCountryAndDate - req.query.countryCode is invalid or null');
-  } else {
-    args.push(countryCode);
-  }
+  const args = [startDate, endDate, countryCode]
 
   const query = `
 SELECT ac.country_code,
