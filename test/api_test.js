@@ -313,7 +313,7 @@ describe("Get trending news", function() {
 })
 
 //11
-describe("Get worldonmeter trend data of multiple countries (analytics)", function() {
+describe("Get worldometer trend data of multiple countries (analytics)", function() {
   it("Should get ", (done) => {
     chai.request(server)
       .get("/v5/analytics/trend/country?countryCode=MY,CN&startDate=2020-03-20&endDate=2020-03-24")
