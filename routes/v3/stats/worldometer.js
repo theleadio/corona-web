@@ -204,10 +204,13 @@ async function getTotalTrendingCases(limit=999) {
   let args = [parseInt(limit)]
 
   let query = `
-  SELECT MAX(total_cases) AS totalConfirmed, total_deaths as totalDeaths, total_recovered as totalRecovered, last_updated as lastUpdated
+  SELECT MAX(total_cases) AS totalConfirmed,
+  MAX(total_deaths) as totalDeaths,
+  MAX(total_recovered) as totalRecovered,
+  date(last_updated) as lastUpdated
   FROM worldometers_total_sum
   GROUP BY date(last_updated)
-  ORDER BY last_updated DESC
+  ORDER BY date(last_updated) DESC
   LIMIT ?
 `;
 
