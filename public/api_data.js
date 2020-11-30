@@ -25,6 +25,30 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/v5/analytics/dailyNewStats",
+    "title": "By new daily cases and deaths",
+    "name": "fetchTopCountryWithDailyNewStatsSortByNewCases",
+    "group": "Analytics",
+    "version": "5.0.0",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "limit",
+            "defaultValue": "10",
+            "description": "<p>limit the number of results</p>"
+          }
+        ]
+      }
+    },
+    "filename": "routes/v5/analytics.js",
+    "groupTitle": "Analytics"
+  },
+  {
+    "type": "get",
     "url": "/v3/analytics/dailyNewStats",
     "title": "By new daily cases and deaths",
     "name": "fetchTopCountryWithDailyNewStatsSortByNewCases",
@@ -45,6 +69,80 @@ define({ "api": [
       }
     },
     "filename": "routes/v3/analytics.js",
+    "groupTitle": "Analytics"
+  },
+  {
+    "type": "get",
+    "url": "/v5/analytics/newcases/country",
+    "title": "get daily new incidences of a country between start and end dates",
+    "name": "getNewCasesByCountry",
+    "group": "Analytics",
+    "version": "5.0.0",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "countryCode",
+            "description": "<p>Required Country code</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Date",
+            "optional": true,
+            "field": "startDate",
+            "description": "<p>Required Start date</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Date",
+            "optional": true,
+            "field": "endDate",
+            "description": "<p>Required end date</p>"
+          }
+        ]
+      }
+    },
+    "filename": "routes/v5/analytics.js",
+    "groupTitle": "Analytics"
+  },
+  {
+    "type": "get",
+    "url": "/v4/analytics/newcases/country",
+    "title": "get daily new incidences of a country between start and end dates",
+    "name": "getNewCasesByCountry",
+    "group": "Analytics",
+    "version": "4.0.0",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "countryCode",
+            "description": "<p>Required Country code</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Date",
+            "optional": true,
+            "field": "startDate",
+            "description": "<p>Required Start date</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Date",
+            "optional": true,
+            "field": "endDate",
+            "description": "<p>Required end date</p>"
+          }
+        ]
+      }
+    },
+    "filename": "routes/v4/analytics.js",
     "groupTitle": "Analytics"
   },
   {
@@ -82,6 +180,80 @@ define({ "api": [
     },
     "version": "0.0.0",
     "filename": "routes/v3/analytics.js",
+    "groupTitle": "Analytics"
+  },
+  {
+    "type": "get",
+    "url": "/v5/analytics/trend/country",
+    "title": "get data of a country between start and end dates",
+    "name": "getTrendByCountry",
+    "group": "Analytics",
+    "version": "5.0.0",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "countryCode",
+            "description": "<p>Required Country code</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Date",
+            "optional": true,
+            "field": "startDate",
+            "description": "<p>Required Start date</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Date",
+            "optional": true,
+            "field": "endDate",
+            "description": "<p>Required end date</p>"
+          }
+        ]
+      }
+    },
+    "filename": "routes/v5/analytics.js",
+    "groupTitle": "Analytics"
+  },
+  {
+    "type": "get",
+    "url": "/v4/analytics/trend/country",
+    "title": "get data of a country between start and end dates",
+    "name": "getTrendByCountry",
+    "group": "Analytics",
+    "version": "4.0.0",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "countryCode",
+            "description": "<p>Required Country code</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Date",
+            "optional": true,
+            "field": "startDate",
+            "description": "<p>Required Start date</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Date",
+            "optional": true,
+            "field": "endDate",
+            "description": "<p>Required end date</p>"
+          }
+        ]
+      }
+    },
+    "filename": "routes/v4/analytics.js",
     "groupTitle": "Analytics"
   },
   {
