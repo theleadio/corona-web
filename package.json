@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "apidoc": "^0.20.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "cookie-parser": "~1.4.4",
