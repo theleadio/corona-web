@@ -29,7 +29,7 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: ["https://coronatracker.com", /\.coronatracker\.com$/] }));
 
 //rate limiting
 const rateLimitTimeMinutes = process.env.RATE_LIMIT_TIME_MINUTES;
