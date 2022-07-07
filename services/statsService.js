@@ -255,18 +255,36 @@ async function getCountryStats(sort = '-confirmed', limit=999, countryCode = nul
   return updatedData
 }
 
+async function getCountryAliasByCountryCode(countryCode) {
+  const conn = db.conn.promise();
+  const query = `
+SELECT
+  country_alias AS country,
+  latitude + 0.0 AS lat,
+  longitude + 0.0 AS lng
+FROM apps_countries
+WHERE country_code = ?
+LIMIT 1;
+`;
+  const args = [countryCode];
+  const result = await conn.query(query, args);
+  const { country, lat, lng } = result[0][0];
+  return { country, lat, lng };
+}
+
 async function getCountryStatsByCountryCode(countryCode) {
   if (!countryCode) {
     throw new Error('countryCode is required.');
   }
 
+  const { country, lat, lng } = await getCountryAliasByCountryCode(countryCode);
   const conn = db.conn.promise();
   const query = `
 SELECT
-  ac.country_code AS countryCode,
+  ? AS countryCode,
   tt.country,
-  ac.latitude + 0.0 AS lat,
-  ac.longitude + 0.0 AS lng,
+  ? AS lat,
+  ? AS lng,
   tt.total_cases AS totalConfirmed,
   tt.total_deaths AS totalDeaths,
   tt.total_recovered AS totalRecovered,
@@ -281,39 +299,43 @@ SELECT
   tt.last_updated AS lastUpdated
 FROM
   worldometers tt
-INNER JOIN
-  apps_countries ac ON ac.country_alias = tt.country AND ac.country_code = ?
+WHERE
+  tt.country = ?
 ORDER BY
   last_updated DESC
 LIMIT 1
 `;
 
-  const args = [countryCode];
+  const args = [countryCode, lat, lng, country];
   const result = await conn.query(query, args);
   const data = result[0][0];
+  return data;
 
-  let customStats;
-  try {
-    customStats = await getCustomStats();
-  }
-  catch (ex) {
-    console.log("[getCountryStatsByCountryCode][customStats] error:", ex);
-    return data;
-  }
+  /*
+    let customStats;
+    try {
+      customStats = await getCustomStats();
+    }
+    catch (ex) {
+      console.log("[getCountryStatsByCountryCode][customStats] error:", ex);
+      return data;
+    }
 
-  const countryCodeLowerCase = countryCode.toLowerCase();
-  const customCountryStat = customStats.find(c => c.countryCode && c.countryCode.toLowerCase() === countryCodeLowerCase);
+    const countryCodeLowerCase = countryCode.toLowerCase();
+    const customCountryStat = customStats.find(c => c.countryCode && c.countryCode.toLowerCase() === countryCodeLowerCase);
 
-  if (!customCountryStat) {
-    return data;
-  }
+    if (!customCountryStat) {
+      return data;
+    }
 
-  return {
-    ...data,
-    totalConfirmed: Math.max(data.totalConfirmed, customCountryStat.confirmed),
-    totalDeaths: Math.max(data.totalDeaths, customCountryStat.deaths),
-    totalRecovered: Math.max(data.totalRecovered, customCountryStat.recovered),
-  }
+
+    return {
+      ...data,
+      totalConfirmed: Math.max(data.totalConfirmed, customCountryStat.confirmed),
+      totalDeaths: Math.max(data.totalDeaths, customCountryStat.deaths),
+      totalRecovered: Math.max(data.totalRecovered, customCountryStat.recovered),
+    }
+  */
 }
 
 async function updateCountryDetailStatsWithCustomStats(data, limit=999, getAllFlag=true, sort = '-confirmed') {
